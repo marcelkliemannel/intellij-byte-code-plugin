@@ -1,0 +1,61 @@
+<idea-plugin>
+  <id>dev.turingcomplete.intellijbytecodeplugin</id>
+  <name>Byte Code Viewer/Editor</name>
+  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+
+  <description><![CDATA[
+    Enter short description for your plugin here.<br>
+    <em>most HTML tags may be used</em>
+    ]]></description>
+
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.java</depends>
+
+  <extensionPoints>
+    <extensionPoint name="openClassFilesAction"
+                    interface="dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction"/>
+    <extensionPoint name="byteCodeTool" interface="dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool"/>
+    <extensionPoint name="byteCodeViewCreator"
+                    interface="dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeView$Creator"/>
+    <extensionPoint name="byteCodeAction"
+                    interface="dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction"/>
+  </extensionPoints>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <toolWindow id="Byte Code" factoryClass="dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindow"
+                anchor="right" canCloseContents="true" secondary="true"
+                icon="dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodePluginIcons.TOOL_WINDOW_ICON"/>
+
+    <notificationGroup displayType="BALLOON" id="org.example.byte-code-analyser-intellij-plugin.notificationGroup"/>
+  </extensions>
+
+  <extensions defaultExtensionNs="dev.turingcomplete.intellijbytecodeplugin">
+    <openClassFilesAction
+            implementation="dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.CurrentEditorFileAction"/>
+    <openClassFilesAction
+            implementation="dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FileChooserAction"/>
+
+    <byteCodeTool implementation="dev.turingcomplete.intellijbytecodeplugin.tool._internal.AccessConverterTool"/>
+    <byteCodeTool implementation="dev.turingcomplete.intellijbytecodeplugin.tool._internal.SignatureParserTool"/>
+
+    <byteCodeViewCreator
+            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureView$MyCreator"/>
+    <byteCodeViewCreator
+            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.TextifiedView$MyCreator"/>
+    <byteCodeViewCreator
+            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._editor.EditorView$MyCreator"/>
+    <byteCodeViewCreator
+            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.AsmifiedView$MyCreator"/>
+
+    <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.VerifyByteCodeAction" />
+  </extensions>
+
+  <actions>
+    <action popup="true" id="dev.turingcomplete.intellijbytecodeplugin.analyzeBytecodeAction"
+            class="dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.AnalyzeBytecodeAction">
+      <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+      <add-to-group group-id="CodeMenu" anchor="last"/>
+      <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+    </action>
+  </actions>
+</idea-plugin>
