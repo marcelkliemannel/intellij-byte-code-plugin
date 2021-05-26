@@ -1,6 +1,7 @@
 package dev.turingcomplete.intellijbytecodeplugin.view
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.extensions.ExtensionPointName
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
@@ -8,7 +9,7 @@ import dev.turingcomplete.intellijbytecodeplugin.view._internal.ErrorStateHandle
 import javax.swing.Icon
 
 abstract class ByteCodeView(val classFileContext: ClassFileContext, val title: String, val icon: Icon)
-  : ErrorStateHandler(), Disposable {
+  : ErrorStateHandler(), Disposable, DataProvider {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
@@ -19,11 +20,6 @@ abstract class ByteCodeView(val classFileContext: ClassFileContext, val title: S
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
-
-  override fun doGetData(dataId: String): Any? = when {
-    CommonDataKeys.CLASS_FILE_CONTEXT_DATA_KEY.`is`(dataId) -> classFileContext
-    else -> null
-  }
 
   override fun dispose() {
     // Override if needed
@@ -36,6 +32,12 @@ abstract class ByteCodeView(val classFileContext: ClassFileContext, val title: S
 
   open fun doSelected() {
     // Override if needed
+  }
+
+  override fun getData(dataId: String): Any? = when {
+    CommonDataKeys.CLASS_FILE_CONTEXT_DATA_KEY.`is`(dataId) -> classFileContext
+    CommonDataKeys.ON_ERROR_DATA_KEY.`is`(dataId) -> { message: String, cause: Throwable -> onError(message, cause) }
+    else -> null
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //

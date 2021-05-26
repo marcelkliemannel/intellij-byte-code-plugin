@@ -27,6 +27,9 @@
                 icon="dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodePluginIcons.TOOL_WINDOW_ICON"/>
 
     <notificationGroup displayType="BALLOON" id="org.example.byte-code-analyser-intellij-plugin.notificationGroup"/>
+
+    <getDataRule key="dev.turingcomplete.intellijbytecodeplugin.classFileContext" implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$ClassFileContextDataRule"/>
+    <getDataRule key="dev.turingcomplete.intellijbytecodeplugin.onError" implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$OnErrorDataRule"/>
   </extensions>
 
   <extensions defaultExtensionNs="dev.turingcomplete.intellijbytecodeplugin">

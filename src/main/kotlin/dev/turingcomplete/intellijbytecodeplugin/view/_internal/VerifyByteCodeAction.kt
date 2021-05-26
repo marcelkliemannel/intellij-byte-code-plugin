@@ -10,11 +10,11 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextArea
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
-import dev.turingcomplete.intellijbytecodeplugin._other.AsyncUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideTopInset
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
+import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.analysis.AnalyzerException
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.CheckClassAdapter
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction

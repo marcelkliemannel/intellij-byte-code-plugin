@@ -33,6 +33,7 @@ import com.intellij.util.ui.UIUtil
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideLeftInset
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
+import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.ClassReader
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction.Companion.addAllByteCodeActions
@@ -211,7 +212,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
         ByteCodeParsingResult(text, lineOfMethod)
       }
     }
-    dev.turingcomplete.intellijbytecodeplugin._other.AsyncUtils.runAsync(classFileContext.project(), doParseByteCode, { result ->
+    AsyncUtils.runAsync(classFileContext.project(), doParseByteCode, { result ->
       goToMethods.clear()
       goToMethods.addAll(result.goToMethods.toList().sortedBy { it.second })
 

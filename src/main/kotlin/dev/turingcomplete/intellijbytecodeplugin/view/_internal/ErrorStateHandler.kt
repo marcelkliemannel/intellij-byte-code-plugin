@@ -1,7 +1,6 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.ui.SideBorder
 import com.intellij.ui.components.JBLabel
@@ -13,7 +12,6 @@ import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.rd.util.getThrowableText
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideTopInset
-import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.event.ActionEvent
@@ -25,7 +23,7 @@ abstract class ErrorStateHandler {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   private val inErrorState = AtomicBoolean()
-  private val componentContainer: BorderLayoutPanel by lazy { createComponentContainer() }
+  private val componentContainer = BorderLayoutPanel()
   private var centerComponent: JComponent? = null
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
@@ -42,8 +40,6 @@ abstract class ErrorStateHandler {
   protected abstract fun createCenterComponent(): JComponent
 
   protected abstract fun retry()
-
-  fun onError(): (String, Throwable) -> Unit = { message, cause -> onError(message, cause) }
 
   fun onError(message: String, cause: Throwable) {
     inErrorState.set(true)
@@ -79,20 +75,7 @@ abstract class ErrorStateHandler {
     }
   }
 
-  protected open fun doGetData(dataId: String): Any? {
-    // Override if needed
-    return null
-  }
-
   // -- Private Methods --------------------------------------------------------------------------------------------- //
-
-  private fun createComponentContainer(): BorderLayoutPanel = object : BorderLayoutPanel(), DataProvider {
-    override fun getData(dataId: String): Any? = when {
-      CommonDataKeys.ON_ERROR_DATA_KEY.`is`(dataId) -> onError()
-      else -> doGetData(dataId)
-    }
-  }
-
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
   private class ErrorStatePanel(message: String, cause: Throwable, retry: () -> Unit) : JPanel(GridBagLayout()) {

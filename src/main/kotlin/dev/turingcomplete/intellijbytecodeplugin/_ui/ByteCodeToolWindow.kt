@@ -3,10 +3,8 @@ package dev.turingcomplete.intellijbytecodeplugin._ui
 import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
@@ -14,11 +12,13 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
+import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.openapi.wm.ex.ToolWindowEx
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.content.ContentManager
+import com.intellij.util.castSafelyTo
 import com.intellij.util.ui.StatusText
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesListener
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
@@ -32,7 +32,16 @@ class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
-    private val LOG = Logger.getInstance(ByteCodeToolWindow::class.java)
+    const val ID = "Byte Code"
+
+    fun <T> getData(dataProvider: DataProvider, dataKey: DataKey<T>) : Any? {
+      val project = dataProvider.getData(PROJECT.name).castSafelyTo<Project>() ?: return null
+      val byteCodeToolWindow = ToolWindowManager.getInstance(project).getToolWindow(ID) ?: return null
+      return byteCodeToolWindow.contentManager.selectedContent
+              ?.getUserData(ClassFileTab.CLASS_FILE_TAB_KEY)
+              ?.selectedByteCodeView
+              ?.getData(dataKey.name)
+    }
   }
 
   // -- Properties -------------------------------------------------------------------------------------------------- //
@@ -40,6 +49,8 @@ class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
   override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+    assert(toolWindow.id == ID)
+
     Disposer.register(toolWindow.disposable, this)
 
     val toolWindowDropTarget = toolWindow.contentManager.component.dropTarget
@@ -158,11 +169,10 @@ class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
 
       val newClassFileTab = ClassFileTab(project, classFile)
       Disposer.register(this@ByteCodeToolWindow, newClassFileTab)
-
-      val newClassFileComponent = ClassFileTab(project, classFile).createComponent(true)
-      val content = contentManager.factory.createContent(newClassFileComponent,
+      val content = contentManager.factory.createContent(newClassFileTab.createComponent(true),
                                                          classFile.nameWithoutExtension,
                                                          true)
+      content.putUserData(ClassFileTab.CLASS_FILE_TAB_KEY, newClassFileTab)
       contentManager.addContent(content)
       contentManager.setSelectedContent(content, true)
     }

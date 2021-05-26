@@ -5,6 +5,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.AnimatedIcon
 import com.intellij.ui.TabbedPaneWrapper
@@ -20,9 +21,15 @@ class ClassFileTab(private val project: Project, private val classFile: VirtualF
   : ErrorStateHandler(), DumbAware, Disposable {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
+
+  companion object {
+    val CLASS_FILE_TAB_KEY = Key<ClassFileTab>("dev.turingcomplete.intellijbytecodeplugin.classFileTab")
+  }
+
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   private lateinit var byteCodeViews : List<ByteCodeView>
+  var selectedByteCodeView: ByteCodeView? = null
   private val centerComponentContainer = BorderLayoutPanel()
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
@@ -46,7 +53,8 @@ class ClassFileTab(private val project: Project, private val classFile: VirtualF
     setCenter(JBLabel("Parsing '${classFile.nameWithoutExtension}'...", AnimatedIcon.Default(), SwingConstants.CENTER))
 
     ApplicationManager.getApplication().executeOnPooledThread {
-      DefaultClassFileContext.loadAsync(project, classFile, loadTabs()) { cause ->
+      val onSuccess = loadTabs()
+      DefaultClassFileContext.loadAsync(project, classFile, onSuccess) { cause ->
         onError("Failed to parse class file '${classFile.name}'", cause)
       }
     }
@@ -60,13 +68,25 @@ class ClassFileTab(private val project: Project, private val classFile: VirtualF
 
       val tabs = TabbedPaneWrapper(this).apply {
         byteCodeViews = ByteCodeView.EP.extensions.mapIndexed { index, byteCodeViewCreator ->
+          val selected = index == 0
           val classFileView = byteCodeViewCreator.create(classFileContext)
-          addTab(classFileView.title, classFileView.icon, classFileView.createComponent(index == 0), null)
+          addTab(classFileView.title, classFileView.icon, classFileView.createComponent(selected), null)
+          if (selected) {
+            selectedByteCodeView = classFileView
+          }
           Disposer.register(this@ClassFileTab, classFileView)
           classFileView
         }
       }
-      tabs.addChangeListener { byteCodeViews[tabs.selectedIndex].selected() }
+
+      tabs.addChangeListener {
+        val newSelectedByteCodeView = byteCodeViews[tabs.selectedIndex]
+        if (selectedByteCodeView != newSelectedByteCodeView) {
+          selectedByteCodeView = newSelectedByteCodeView
+          newSelectedByteCodeView.selected()
+        }
+      }
+
       setCenter(tabs.component)
     }
   }

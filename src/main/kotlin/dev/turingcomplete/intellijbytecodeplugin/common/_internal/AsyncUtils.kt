@@ -1,4 +1,4 @@
-package dev.turingcomplete.intellijbytecodeplugin._other
+package dev.turingcomplete.intellijbytecodeplugin.common._internal
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project

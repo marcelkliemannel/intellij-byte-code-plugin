@@ -3,6 +3,7 @@ package dev.turingcomplete.intellijbytecodeplugin._ui
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
+import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.ClassReader
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNode
@@ -24,7 +25,7 @@ class DefaultClassFileContext private constructor(private val project: Project,
                   onSuccess: (ClassFileContext) -> Unit,
                   onError: (Throwable) -> Unit) {
 
-      dev.turingcomplete.intellijbytecodeplugin._other.AsyncUtils.runAsync(project, { DefaultClassFileContext(project, classFile, true) }, onSuccess, onError)
+      AsyncUtils.runAsync(project, { DefaultClassFileContext(project, classFile, true) }, onSuccess, onError)
     }
 
     @TestOnly
