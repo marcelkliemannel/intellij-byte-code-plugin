@@ -8,7 +8,6 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiClassOwner
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiUtilBase
@@ -29,7 +28,7 @@ class AnalyzeBytecodeAction : DumbAwareAction("Analyze Byte Code") {
       }
       else {
         findPsiElement(project, e.dataContext)?.let { psiElement ->
-          psiElement.containingFile is PsiClassOwner
+          OpenClassFilesTask.isOpenableFile(psiElement.containingFile)
         }
       }
     } ?: false
@@ -45,7 +44,7 @@ class AnalyzeBytecodeAction : DumbAwareAction("Analyze Byte Code") {
     }
 
     val psiElement = findPsiElement(project, e.dataContext) ?: return
-    project.messageBus.syncPublisher(OpenClassFilesListener.OPEN_CLASS_FILES_TOPIC).openPsiElement(psiElement)
+    project.messageBus.syncPublisher(OpenClassFilesListener.OPEN_CLASS_FILES_TOPIC).openPsiElements(listOf(psiElement))
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //

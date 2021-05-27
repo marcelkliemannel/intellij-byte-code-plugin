@@ -72,9 +72,7 @@ class FilesDropHandler(private val project: Project) : TransferHandler(), Editor
       if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
         val transferData = transferable.getTransferData(DataFlavor.javaFileListFlavor)
         if (transferData is TransferableWrapper) {
-          transferData.psiElements?.forEach { psiElement ->
-            project.messageBus.syncPublisher(OpenClassFilesListener.OPEN_CLASS_FILES_TOPIC).openPsiElement(psiElement)
-          }
+          project.messageBus.syncPublisher(OpenClassFilesListener.OPEN_CLASS_FILES_TOPIC).openPsiElements(transferData.psiElements?.toList() ?: listOf())
           return true
         }
       }

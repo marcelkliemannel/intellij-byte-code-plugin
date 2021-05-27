@@ -9,6 +9,7 @@ import com.intellij.openapi.compiler.CompileContext
 import com.intellij.openapi.compiler.CompileScope
 import com.intellij.openapi.compiler.CompileStatusNotification
 import com.intellij.openapi.compiler.CompilerManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.FileTypeRegistry
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.DumbService
@@ -41,14 +42,30 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
+    private val LOGGER = Logger.getInstance(OpenClassFilesTask::class.java)
+
     private const val MESSAGE_DIALOG_TITLE = "Open Class Files"
 
-    fun isOpenableFile(file: VirtualFile, project: Project) : Boolean {
+    fun isOpenableFile(file: VirtualFile, project: Project): Boolean {
+      if (file.name == "package-info.java") {
+        // Only exists in sources
+        return false
+      }
+
       if (FileTypeRegistry.getInstance().isFileOfType(file, JavaClassFileType.INSTANCE) && file.isValid) {
         return true
       }
 
       val psiFile = PsiManagerEx.getInstance(project).findFile(file)
+      return psiFile != null && isOpenableFile(psiFile)
+    }
+
+    fun isOpenableFile(psiFile: PsiFile): Boolean {
+      if (psiFile.name == "package-info.java") {
+        // Only exists in sources
+        return false
+      }
+
       return psiFile is PsiClassOwner
     }
   }
@@ -99,43 +116,54 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
 
   fun consumePsiFiles(psiFiles: List<PsiFile>): OpenClassFilesTask {
     psiFiles.forEach { psiFile ->
-      if (psiFile !is PsiClassOwner || psiFile.classes.isEmpty()) {
-        errors.add("Source file '${psiFile.name}' does not contain any JVM classes.")
+      // package-info.java
+      if (psiFile.name == "package-info.java") {
+        // Only exists in sources
         return@forEach
       }
 
-      val sourceFile = psiFile.virtualFile
-      if (psiFile.virtualFile == null) {
-        errors.add("File '${psiFile.name}' is not associated with a physical file.")
+      if (psiFile !is PsiJavaFile) {
+        errors.add("File '${psiFile.name}' is not a Java source file.")
         return@forEach
       }
 
-      psiFile.classes.forEach { psiClass -> consumePsiClass(psiClass, sourceFile, psiFile) }
+      // module-info.java
+      val moduleDeclaration = psiFile.moduleDeclaration
+      if (moduleDeclaration != null) {
+        consumePsiElements(listOf(moduleDeclaration))
+        return@forEach
+      }
+
+      psiFile.classes.forEach { psiClass ->
+        consumePsiClass(psiClass, psiFile)
+      }
     }
 
     return this
   }
 
-  fun consumePsiElement(psiElement: PsiElement): OpenClassFilesTask {
-    val psiClass = findContainingClass(psiElement)
-    if (psiClass == null) {
-      errors.add("Couldn't find class for selected element.")
-      return this
-    }
+  fun consumePsiElements(psiElements: List<PsiElement>): OpenClassFilesTask {
+    psiElements.forEach { psiElement ->
+      if (psiElement is PsiJavaModule) {
+        consumeJavaVirtualFile(psiElement, psiElement.containingFile, "module-info")
+        return@forEach
+      }
 
-    val psiFile = psiClass.originalElement.containingFile
-    if (psiFile !is PsiJavaFile) {
-      errors.add("File '${psiFile.name}' is neither a Java class nor a source file.")
-      return this
-    }
+      // Consume as element in class
+      val psiClass = findContainingClass(psiElement)
+      if (psiClass == null) {
+        errors.add("Couldn't find class for selected element.")
+        return@forEach
+      }
 
-    val sourceFile = psiFile.virtualFile
-    if (sourceFile == null) {
-      errors.add("File '${psiFile.name}' is not associated with a physical file.")
-      return this
-    }
+      val psiFile = psiClass.originalElement.containingFile
+      if (psiFile !is PsiJavaFile) {
+        errors.add("File '${psiFile.name}' is neither a Java class nor a source file.")
+        return this
+      }
 
-    consumePsiClass(psiClass, sourceFile, psiFile)
+      consumePsiClass(psiClass, psiFile)
+    }
 
     return this
   }
@@ -147,13 +175,13 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
     }
 
     val compileScope = sequenceOf(prepareForCompilation(outdatedClassFiles,
-                                                        "The following source files are not up-to-date: " +
+                                                        "The following source file(s) are not up-to-date: " +
                                                         outdatedClassFiles.joinToString(", ", transform = { it.sourceFile.name }) +
-                                                        " should these be compiled?"),
+                                                        " should it/these be compiled?"),
                                   prepareForCompilation(missingClassFiles,
-                                                        "No class file could be found for the following source files: " +
+                                                        "No class file could be found for the following source file(s): " +
                                                         missingClassFiles.joinToString(", ", transform = { it.sourceFile.name }) +
-                                                        " should they be compiled?"))
+                                                        " should it/they be compiled?"))
             .filterNotNull()
             .reduceOrNull { first, second -> CompositeScope(first, second) }
 
@@ -166,19 +194,29 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
-  private fun consumePsiClass(psiClass: PsiClass, sourceFile: VirtualFile, psiFile: PsiClassOwner) {
+  private fun consumePsiClass(psiClass: PsiClass, sourcePsiFile: PsiFile) {
     val jvmClassName = toJvmClassName(psiClass)
     if (jvmClassName == null) {
       errors.add("Couldn't determine the JVM class name of the source file '${psiClass.name}'.")
       return
     }
 
+    consumeJavaVirtualFile(psiClass, sourcePsiFile, jvmClassName)
+  }
+
+  private fun consumeJavaVirtualFile(psiElement: PsiElement?, sourcePsiFile: PsiFile, jvmFileName: String) {
+    val sourceFile = sourcePsiFile.virtualFile
+    if (sourceFile == null) {
+      errors.add("Virtual file '${sourcePsiFile.name}' is not associated with a physical file.")
+      return
+    }
+
     // If the source file is from a library, we need the corresponding class file.
-    val file = psiClass.originalElement.containingFile?.virtualFile ?: sourceFile
+    val file = psiElement?.originalElement?.containingFile?.virtualFile ?: sourceFile
 
     // 'file' is a class file
     if (FileTypeRegistry.getInstance().isFileOfType(file, JavaClassFileType.INSTANCE)) {
-      val classFileName = "${StringUtil.getShortName(jvmClassName)}.class"
+      val classFileName = "${StringUtil.getShortName(jvmFileName)}.class"
       val classFile = if (projectFileIndex.isInLibraryClasses(file)) {
         file.parent.findChild(classFileName)
       }
@@ -199,14 +237,14 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
     // 'file' is a Java source file
     val moduleToExpectedClassFilePath = ReadAction.compute<Pair<Module, Path>?, Throwable> {
       val module = projectFileIndex.getModuleForFile(file)
-      val expectedClassFilePath = if (module != null) findExpectedClassFilePath(module, jvmClassName, file) else null
+      val expectedClassFilePath = if (module != null) findExpectedClassFilePath(module, jvmFileName, file) else null
       if (module == null || expectedClassFilePath == null) {
         if (DumbService.isDumb(project)) {
-          errors.add("Couldn't determine the expected class file path for source file '${psiFile.name}', because " +
+          errors.add("Couldn't determine the expected class file path for source file '${sourceFile.name}', because " +
                      "indices are updating.")
         }
         else {
-          errors.add("Couldn't determine the expected class file path for source file '${psiFile.name}', because " +
+          errors.add("Couldn't determine the expected class file path for source file '${sourceFile.name}', because " +
                      "it may not belong to this project.\n" +
                      "Try to compile the file separately and open the resulted class file directly.")
         }
@@ -226,8 +264,11 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
     else if (!compilerManager.isUpToDate(compilerManager.createFilesCompileScope(arrayOf(file)))) {
       outdatedClassFiles.add(ClassFileNeedingPreparation(module, file, expectedClassFilePath))
     }
+    else if (classFile != null) {
+      readyToOpen.add(classFile)
+    }
     else {
-      readyToOpen.add(classFile!!)
+      LOGGER.warn("Couldn't find virtual file for expected class file: $expectedClassFilePath")
     }
   }
 
@@ -260,7 +301,7 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
                                              "Compile whole module(s) and dependent modules",
                                              "Cancel"),
                                      0, null)
-    if (answer == -1) {
+    if (answer == -1 || answer == 3) {
       return null
     }
 
