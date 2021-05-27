@@ -16,16 +16,20 @@ import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.openapi.wm.ex.ToolWindowEx
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
+import com.intellij.ui.JBColor
+import com.intellij.ui.LayeredIcon
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.content.ContentManager
 import com.intellij.util.castSafelyTo
-import com.intellij.util.ui.StatusText
+import com.intellij.util.ui.EmptyIcon
+import com.intellij.util.ui.JBEmptyBorder
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesListener
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.OpenClassFilesTask
 import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
 import java.awt.dnd.DropTarget
+import javax.swing.Icon
 
 
 class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
@@ -34,7 +38,7 @@ class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
   companion object {
     const val ID = "Byte Code"
 
-    fun <T> getData(dataProvider: DataProvider, dataKey: DataKey<T>) : Any? {
+    fun <T> getData(dataProvider: DataProvider, dataKey: DataKey<T>): Any? {
       val project = dataProvider.getData(PROJECT.name).castSafelyTo<Project>() ?: return null
       val byteCodeToolWindow = ToolWindowManager.getInstance(project).getToolWindow(ID) ?: return null
       return byteCodeToolWindow.contentManager.selectedContent
@@ -53,17 +57,11 @@ class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
 
     Disposer.register(toolWindow.disposable, this)
 
-    val toolWindowDropTarget = toolWindow.contentManager.component.dropTarget
-    if (toolWindowDropTarget != null) {
-      toolWindowDropTarget.addDropTargetListener(FilesDropHandler(project))
-    }
-    else {
-      toolWindow.contentManager.component.dropTarget = DropTarget(toolWindow.contentManager.component, FilesDropHandler(project))
-    }
+    toolWindow.component.border = JBEmptyBorder(0)
 
-    toolWindow.emptyText?.initEmptyText(project)
-
-    initActions(toolWindow, project)
+    toolWindow.initDropTarget(project)
+    toolWindow.setupEmptyText(project)
+    toolWindow.initActions(project)
 
     project.messageBus.connect(this).apply {
       subscribe(OpenClassFilesListener.OPEN_CLASS_FILES_TOPIC, MyOpenClassFilesListener(project, toolWindow.contentManager))
@@ -75,26 +73,64 @@ class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
-  private fun StatusText.initEmptyText(project: Project) {
-    OpenClassFilesToolWindowAction.EP.extensions.forEach { openClassFilesAction ->
-      appendLine(openClassFilesAction.icon, openClassFilesAction.title, SimpleTextAttributes.LINK_ATTRIBUTES) {
-        openClassFilesAction.execute(project)
-      }
-      appendLine("")
+  private fun ToolWindow.initDropTarget(project: Project) {
+    val toolWindowDropTarget = contentManager.component.dropTarget
+    if (toolWindowDropTarget != null) {
+      toolWindowDropTarget.addDropTargetListener(FilesDropHandler(project))
     }
-
-    appendLine(AllIcons.Actions.Download, "Drop .class files here to open", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
+    else {
+      contentManager.component.dropTarget = DropTarget(contentManager.component, FilesDropHandler(project))
+    }
   }
 
-  private fun initActions(toolWindow: ToolWindow, project: Project) {
-    toolWindow.setTitleActions(listOf(ByteCodeToolsActionsGroup()))
+  private fun ToolWindow.setupEmptyText(project: Project) {
+    emptyText?.apply {
+      clear()
 
-    if (toolWindow is ToolWindowEx) {
-      val newSessionActionsGroup = DefaultActionGroup(OpenClassFilesOptionsAction(project, toolWindow.contentManager))
-      toolWindow.setTabActions(newSessionActionsGroup)
+      isCenterAlignText = false
+
+      appendLine("To open class files, do one of the following:", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
+
+      // The following code is used to create some indent to highlight the
+      // following options from the previous line.
+      val leftIndent = 7
+      val fakeIndentIcon = EmptyIcon.create(leftIndent, 16)
+      val fakeIndentIconAsIconBackground = EmptyIcon.create(16 + leftIndent, 16)
+      val indentIcon = { icon: Icon? ->
+        if (icon != null) {
+          val wrapperIcon = LayeredIcon(2)
+          wrapperIcon.setIcon(fakeIndentIconAsIconBackground, 0)
+          wrapperIcon.setIcon(icon, 1, leftIndent, 0)
+          wrapperIcon
+        }
+        else {
+          fakeIndentIcon
+        }
+      }
+
+      appendLine(indentIcon(null), "Use action 'Analyse Byte Code' in the editor or project view", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
+
+      OpenClassFilesToolWindowAction.EP.extensions.forEach { openClassFilesAction ->
+        appendLine(indentIcon(openClassFilesAction.icon), openClassFilesAction.title, SimpleTextAttributes.LINK_ATTRIBUTES) {
+          openClassFilesAction.execute(project)
+        }
+      }
+
+      appendLine(indentIcon(AllIcons.Actions.Download), "Drop .class files here to open", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
+
+      component.background = JBColor.background()
+    }
+  }
+
+  private fun ToolWindow.initActions(project: Project) {
+    setTitleActions(listOf(ByteCodeToolsActionsGroup()))
+
+    if (this is ToolWindowEx) {
+      val newSessionActionsGroup = DefaultActionGroup(OpenClassFilesOptionsAction(project, contentManager))
+      setTabActions(newSessionActionsGroup)
 
       val additionalGearActionsGroup = DefaultActionGroup(HelpLinksActionsGroup())
-      toolWindow.setAdditionalGearActions(additionalGearActionsGroup)
+      setAdditionalGearActions(additionalGearActionsGroup)
     }
   }
 
@@ -156,8 +192,8 @@ class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
       OpenClassFilesTask(openClassFile, project).consumePsiFiles(psiFiles).openFiles()
     }
 
-    override fun openPsiElement(psiElement: PsiElement) {
-      OpenClassFilesTask(openClassFile, project).consumePsiElement(psiElement).openFiles()
+    override fun openPsiElements(psiElements: List<PsiElement>) {
+      OpenClassFilesTask(openClassFile, project).consumePsiElements(psiElements).openFiles()
     }
 
     override fun openFiles(files: List<VirtualFile>) {
