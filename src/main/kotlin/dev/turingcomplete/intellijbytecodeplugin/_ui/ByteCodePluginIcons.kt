@@ -6,7 +6,9 @@ object ByteCodePluginIcons {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   @JvmField
-  val TOOL_WINDOW_ICON = IconLoader.getIcon("/icons/toolwindowicon.svg", dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodePluginIcons::class.java)
+  val TOOL_WINDOW_ICON = IconLoader.getIcon("/icons/toolwindowicon.svg", ByteCodePluginIcons::class.java)
+
+  val ACTION_ICON = IconLoader.getIcon("/icons/actionicon.svg", ByteCodePluginIcons::class.java)
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exported Methods -------------------------------------------------------------------------------------------- //

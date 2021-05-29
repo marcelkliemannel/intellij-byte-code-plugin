@@ -22,9 +22,9 @@ import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.content.ContentManager
 import com.intellij.util.castSafelyTo
 import com.intellij.util.ui.EmptyIcon
-import com.intellij.util.ui.JBEmptyBorder
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesListener
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.AnalyzeBytecodeAction
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.OpenClassFilesTask
 import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
@@ -37,6 +37,7 @@ class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
 
   companion object {
     const val ID = "Byte Code"
+    const val PLUGIN_NAME = "Byte Code Analyzer"
 
     fun <T> getData(dataProvider: DataProvider, dataKey: DataKey<T>): Any? {
       val project = dataProvider.getData(PROJECT.name).castSafelyTo<Project>() ?: return null
@@ -56,8 +57,6 @@ class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
     assert(toolWindow.id == ID)
 
     Disposer.register(toolWindow.disposable, this)
-
-    toolWindow.component.border = JBEmptyBorder(0)
 
     toolWindow.initDropTarget(project)
     toolWindow.setupEmptyText(project)
@@ -108,15 +107,15 @@ class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
         }
       }
 
-      appendLine(indentIcon(null), "Use action 'Analyse Byte Code' in the editor or project view", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
+      appendLine(indentIcon(null), "From action '${AnalyzeBytecodeAction.TITLE}'", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
 
       OpenClassFilesToolWindowAction.EP.extensions.forEach { openClassFilesAction ->
-        appendLine(indentIcon(openClassFilesAction.icon), openClassFilesAction.title, SimpleTextAttributes.LINK_ATTRIBUTES) {
+        appendLine(indentIcon(openClassFilesAction.icon), openClassFilesAction.linkTitle, SimpleTextAttributes.LINK_ATTRIBUTES) {
           openClassFilesAction.execute(project)
         }
       }
 
-      appendLine(indentIcon(AllIcons.Actions.Download), "Drop .class files here to open", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
+      appendLine(indentIcon(AllIcons.Actions.Download), "Drop class files here to open", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
 
       component.background = JBColor.background()
     }

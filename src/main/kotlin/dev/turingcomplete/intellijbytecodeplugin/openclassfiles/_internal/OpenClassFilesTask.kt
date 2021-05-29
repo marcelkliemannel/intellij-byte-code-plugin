@@ -25,6 +25,7 @@ import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.util.ClassUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiUtil
+import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindow.Companion.PLUGIN_NAME
 import java.nio.file.Path
 
 /**
@@ -116,27 +117,29 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
 
   fun consumePsiFiles(psiFiles: List<PsiFile>): OpenClassFilesTask {
     psiFiles.forEach { psiFile ->
-      // package-info.java
-      if (psiFile.name == "package-info.java") {
-        // Only exists in sources
+      if (psiFile is PsiJavaFile) {
+        // package-info.java
+        if (psiFile.name == "package-info.java") {
+          // Only exists in sources
+          return@forEach
+        }
+
+        // module-info.java
+        val moduleDeclaration = psiFile.moduleDeclaration
+        if (moduleDeclaration != null) {
+          consumePsiElements(listOf(moduleDeclaration))
+          return@forEach
+        }
+      }
+
+      if (psiFile is PsiClassOwner) {
+        psiFile.classes.forEach { psiClass ->
+          consumePsiClass(psiClass, psiFile)
+        }
         return@forEach
       }
 
-      if (psiFile !is PsiJavaFile) {
-        errors.add("File '${psiFile.name}' is not a Java source file.")
-        return@forEach
-      }
-
-      // module-info.java
-      val moduleDeclaration = psiFile.moduleDeclaration
-      if (moduleDeclaration != null) {
-        consumePsiElements(listOf(moduleDeclaration))
-        return@forEach
-      }
-
-      psiFile.classes.forEach { psiClass ->
-        consumePsiClass(psiClass, psiFile)
-      }
+      errors.add("File '${psiFile.name}' is not a processable source file.")
     }
 
     return this
@@ -170,18 +173,27 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
 
   fun openFiles() {
     if (errors.isNotEmpty()) {
-      val message = if (errors.size == 1) errors[0] else errors.joinToString("\n", transform = { "- $it" })
+      val message = if (errors.size == 1) {
+        "${errors[0]}\n\nPlease create a bug for the $PLUGIN_NAME plugin if this error should not occur."
+      }
+      else {
+        errors.joinToString("\n", transform = { "- $it" }) +
+        "\n\nPlease create a bug for the $PLUGIN_NAME plugin if one of these errors should not occur."
+      }
       Messages.showErrorDialog(project, message, MESSAGE_DIALOG_TITLE)
+      return
     }
 
     val compileScope = sequenceOf(prepareForCompilation(outdatedClassFiles,
                                                         "The following source file(s) are not up-to-date: " +
                                                         outdatedClassFiles.joinToString(", ", transform = { it.sourceFile.name }) +
-                                                        " should it/these be compiled?"),
+                                                        " should it/these be compiled?",
+                                                        true),
                                   prepareForCompilation(missingClassFiles,
                                                         "No class file could be found for the following source file(s): " +
                                                         missingClassFiles.joinToString(", ", transform = { it.sourceFile.name }) +
-                                                        " should it/they be compiled?"))
+                                                        " should it/they be compiled?",
+                                                        false))
             .filterNotNull()
             .reduceOrNull { first, second -> CompositeScope(first, second) }
 
@@ -290,28 +302,50 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
   }
 
 
-  private fun prepareForCompilation(classFilesNeedingPreparation: List<ClassFileNeedingPreparation>, question: String): CompileScope? {
+  private fun prepareForCompilation(classFilesNeedingPreparation: List<ClassFileNeedingPreparation>,
+                                    question: String,
+                                    tryToUseClassesAsTheyAre: Boolean): CompileScope? {
+
     if (classFilesNeedingPreparation.isEmpty()) {
       return null
     }
 
-    val answer = Messages.showDialog(project, question, MESSAGE_DIALOG_TITLE,
-                                     arrayOf("Compile only class(es)",
-                                             "Compile whole module(s)",
-                                             "Compile whole module(s) and dependent modules",
-                                             "Cancel"),
-                                     0, null)
-    if (answer == -1 || answer == 3) {
-      return null
+    val options = mutableListOf<String>()
+    if (tryToUseClassesAsTheyAre) {
+      options.add("Try to use class(es) as they are")
     }
+    options.add("Compile only class(es)")
+    val compileOnlyClassesAnswerIndex = options.size - 1
 
-    val compilerManager = CompilerManager.getInstance(project)
-    return if (answer == 0) {
-      compilerManager.createFilesCompileScope(classFilesNeedingPreparation.map { it.sourceFile }.toTypedArray())
+    options.add("Compile whole module(s)")
+    val compileWholeModulesAnswerIndex = options.size - 1
+
+    options.add("Compile whole module(s) and dependent modules")
+    val compileWholeModulesAndDependentModulesAnswerIndex = options.size - 1
+
+    options.add("Cancel")
+    val cancelAnswerIndex = options.size - 1
+
+    val answer = Messages.showDialog(project, question, MESSAGE_DIALOG_TITLE, options.toTypedArray(), 0, null)
+    return if (answer == -1 || answer == cancelAnswerIndex) {
+      null
+    }
+    else if (answer == compileOnlyClassesAnswerIndex) {
+      CompilerManager.getInstance(project).createFilesCompileScope(classFilesNeedingPreparation.map { it.sourceFile }.toTypedArray())
+    }
+    else if (answer == compileWholeModulesAnswerIndex || answer == compileWholeModulesAndDependentModulesAnswerIndex) {
+      val includeDependentModules = answer == compileWholeModulesAndDependentModulesAnswerIndex
+      CompilerManager.getInstance(project).createModulesCompileScope(classFilesNeedingPreparation.map { it.module }.toTypedArray(), includeDependentModules)
     }
     else {
-      val includeDependentModules = answer == 2
-      compilerManager.createModulesCompileScope(classFilesNeedingPreparation.map { it.module }.toTypedArray(), includeDependentModules)
+      if (tryToUseClassesAsTheyAre) {
+        classFilesNeedingPreparation
+                .mapNotNull { VirtualFileManager.getInstance().findFileByNioPath(it.expectedClassFilePath) }
+                .filter { it.isValid }
+                .forEach { readyToOpen.add(it) }
+      }
+
+      null
     }
   }
 

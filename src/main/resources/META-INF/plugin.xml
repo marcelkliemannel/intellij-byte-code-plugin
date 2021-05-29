@@ -15,7 +15,7 @@
     <extensionPoint name="openClassFilesAction"
                     interface="dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction"/>
     <extensionPoint name="byteCodeTool" interface="dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool"/>
-    <extensionPoint name="byteCodeViewCreator"
+    <extensionPoint name="byteCodeView"
                     interface="dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeView$Creator"/>
     <extensionPoint name="byteCodeAction"
                     interface="dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction"/>
@@ -28,8 +28,10 @@
 
     <notificationGroup displayType="BALLOON" id="org.example.byte-code-analyser-intellij-plugin.notificationGroup"/>
 
-    <getDataRule key="dev.turingcomplete.intellijbytecodeplugin.classFileContext" implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$ClassFileContextDataRule"/>
-    <getDataRule key="dev.turingcomplete.intellijbytecodeplugin.onError" implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$OnErrorDataRule"/>
+    <getDataRule key="dev.turingcomplete.intellijbytecodeplugin.classFileContext"
+                 implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$ClassFileContextDataRule"/>
+    <getDataRule key="dev.turingcomplete.intellijbytecodeplugin.onError"
+                 implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$OnErrorDataRule"/>
   </extensions>
 
   <extensions defaultExtensionNs="dev.turingcomplete.intellijbytecodeplugin">
@@ -41,16 +43,16 @@
     <byteCodeTool implementation="dev.turingcomplete.intellijbytecodeplugin.tool._internal.AccessConverterTool"/>
     <byteCodeTool implementation="dev.turingcomplete.intellijbytecodeplugin.tool._internal.SignatureParserTool"/>
 
-    <byteCodeViewCreator
+    <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureView$MyCreator"/>
-    <byteCodeViewCreator
+    <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.TextifiedView$MyCreator"/>
-    <byteCodeViewCreator
+    <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._editor.EditorView$MyCreator"/>
-    <byteCodeViewCreator
+    <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.AsmifiedView$MyCreator"/>
 
-    <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.VerifyByteCodeAction" />
+    <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.VerifyByteCodeAction"/>
   </extensions>
 
   <actions>

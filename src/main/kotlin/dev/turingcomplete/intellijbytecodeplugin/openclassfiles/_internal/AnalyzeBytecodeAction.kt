@@ -11,11 +11,17 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiUtilBase
+import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodePluginIcons
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesListener
 
 
-class AnalyzeBytecodeAction : DumbAwareAction("Analyze Byte Code") {
+class AnalyzeBytecodeAction : DumbAwareAction(TITLE, null, ByteCodePluginIcons.ACTION_ICON) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
+
+  companion object {
+    const val TITLE = "Analyze Byte Code"
+  }
+
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //

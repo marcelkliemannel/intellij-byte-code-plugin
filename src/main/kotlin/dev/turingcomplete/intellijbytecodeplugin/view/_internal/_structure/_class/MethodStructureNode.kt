@@ -8,20 +8,16 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.table.JBTable
+import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
 import dev.turingcomplete.intellijbytecodeplugin.asm.*
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Label
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNode
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.LabelNode
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.MethodNode
-import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.RenderOption
-import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.HtmlTextNode
-import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.HyperLinkNode
+import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.*
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.HyperLinkNode.HyperLinkListener
-import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.StructureNode
-import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.TextNode
-import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.ValueNode
 import java.awt.Component
 import java.awt.Dimension
 import java.util.*
@@ -177,8 +173,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
               .setResizable(true)
               .setMovable(true)
               .setModalContext(false)
-              .setShowShadow(true)
-              .setShowBorder(false)
+              .addUserData("SIMPLE_WINDOW")
               .setCancelKeyEnabled(true)
               .setCancelOnClickOutside(true)
               .setCancelOnOtherWindowOpen(true)

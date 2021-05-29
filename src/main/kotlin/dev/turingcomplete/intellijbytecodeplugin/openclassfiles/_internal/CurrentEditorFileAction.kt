@@ -8,7 +8,8 @@ import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesLi
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
 
 
-class CurrentEditorFileAction : OpenClassFilesToolWindowAction("Analyze Current Editor File") {
+class CurrentEditorFileAction : OpenClassFilesToolWindowAction("Analyze Current Editor File",
+                                                               "Analyze current editor file") {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //
