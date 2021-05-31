@@ -14,7 +14,7 @@ abstract class ByteCodeView(val classFileContext: ClassFileContext, val title: S
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
-    val EP: ExtensionPointName<Creator> = ExtensionPointName.create("dev.turingcomplete.intellijbytecodeplugin.byteCodeViewCreator")
+    val EP: ExtensionPointName<Creator> = ExtensionPointName.create("dev.turingcomplete.intellijbytecodeplugin.byteCodeView")
   }
 
   // -- Properties -------------------------------------------------------------------------------------------------- //

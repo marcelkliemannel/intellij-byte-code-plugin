@@ -22,6 +22,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.*
 import com.intellij.psi.impl.PsiManagerEx
+import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.util.ClassUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiUtil
@@ -61,8 +62,8 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
       return psiFile != null && isOpenableFile(psiFile)
     }
 
-    fun isOpenableFile(psiFile: PsiFile): Boolean {
-      if (psiFile.name == "package-info.java") {
+    fun isOpenableFile(psiFile: PsiFile?): Boolean {
+      if (psiFile?.name == "package-info.java") {
         // Only exists in sources
         return false
       }
@@ -147,13 +148,26 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
 
   fun consumePsiElements(psiElements: List<PsiElement>): OpenClassFilesTask {
     psiElements.forEach { psiElement ->
-      if (psiElement is PsiJavaModule) {
+      // Consume as element in module descriptor
+      val containingModule = PsiTreeUtil.getParentOfType(psiElement, PsiJavaModule::class.java, false)
+      if (containingModule != null) {
         consumeJavaVirtualFile(psiElement, psiElement.containingFile, "module-info")
         return@forEach
       }
 
       // Consume as element in class
-      val psiClass = findContainingClass(psiElement)
+      var psiClass: PsiClass?
+
+      // If the element is in a synthetic method in an inner enum or record,
+      // `findNextPsiClass` would find the outer class as the parent PSI class.
+      val lightMethod = PsiTreeUtil.getParentOfType(psiElement, LightMethod::class.java, false)
+      if (lightMethod != null) {
+        psiClass = lightMethod.containingClass
+      }
+      else {
+        psiClass = findNextPsiClass(psiElement)
+      }
+
       if (psiClass == null) {
         errors.add("Couldn't find class for selected element.")
         return@forEach
@@ -228,16 +242,16 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
 
     // 'file' is a class file
     if (FileTypeRegistry.getInstance().isFileOfType(file, JavaClassFileType.INSTANCE)) {
-      val classFileName = "${StringUtil.getShortName(jvmFileName)}.class"
-      val classFile = if (projectFileIndex.isInLibraryClasses(file)) {
-        file.parent.findChild(classFileName)
-      }
-      else {
-        VirtualFileManager.getInstance().findFileByNioPath(Path.of(file.parent.path, classFileName))
-      }
+      // This code is reached if a compiled class file is opened in the editor,
+      // and the action is executed outgoing from a PSI element.
 
+      // The 'file' at this moment is the class file of the outermost class,
+      // but if the 'psiElement' is in or is an inner class, we need the
+      // class file of that inner class.
+      val classFileName = "${StringUtil.getShortName(jvmFileName)}.class"
+      val classFile = file.parent.findChild(classFileName)
       if (classFile == null || !classFile.isValid) {
-        errors.add("Couldn't find class file '${classFileName}' in '${file.parent}'.")
+        errors.add("Couldn't find class file: $file")
       }
       else {
         readyToOpen.add(classFile)
@@ -349,7 +363,7 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
     }
   }
 
-  private fun findContainingClass(psiElement: PsiElement): PsiClass? {
+  private fun findNextPsiClass(psiElement: PsiElement): PsiClass? {
     var containingClass = PsiTreeUtil.getParentOfType(psiElement, PsiClass::class.java, false)
 
     while (containingClass is PsiTypeParameter) {

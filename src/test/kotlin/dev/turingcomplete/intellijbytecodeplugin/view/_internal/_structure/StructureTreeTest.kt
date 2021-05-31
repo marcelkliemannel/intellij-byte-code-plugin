@@ -5,6 +5,7 @@ import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.testFramework.LightPlatform4TestCase
+import dev.turingcomplete.intellijbytecodeplugin.TestUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.DefaultClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.asm.AsmMethodUtils
 import dev.turingcomplete.intellijbytecodeplugin.asm.AsmTypeUtils
@@ -13,11 +14,12 @@ import junit.framework.AssertionFailedError
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
-import java.nio.file.Path
-import java.util.zip.ZipFile
 import javax.swing.tree.TreeNode
 
+/**
+ * This test tries to parse all classes from the `java.base` module and from the
+ * `kotlin-stdlib` into a [StructureTree].
+ */
 @RunWith(org.junit.runners.Parameterized::class)
 class StructureTreeTest(testName: String, private val classFilePath: String) : LightPlatform4TestCase() {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
@@ -25,41 +27,7 @@ class StructureTreeTest(testName: String, private val classFilePath: String) : L
   companion object {
     @org.junit.runners.Parameterized.Parameters(name = "{0}")
     @JvmStatic
-    fun data(): List<Array<String>> {
-      val testParameters = mutableListOf<Array<String>>()
-
-      // Test parsing of Kotlin classes
-      System.getProperty("java.class.path").split(System.getProperty("path.separator"))
-              .asSequence()
-              .map { Path.of(it) }
-              .filter { it.fileName.toString().startsWith("kotlin-stdlib") }
-              .forEach { kotlinStdLib -> testParameters.addAll(readArchiveEntriesPaths(kotlinStdLib.toFile())) }
-      Assert.assertTrue(testParameters.size > 100)
-
-      // Test parsing of java.base classes
-      val javaBaseJmodPath = Path.of(System.getProperty("java.home")).resolve(Path.of("jmods", "java.base.jmod"))
-      testParameters.addAll(readArchiveEntriesPaths(javaBaseJmodPath.toFile()))
-      Assert.assertTrue(testParameters.size > 200)
-
-      return testParameters
-    }
-
-    private fun readArchiveEntriesPaths(archiveFile: File) : List<Array<String>> {
-      println(archiveFile)
-      val entriesPaths = mutableListOf<Array<String>>()
-
-      ZipFile(archiveFile).use { zipFile ->
-        val entries = zipFile.entries()
-        while (entries.hasMoreElements()) {
-          val zipEntry = entries.nextElement()
-          if (zipEntry.name.endsWith(".class")) {
-            entriesPaths.add(arrayOf(zipEntry.name, "jar://$archiveFile!/${zipEntry.name}"))
-          }
-        }
-      }
-
-      return entriesPaths
-    }
+    fun data(): List<Array<String>> = TestUtils.data()
   }
 
   // -- Properties -------------------------------------------------------------------------------------------------- //

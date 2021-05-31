@@ -15,7 +15,7 @@ import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodePluginIcons
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesListener
 
 
-class AnalyzeBytecodeAction : DumbAwareAction(TITLE, null, ByteCodePluginIcons.ACTION_ICON) {
+class AnalyzeByteCodeAction : DumbAwareAction(TITLE, null, ByteCodePluginIcons.ACTION_ICON) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
@@ -43,14 +43,16 @@ class AnalyzeBytecodeAction : DumbAwareAction(TITLE, null, ByteCodePluginIcons.A
   override fun actionPerformed(e: AnActionEvent) {
     val project = CommonDataKeys.PROJECT.getData(e.dataContext) ?: return
 
-    val files = CommonDataKeys.VIRTUAL_FILE_ARRAY.getData(e.dataContext)
-    if (files != null) {
-      project.messageBus.syncPublisher(OpenClassFilesListener.OPEN_CLASS_FILES_TOPIC).openFiles(files.toList())
+    val psiElement = findPsiElement(project, e.dataContext)
+    if (psiElement != null) {
+      project.messageBus.syncPublisher(OpenClassFilesListener.OPEN_CLASS_FILES_TOPIC).openPsiElements(listOf(psiElement))
       return
     }
 
-    val psiElement = findPsiElement(project, e.dataContext) ?: return
-    project.messageBus.syncPublisher(OpenClassFilesListener.OPEN_CLASS_FILES_TOPIC).openPsiElements(listOf(psiElement))
+    val files = CommonDataKeys.VIRTUAL_FILE_ARRAY.getData(e.dataContext)
+    if (files != null) {
+      project.messageBus.syncPublisher(OpenClassFilesListener.OPEN_CLASS_FILES_TOPIC).openFiles(files.toList())
+    }
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //

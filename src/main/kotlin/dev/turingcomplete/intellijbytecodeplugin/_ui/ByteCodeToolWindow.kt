@@ -24,7 +24,7 @@ import com.intellij.util.castSafelyTo
 import com.intellij.util.ui.EmptyIcon
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesListener
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
-import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.AnalyzeBytecodeAction
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.AnalyzeByteCodeAction
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.OpenClassFilesTask
 import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
@@ -107,7 +107,7 @@ class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
         }
       }
 
-      appendLine(indentIcon(null), "From action '${AnalyzeBytecodeAction.TITLE}'", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
+      appendLine(indentIcon(null), "From action '${AnalyzeByteCodeAction.TITLE}'", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
 
       OpenClassFilesToolWindowAction.EP.extensions.forEach { openClassFilesAction ->
         appendLine(indentIcon(openClassFilesAction.icon), openClassFilesAction.linkTitle, SimpleTextAttributes.LINK_ATTRIBUTES) {
