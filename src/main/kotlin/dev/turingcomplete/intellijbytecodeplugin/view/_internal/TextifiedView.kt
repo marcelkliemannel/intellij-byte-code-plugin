@@ -14,7 +14,7 @@ class TextifiedView(classFileContext: ClassFileContext)
 
   companion object {
     // Example: "  private <init>(Ljava/lang/ClassLoader;Ljava/lang/Class;)V"
-    private val METHOD_LINE_REGEX = Regex("^\\s\\s(?:[^/\\s]+\\s)*(?<name>(\\w|\\\$|_)[^\\s(]+)\\(.*?\\).*\$")
+    private val METHOD_LINE_REGEX = Regex("^\\s\\s(?:[^/\\s]+\\s)*(?<name>(\\w|\\\$|_|<|>)[^\\s(]+)\\(.*?\\).*\$")
   }
 
   // -- Properties -------------------------------------------------------------------------------------------------- //
