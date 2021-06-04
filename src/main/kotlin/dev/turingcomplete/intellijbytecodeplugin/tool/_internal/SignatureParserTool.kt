@@ -8,14 +8,14 @@ import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.UIUtil
-import dev.turingcomplete.intellijbytecodeplugin.asm.Access
-import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.signature.SignatureReader
-import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.TraceSignatureVisitor
-import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.copyable
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideLeftInset
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideTopInset
+import dev.turingcomplete.intellijbytecodeplugin.asm.Access
+import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.signature.SignatureReader
+import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.TraceSignatureVisitor
+import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
 import org.apache.commons.lang.StringEscapeUtils
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
@@ -124,6 +124,8 @@ class SignatureParserTool : ByteCodeTool("Signature Parser") {
     override fun changedUpdate(e: DocumentEvent?) {
       parseSignature()
     }
+
+    override fun createActions() = arrayOf(myOKAction)
 
     private fun parseSignature() {
       resultContainer.removeAll()

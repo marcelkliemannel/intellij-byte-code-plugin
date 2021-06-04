@@ -22,11 +22,10 @@
   </extensionPoints>
 
   <extensions defaultExtensionNs="com.intellij">
-    <toolWindow id="Byte Code" factoryClass="dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindow"
-                anchor="right" canCloseContents="true" secondary="true"
-                icon="dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodePluginIcons.TOOL_WINDOW_ICON"/>
+    <toolWindow id="dev.turingcomplete.intellijbytecodeplugin.toolwindow" factoryClass="dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindow"
+                anchor="right" canCloseContents="true" secondary="true"/>
 
-    <notificationGroup displayType="BALLOON" id="org.example.byte-code-analyser-intellij-plugin.notificationGroup"/>
+    <notificationGroup displayType="BALLOON" id="dev.turingcomplete.intellijbytecodeplugin.notificationGroup"/>
 
     <getDataRule key="dev.turingcomplete.intellijbytecodeplugin.classFileContext"
                  implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$ClassFileContextDataRule"/>
@@ -57,7 +56,7 @@
   </extensions>
 
   <actions>
-    <action popup="true" id="dev.turingcomplete.intellijbytecodeplugin.AnalyzeByteCodeAction"
+    <action popup="true" id="dev.turingcomplete.intellijbytecodeplugin.analyzeByteCodeAction"
             class="dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.AnalyzeByteCodeAction">
       <add-to-group group-id="EditorPopupMenu" anchor="last"/>
       <add-to-group group-id="CodeMenu" anchor="last"/>

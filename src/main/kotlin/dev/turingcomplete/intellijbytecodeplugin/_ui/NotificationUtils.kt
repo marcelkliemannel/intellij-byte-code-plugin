@@ -10,7 +10,7 @@ internal object NotificationUtils {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   private val logger = Logger.getInstance(NotificationUtils::class.java)
-  private const val notificationGroupId = "org.example.byte-code-analyser-intellij-plugin.notificationGroup"
+  private const val notificationGroupId = "dev.turingcomplete.intellijbytecodeplugin.notificationGroup"
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exported Methods -------------------------------------------------------------------------------------------- //

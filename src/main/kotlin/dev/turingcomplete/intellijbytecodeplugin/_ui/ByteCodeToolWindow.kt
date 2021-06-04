@@ -36,7 +36,7 @@ class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
-    const val ID = "Byte Code"
+    const val ID = "dev.turingcomplete.intellijbytecodeplugin.toolwindow"
     const val PLUGIN_NAME = "Byte Code Analyzer"
 
     fun <T> getData(dataProvider: DataProvider, dataKey: DataKey<T>): Any? {
@@ -58,9 +58,14 @@ class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
 
     Disposer.register(toolWindow.disposable, this)
 
-    toolWindow.initDropTarget(project)
-    toolWindow.setupEmptyText(project)
-    toolWindow.initActions(project)
+    toolWindow.apply {
+      title = "Byte Code"
+      stripeTitle = "Byte Code"
+      setIcon(ByteCodePluginIcons.TOOL_WINDOW_ICON)
+      initDropTarget(project)
+      setupEmptyText(project)
+      initActions(project)
+    }
 
     project.messageBus.connect(this).apply {
       subscribe(OpenClassFilesListener.OPEN_CLASS_FILES_TOPIC, MyOpenClassFilesListener(project, toolWindow.contentManager))
