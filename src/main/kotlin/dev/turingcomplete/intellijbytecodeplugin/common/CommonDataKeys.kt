@@ -4,6 +4,7 @@ import com.intellij.ide.impl.dataRules.GetDataRule
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.DataKey
 import com.intellij.openapi.actionSystem.DataProvider
+import com.intellij.openapi.vfs.VirtualFile
 import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindow
 
 /**
@@ -26,6 +27,11 @@ object CommonDataKeys {
    */
   val ON_ERROR_DATA_KEY = DataKey.create<(String, Throwable) -> Unit>("dev.turingcomplete.intellijbytecodeplugin.onError")
 
+  /**
+   * The data key is also hard coded for the [OnErrorDataRule] in the `plugin.xml`.
+   */
+  val OPEN_IN_EDITOR_DATA_KEY = DataKey.create<VirtualFile>("dev.turingcomplete.intellijbytecodeplugin.openInEditor")
+
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
   // -- Private Methods --------------------------------------------------------------------------------------------- //
@@ -46,6 +52,16 @@ object CommonDataKeys {
     override fun getData(dataProvider: DataProvider): Any? {
       return dataProvider.getData(ON_ERROR_DATA_KEY.name)
              ?: ByteCodeToolWindow.getData(dataProvider, ON_ERROR_DATA_KEY)
+    }
+  }
+
+  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+
+  class OpenInEditorDataRule : GetDataRule {
+
+    override fun getData(dataProvider: DataProvider): Any? {
+      return dataProvider.getData(OPEN_IN_EDITOR_DATA_KEY.name)
+             ?: ByteCodeToolWindow.getData(dataProvider, OPEN_IN_EDITOR_DATA_KEY)
     }
   }
 }

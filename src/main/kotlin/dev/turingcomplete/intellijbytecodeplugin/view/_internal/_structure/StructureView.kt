@@ -6,17 +6,20 @@ import com.intellij.ide.actions.CollapseAllAction
 import com.intellij.ide.actions.ExpandAllAction
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
+import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.ScrollPaneFactory
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
+import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction.Companion.addAllByteCodeActions
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeView
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._class.ClassStructureNode
+import dev.turingcomplete.intellijbytecodeplugin.view.common.OpenInEditorAction
 import javax.swing.JComponent
 
 class StructureView(classFileContext: ClassFileContext)
-  : ByteCodeView(classFileContext, "Structure", AllIcons.Toolwindows.ToolWindowStructure) {
+  : ByteCodeView(classFileContext, "Structure", AllIcons.Toolwindows.ToolWindowStructure), DataProvider {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
@@ -38,6 +41,13 @@ class StructureView(classFileContext: ClassFileContext)
     tree.reload()
   }
 
+  override fun getData(dataId: String): Any? {
+    return when {
+      CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.`is`(dataId) -> classFileContext.classFile()
+      else -> super.getData(dataId)
+    }
+  }
+
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
   private fun createRootNode(classFileContext: ClassFileContext) : ClassStructureNode {
@@ -53,6 +63,9 @@ class StructureView(classFileContext: ClassFileContext)
       val treeExpander = DefaultTreeExpander(tree)
       add(ExpandAllAction { treeExpander })
       add(CollapseAllAction { treeExpander })
+
+      addSeparator()
+      add(OpenInEditorAction("Decompile Class File", AllIcons.Actions.Compile))
 
       addAllByteCodeActions()
     }

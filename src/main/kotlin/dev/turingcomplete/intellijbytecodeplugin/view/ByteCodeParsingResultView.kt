@@ -12,10 +12,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.editor.impl.EditorImpl
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
-import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
@@ -33,10 +30,12 @@ import com.intellij.util.ui.UIUtil
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideLeftInset
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
+import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.ClassReader
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction.Companion.addAllByteCodeActions
+import dev.turingcomplete.intellijbytecodeplugin.view.common.OpenInEditorAction
 import java.awt.Component
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
@@ -121,6 +120,13 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
         setReadOnly(true)
       }
       editor.component.requestFocusInWindow()
+    }
+  }
+
+  override fun getData(dataId: String): Any? {
+    return when {
+      CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.`is`(dataId) -> LightVirtualFile(openInEditorFileName(), editor.document.text)
+      else -> super.getData(dataId)
     }
   }
 
@@ -280,17 +286,6 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
 
     override fun updateButton(e: AnActionEvent) {
       e.presentation.icon = if (isSelected()) PlatformIcons.CHECK_ICON else EmptyIcon.create(PlatformIcons.CHECK_ICON)
-    }
-  }
-
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
-
-  private inner class OpenInEditorAction : DumbAwareAction("Open in Editor", null, AllIcons.Actions.MoveTo2) {
-
-    override fun actionPerformed(e: AnActionEvent) {
-      val file = LightVirtualFile(openInEditorFileName(), editor.document.text)
-      FileEditorManager.getInstance(classFileContext.project())
-              .openEditor(OpenFileDescriptor(classFileContext.project(), file), true)
     }
   }
 

@@ -121,7 +121,9 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
             (methodFrame.instruction is LabelNode) -> "<span class=\"contextHelp\">Label</span>"
             else -> null
           }
-          add(HtmlTextNode(displayValue = methodFrame.textifiedInstruction, postFix = postFix))
+          add(HtmlTextNode(displayValue = methodFrame.textifiedInstruction,
+                           rawValue = methodFrame.textifiedInstruction.trim(),
+                           postFix = postFix))
         }
 
         add(ShowFramesNode(methodFrames, methodNode))
