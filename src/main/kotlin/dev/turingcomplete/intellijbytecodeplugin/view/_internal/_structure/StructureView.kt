@@ -64,9 +64,6 @@ class StructureView(classFileContext: ClassFileContext)
       add(ExpandAllAction { treeExpander })
       add(CollapseAllAction { treeExpander })
 
-      addSeparator()
-      add(OpenInEditorAction("Decompile Class File", AllIcons.Actions.Compile))
-
       addAllByteCodeActions()
     }
     return ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, toolbarGroup, true).component
