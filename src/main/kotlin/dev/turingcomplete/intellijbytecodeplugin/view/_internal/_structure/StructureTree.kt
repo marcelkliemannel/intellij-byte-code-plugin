@@ -16,11 +16,11 @@ import com.intellij.util.PlatformIcons
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.tree.TreeUtil
-import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
 import dev.turingcomplete.intellijbytecodeplugin.asm.AsmMethodUtils
 import dev.turingcomplete.intellijbytecodeplugin.asm.AsmTypeUtils
+import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._class.ClassStructureNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.InteractiveNode
@@ -257,7 +257,7 @@ internal class StructureTree private constructor(classFileContext: ClassFileCont
   private inner class RenderOptionsGroup : DefaultActionGroup("Render Options", true), Toggleable, DumbAware {
 
     init {
-      templatePresentation.icon = AllIcons.Nodes.Jsf.Renderer
+      templatePresentation.icon = AllIcons.Actions.Edit
 
       AsmTypeUtils.TypeNameRenderMode.values().forEach {
         add(RenderOption(it.title, { context.typeNameRenderMode = it }, { context.typeNameRenderMode == it }))

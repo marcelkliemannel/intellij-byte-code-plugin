@@ -234,7 +234,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
       return object : DefaultActionGroup("Render Options", true), Toggleable, DumbAware {
 
         init {
-          templatePresentation.icon = AllIcons.Nodes.Jsf.Renderer
+          templatePresentation.icon = AllIcons.Actions.Edit
 
           AsmTypeUtils.TypeNameRenderMode.values().forEach {
             add(RenderOption(it.title, { stacksAndLocalsModel.typeNameRenderMode = it; }, { stacksAndLocalsModel.typeNameRenderMode == it }))

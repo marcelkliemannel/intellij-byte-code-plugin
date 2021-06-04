@@ -32,6 +32,8 @@ dependencies {
   asm("org.ow2.asm:asm-analysis:$asmVersion")
   asm("org.ow2.asm:asm-util:$asmVersion")
   asm("org.ow2.asm:asm-commons:$asmVersion")
+
+  testImplementation(localGroovy())
 }
 
 intellij {
@@ -45,4 +47,3 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     jvmTarget = "11"
   }
 }
-

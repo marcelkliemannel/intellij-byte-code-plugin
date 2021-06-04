@@ -107,7 +107,7 @@ class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
         }
       }
 
-      appendLine(indentIcon(null), "From action '${AnalyzeByteCodeAction.TITLE}'", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
+      appendLine(indentIcon(null), "From the action '${AnalyzeByteCodeAction.TITLE}'", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
 
       OpenClassFilesToolWindowAction.EP.extensions.forEach { openClassFilesAction ->
         appendLine(indentIcon(openClassFilesAction.icon), openClassFilesAction.linkTitle, SimpleTextAttributes.LINK_ATTRIBUTES) {

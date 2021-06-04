@@ -48,16 +48,14 @@
     <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.TextifiedView$MyCreator"/>
     <byteCodeView
-            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._editor.EditorView$MyCreator"/>
-    <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.AsmifiedView$MyCreator"/>
 
     <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.VerifyByteCodeAction"/>
   </extensions>
 
   <actions>
-    <action popup="true" id="dev.turingcomplete.intellijbytecodeplugin.analyzeBytecodeAction"
-            class="dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.AnalyzeBytecodeAction">
+    <action popup="true" id="dev.turingcomplete.intellijbytecodeplugin.AnalyzeByteCodeAction"
+            class="dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.AnalyzeByteCodeAction">
       <add-to-group group-id="EditorPopupMenu" anchor="last"/>
       <add-to-group group-id="CodeMenu" anchor="last"/>
       <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
