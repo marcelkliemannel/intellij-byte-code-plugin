@@ -47,6 +47,8 @@
     <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureView$MyCreator"/>
     <byteCodeView
+            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._constantpool.ConstantPoolView$MyCreator"/>
+    <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.TextifiedView$MyCreator"/>
     <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.AsmifiedView$MyCreator"/>

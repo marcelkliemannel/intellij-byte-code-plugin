@@ -1,7 +1,9 @@
 package dev.turingcomplete.intellijbytecodeplugin._ui
 
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
@@ -77,6 +79,28 @@ object UiUtils {
 
         override fun createCenterPanel() = content
       }.show()
+    }
+  }
+
+  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+
+  object PopUp {
+    fun showTextAreaPopup(value: String, dataContext: DataContext) {
+      val valueTextArea = Panel.TextArea(value)
+      JBPopupFactory.getInstance()
+              .createComponentPopupBuilder(valueTextArea, valueTextArea)
+              .setRequestFocus(true)
+              .setFocusable(true)
+              .setResizable(true)
+              .setMovable(true)
+              .setModalContext(false)
+              .setShowShadow(true)
+              .setShowBorder(true)
+              .setCancelKeyEnabled(true)
+              .setCancelOnClickOutside(true)
+              .setCancelOnOtherWindowOpen(true)
+              .createPopup()
+              .showInBestPositionFor(dataContext)
     }
   }
 

@@ -8,6 +8,8 @@ import java.util.zip.ZipFile
 object TestUtils {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
+  // todo move to abstract super class
+
   private const val LIMIT_CLASSES = 800
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
@@ -30,17 +32,17 @@ object TestUtils {
 
     // Test parsing of Kotlin classes
     findKotlinSdtLibInClassPath()
-            .forEach { kotlinStdLib -> testParameters.addAll(readArchiveEntriesPaths(kotlinStdLib.toFile()).take(LIMIT_CLASSES)) }
+            .forEach { kotlinStdLib -> testParameters.addAll(readArchiveEntriesPaths(kotlinStdLib.toFile()).shuffled().take(LIMIT_CLASSES)) }
     Assert.assertTrue(testParameters.size > 100)
 
     // Test parsing of Groovy classes
     findGroovyAllInClassPath()
-            .forEach { groovyAll -> testParameters.addAll(readArchiveEntriesPaths(groovyAll.toFile()).take(LIMIT_CLASSES)) }
+            .forEach { groovyAll -> testParameters.addAll(readArchiveEntriesPaths(groovyAll.toFile()).shuffled().take(LIMIT_CLASSES)) }
     Assert.assertTrue(testParameters.size > 200)
 
     // Test parsing of java.base classes
     val javaBaseJmodPath = Path.of(System.getProperty("java.home")).resolve(Path.of("jmods", "java.base.jmod"))
-    testParameters.addAll(readArchiveEntriesPaths(javaBaseJmodPath.toFile()).take(LIMIT_CLASSES))
+    testParameters.addAll(readArchiveEntriesPaths(javaBaseJmodPath.toFile()).shuffled().take(LIMIT_CLASSES))
     Assert.assertTrue(testParameters.size > 300)
 
     return testParameters

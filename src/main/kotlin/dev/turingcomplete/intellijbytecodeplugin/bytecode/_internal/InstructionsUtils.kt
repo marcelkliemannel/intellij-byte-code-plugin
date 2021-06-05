@@ -1,12 +1,12 @@
-package dev.turingcomplete.intellijbytecodeplugin.asm
+package dev.turingcomplete.intellijbytecodeplugin.bytecode._internal
 
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
 
 @Deprecated("Not fully implemented yet.")
-object AsmTextifierUtils {
+internal object InstructionsUtils {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
-  val SIMPLE_INSTRUCTIONS = arrayOf(Instruction(Opcodes.NOP, "NOP",  description = "Do nothing."),
+  val SIMPLE_INSTRUCTIONS = arrayOf(Instruction(Opcodes.NOP, "NOP", description = "Do nothing."),
                                     Instruction(Opcodes.ACONST_NULL, "ACONST_NULL", stackAfter = listOf("null"), description = "Push <code>null</code>."),
                                     Instruction(Opcodes.ICONST_M1, "ICONST_M1", stackAfter = listOf("-1"), description = "Push <code>int</code> constant <code>-1</code>."),
                                     Instruction(Opcodes.ICONST_0, "ICONST_0", stackAfter = listOf("0"), description = "Push <code>int</code> constant <code>0</code>."),

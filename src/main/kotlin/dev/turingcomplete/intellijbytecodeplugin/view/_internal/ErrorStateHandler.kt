@@ -2,6 +2,7 @@ package dev.turingcomplete.intellijbytecodeplugin.view._internal
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.ui.SideBorder
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
@@ -22,6 +23,11 @@ import javax.swing.*
 
 abstract class ErrorStateHandler {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
+
+  companion object {
+    private val LOG = Logger.getInstance(ErrorStateHandler::class.java)
+  }
+
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   private val inErrorState = AtomicBoolean()
@@ -44,6 +50,8 @@ abstract class ErrorStateHandler {
   protected abstract fun retry()
 
   fun onError(message: String, cause: Throwable) {
+    LOG.warn(message, cause)
+
     inErrorState.set(true)
     ApplicationManager.getApplication().invokeLater {
       componentContainer.apply {

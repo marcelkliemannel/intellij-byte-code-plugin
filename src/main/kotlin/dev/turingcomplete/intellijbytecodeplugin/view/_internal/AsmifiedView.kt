@@ -13,8 +13,8 @@ import com.intellij.openapi.util.Computable
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.LightVirtualFile
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.TraceUtils
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
-import dev.turingcomplete.intellijbytecodeplugin.asm.AsmTraceUtils
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.ASMifier
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeParsingResultView
 
@@ -33,8 +33,8 @@ class AsmifiedView(classFileContext: ClassFileContext)
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
-  override fun parseByteCode(parsingOptions: Int) : String {
-    return AsmTraceUtils.traceVisit(classFileContext.classReader(), parsingOptions, ASMifier())
+  override fun parseByteCode(parsingOptions: Int): String {
+    return TraceUtils.traceVisit(classFileContext.classReader(), parsingOptions, ASMifier())
   }
 
   override fun openInEditorFileName() = "${classFileContext.classFile().nameWithoutExtension}Dump.java"
@@ -55,8 +55,12 @@ class AsmifiedView(classFileContext: ClassFileContext)
    */
   private inner class ReformatCodeAction : DumbAwareAction("Reformat Code", null, AllIcons.Actions.PrettyPrint) {
 
+    override fun update(e: AnActionEvent) {
+      e.presentation.isEnabled = getText() != null
+    }
+
     override fun actionPerformed(e: AnActionEvent) {
-      val text = getText()
+      val text = getText() ?: return
       createPsiFile(text)?.let { psiFile -> formatCode(psiFile) { setText(it) } }
     }
 
@@ -77,7 +81,7 @@ class AsmifiedView(classFileContext: ClassFileContext)
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  class MyCreator: Creator {
+  class MyCreator : Creator {
     override fun create(classFileContext: ClassFileContext) = AsmifiedView(classFileContext)
   }
 }

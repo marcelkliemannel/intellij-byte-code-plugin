@@ -5,8 +5,8 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBEmptyBorder
 import com.intellij.util.ui.components.BorderLayoutPanel
-import dev.turingcomplete.intellijbytecodeplugin.asm.AccessGroup
 import dev.turingcomplete.intellijbytecodeplugin._ui.copyable
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.AccessGroup
 import java.awt.Dimension
 import java.util.*
 import javax.swing.JLabel

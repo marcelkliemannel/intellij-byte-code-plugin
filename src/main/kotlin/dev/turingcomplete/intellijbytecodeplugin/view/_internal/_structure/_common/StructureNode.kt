@@ -3,8 +3,8 @@ package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._com
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.ui.tree.LeafState
-import dev.turingcomplete.intellijbytecodeplugin.asm.AccessGroup
-import dev.turingcomplete.intellijbytecodeplugin.asm.AsmTypeUtils
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.AccessGroup
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Attribute
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.AnnotationNode
@@ -175,7 +175,7 @@ internal abstract class StructureNode : DefaultMutableTreeNode(), LeafState.Supp
               .joinToString(", ", prefix = "(", postfix = ")")
     } ?: ""
     val internalName = Type.getType(annotation.desc).internalName
-    return HtmlTextNode(displayValue = { ctx -> AsmTypeUtils.toReadableTypeName(internalName, ctx.typeNameRenderMode) + values },
+    return HtmlTextNode(displayValue = { ctx -> TypeUtils.toReadableName(internalName, ctx.typeNameRenderMode) + values },
                         postFix = postFix,
                         icon = AllIcons.Nodes.Annotationtype)
   }

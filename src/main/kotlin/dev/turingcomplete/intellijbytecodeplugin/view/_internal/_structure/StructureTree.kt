@@ -6,7 +6,6 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.DumbAwareAction
-import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.LoadingNode
 import com.intellij.ui.scale.JBUIScale
 import com.intellij.ui.tree.AsyncTreeModel
@@ -18,8 +17,8 @@ import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.tree.TreeUtil
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
-import dev.turingcomplete.intellijbytecodeplugin.asm.AsmMethodUtils
-import dev.turingcomplete.intellijbytecodeplugin.asm.AsmTypeUtils
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._class.ClassStructureNode
@@ -234,21 +233,7 @@ internal class StructureTree private constructor(classFileContext: ClassFileCont
     : DumbAwareAction("View Value") {
 
     override fun actionPerformed(e: AnActionEvent) {
-      val valueTextArea = UiUtils.Panel.TextArea(valueNode.rawValue(context))
-      JBPopupFactory.getInstance()
-              .createComponentPopupBuilder(valueTextArea, valueTextArea)
-              .setRequestFocus(true)
-              .setFocusable(true)
-              .setResizable(true)
-              .setMovable(true)
-              .setModalContext(false)
-              .setShowShadow(true)
-              .setShowBorder(true)
-              .setCancelKeyEnabled(true)
-              .setCancelOnClickOutside(true)
-              .setCancelOnOtherWindowOpen(true)
-              .createPopup()
-              .showInBestPositionFor(e.dataContext)
+      UiUtils.PopUp.showTextAreaPopup(valueNode.rawValue(context), e.dataContext)
     }
   }
 
@@ -259,7 +244,7 @@ internal class StructureTree private constructor(classFileContext: ClassFileCont
     init {
       templatePresentation.icon = AllIcons.Actions.Edit
 
-      AsmTypeUtils.TypeNameRenderMode.values().forEach {
+      TypeUtils.TypeNameRenderMode.values().forEach {
         add(RenderOption(it.title, { context.typeNameRenderMode = it }, { context.typeNameRenderMode == it }))
       }
 
@@ -270,7 +255,7 @@ internal class StructureTree private constructor(classFileContext: ClassFileCont
 
       addSeparator()
 
-      AsmMethodUtils.MethodDescriptorRenderMode.values().forEach {
+      MethodDeclarationUtils.MethodDescriptorRenderMode.values().forEach {
         add(RenderOption(it.title, { context.methodDescriptorRenderMode = it }, { context.methodDescriptorRenderMode == it }))
       }
     }

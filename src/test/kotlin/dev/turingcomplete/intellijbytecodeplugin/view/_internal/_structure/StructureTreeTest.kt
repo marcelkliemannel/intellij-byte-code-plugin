@@ -7,8 +7,8 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.testFramework.LightPlatform4TestCase
 import dev.turingcomplete.intellijbytecodeplugin.TestUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.DefaultClassFileContext
-import dev.turingcomplete.intellijbytecodeplugin.asm.AsmMethodUtils
-import dev.turingcomplete.intellijbytecodeplugin.asm.AsmTypeUtils
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.ValueNode
 import junit.framework.AssertionFailedError
 import org.junit.Assert
@@ -45,12 +45,12 @@ class StructureTreeTest(testName: String, private val classFilePath: String) : L
 
     val defaultStructureTreeContext = StructureTreeContext(project) {}
     structureTreeContextPermutations.add(defaultStructureTreeContext)
-    AsmTypeUtils.TypeNameRenderMode.values()
+    TypeUtils.TypeNameRenderMode.values()
             .filter { defaultStructureTreeContext.typeNameRenderMode != it }
             .forEach {
               structureTreeContextPermutations.add(StructureTreeContext(project) {}.apply { typeNameRenderMode = it })
             }
-    AsmMethodUtils.MethodDescriptorRenderMode.values()
+    MethodDeclarationUtils.MethodDescriptorRenderMode.values()
             .filter { defaultStructureTreeContext.methodDescriptorRenderMode != it }
             .forEach {
               structureTreeContextPermutations.add(StructureTreeContext(project) {}.apply { methodDescriptorRenderMode = it })

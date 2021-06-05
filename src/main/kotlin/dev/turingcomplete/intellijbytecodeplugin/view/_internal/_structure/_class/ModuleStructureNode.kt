@@ -1,8 +1,8 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._class
 
 import com.intellij.icons.AllIcons
-import dev.turingcomplete.intellijbytecodeplugin.asm.AccessGroup
-import dev.turingcomplete.intellijbytecodeplugin.asm.AsmTypeUtils
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.AccessGroup
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ModuleNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.StructureNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.TextNode
@@ -88,15 +88,15 @@ internal class ModuleStructureNode(private val moduleNode: ModuleNode)
 
   private fun addUsesNode() {
     addTitleNodeWithElements(moduleNode.uses, { TextNode("Uses") }) { _, uses ->
-      ValueNode("Service:", { ctx -> AsmTypeUtils.toReadableTypeName(uses, ctx.typeNameRenderMode) })
+      ValueNode("Service:", { ctx -> TypeUtils.toReadableName(uses, ctx.typeNameRenderMode) })
     }
   }
 
   private fun addProvidesNode() {
     addTitleNodeWithElements(moduleNode.provides, { TextNode("Provides") }) { _, provides ->
-      ValueNode("Service:", { ctx -> AsmTypeUtils.toReadableTypeName(provides.service, ctx.typeNameRenderMode) }).apply {
+      ValueNode("Service:", { ctx -> TypeUtils.toReadableName(provides.service, ctx.typeNameRenderMode) }).apply {
         provides.providers.forEach { provider ->
-          add(ValueNode("with Provider:", { ctx -> AsmTypeUtils.toReadableTypeName(provider, ctx.typeNameRenderMode) }))
+          add(ValueNode("with Provider:", { ctx -> TypeUtils.toReadableName(provider, ctx.typeNameRenderMode) }))
         }
       }
     }

@@ -28,7 +28,7 @@ class ClassFileTab(private val project: Project, private val classFile: VirtualF
 
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
-  private lateinit var byteCodeViews : List<ByteCodeView>
+  private lateinit var byteCodeViews: List<ByteCodeView>
   var selectedByteCodeView: ByteCodeView? = null
   private val centerComponentContainer = BorderLayoutPanel()
 
@@ -52,11 +52,9 @@ class ClassFileTab(private val project: Project, private val classFile: VirtualF
   private fun loadClassNodeContext() {
     setCenter(JBLabel("Parsing '${classFile.nameWithoutExtension}'...", AnimatedIcon.Default(), SwingConstants.CENTER))
 
-    ApplicationManager.getApplication().executeOnPooledThread {
-      val onSuccess = loadTabs()
-      DefaultClassFileContext.loadAsync(project, classFile, onSuccess) { cause ->
-        onError("Failed to parse class file '${classFile.name}'", cause)
-      }
+    val onSuccess = loadTabs()
+    DefaultClassFileContext.loadAsync(project, classFile, onSuccess) { cause ->
+      onError("Failed to parse class file '${classFile.name}'", cause)
     }
   }
 

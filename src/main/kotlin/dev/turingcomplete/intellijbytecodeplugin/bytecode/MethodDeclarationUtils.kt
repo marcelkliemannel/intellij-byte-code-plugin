@@ -1,9 +1,9 @@
-package dev.turingcomplete.intellijbytecodeplugin.asm
+package dev.turingcomplete.intellijbytecodeplugin.bytecode
 
 import com.intellij.openapi.util.text.StringUtil
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
 
-object AsmMethodUtils {
+object MethodDeclarationUtils {
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
@@ -11,7 +11,7 @@ object AsmMethodUtils {
   fun toReadableDeclaration(name: String,
                             descriptor: String,
                             ownerInternalName: String,
-                            typeNameRenderMode: AsmTypeUtils.TypeNameRenderMode,
+                            typeNameRenderMode: TypeUtils.TypeNameRenderMode,
                             methodDescriptorRenderMode: MethodDescriptorRenderMode,
                             formatWithHtml: Boolean): String {
 
@@ -21,22 +21,22 @@ object AsmMethodUtils {
         "<clinit>" -> if (formatWithHtml) "<html><b>Static Initializer</b></html>" else "Static Initializer"
         "<init>" -> {
           if (formatWithHtml) {
-            "<html><b>${AsmTypeUtils.toReadableTypeName(ownerInternalName, AsmTypeUtils.TypeNameRenderMode.SIMPLE)}</b>" +
+            "<html><b>${TypeUtils.toReadableName(ownerInternalName, TypeUtils.TypeNameRenderMode.SIMPLE)}</b>" +
             "(${toReadableParameters(Type.getMethodType(descriptor), typeNameRenderMode)})</html>"
           }
           else {
-            AsmTypeUtils.toReadableTypeName(ownerInternalName, AsmTypeUtils.TypeNameRenderMode.SIMPLE) +
+            TypeUtils.toReadableName(ownerInternalName, TypeUtils.TypeNameRenderMode.SIMPLE) +
             "(${toReadableParameters(Type.getMethodType(descriptor), typeNameRenderMode)})"
           }
         }
         else -> {
           val methodType = Type.getMethodType(descriptor)
           if (formatWithHtml) {
-            "<html>${AsmTypeUtils.toReadableType(methodType.returnType, typeNameRenderMode)} " +
+            "<html>${TypeUtils.toReadableType(methodType.returnType, typeNameRenderMode)} " +
             "<b>$name</b>(${toReadableParameters(methodType, typeNameRenderMode)})</html>"
           }
           else {
-            "${AsmTypeUtils.toReadableType(methodType.returnType, typeNameRenderMode)} " +
+            "${TypeUtils.toReadableType(methodType.returnType, typeNameRenderMode)} " +
             "$name(${toReadableParameters(methodType, typeNameRenderMode)})"
           }
         }
@@ -46,8 +46,8 @@ object AsmMethodUtils {
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
-  private fun toReadableParameters(methodType: Type, typeNameRenderMode: AsmTypeUtils.TypeNameRenderMode): String {
-    return methodType.argumentTypes.joinToString(", ") { AsmTypeUtils.toReadableType(it, typeNameRenderMode) }
+  private fun toReadableParameters(methodType: Type, typeNameRenderMode: TypeUtils.TypeNameRenderMode): String {
+    return methodType.argumentTypes.joinToString(", ") { TypeUtils.toReadableType(it, typeNameRenderMode) }
   }
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //

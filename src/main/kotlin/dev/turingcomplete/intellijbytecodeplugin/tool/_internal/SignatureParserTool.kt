@@ -12,7 +12,7 @@ import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.copyable
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideLeftInset
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideTopInset
-import dev.turingcomplete.intellijbytecodeplugin.asm.Access
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.Access
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.signature.SignatureReader
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.TraceSignatureVisitor
 import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool

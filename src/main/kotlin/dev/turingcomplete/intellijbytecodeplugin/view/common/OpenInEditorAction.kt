@@ -18,10 +18,10 @@ class OpenInEditorAction(@Nullable @NlsActions.ActionText text: String = "Open i
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
   override fun actionPerformed(e: AnActionEvent) {
-    val project = CommonDataKeys.PROJECT.getData(e.dataContext) ?: throw IllegalStateException("snh: Missing data")
+    val project = CommonDataKeys.PROJECT.getData(e.dataContext) ?: throw IllegalStateException("snh: Missing data: ${CommonDataKeys.PROJECT.name}")
 
     val openInEditorFile = dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.getData(e.dataContext)
-                           ?: throw IllegalStateException("snh: Missing data")
+                           ?: throw IllegalStateException("snh: Missing data: ${dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.name}")
 
     FileEditorManager.getInstance(project).openEditor(OpenFileDescriptor(project, openInEditorFile), true)
   }

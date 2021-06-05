@@ -1,4 +1,4 @@
-package dev.turingcomplete.intellijbytecodeplugin.asm
+package dev.turingcomplete.intellijbytecodeplugin.bytecode
 
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.ClassReader
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.Printer
@@ -6,7 +6,7 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.TraceCla
 import java.io.PrintWriter
 import java.io.StringWriter
 
-object AsmTraceUtils {
+object TraceUtils {
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //

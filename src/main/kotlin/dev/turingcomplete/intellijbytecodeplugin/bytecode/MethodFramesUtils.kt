@@ -1,4 +1,4 @@
-package dev.turingcomplete.intellijbytecodeplugin.asm
+package dev.turingcomplete.intellijbytecodeplugin.bytecode
 
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Label
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
@@ -16,12 +16,12 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.TraceMet
 import java.io.PrintWriter
 import java.io.StringWriter
 
-object AsmFrameUtils {
+object MethodFramesUtils {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
-  fun collectMethodFrames(method: MethodNode, owner: ClassNode): MethodFrames {
+  fun collectFrames(method: MethodNode, owner: ClassNode): MethodFrames {
     val instructionTextifier = ExtendedTextifier()
     val frames = Analyzer(ExtendedInterpreter()).analyze(owner.name, method)
     val methodFrames = (0 until method.instructions.size()).asSequence().map { i ->

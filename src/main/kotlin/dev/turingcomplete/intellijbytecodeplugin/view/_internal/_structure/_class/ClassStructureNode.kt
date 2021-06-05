@@ -8,10 +8,10 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.jrt.JrtFileSystem
 import com.intellij.openapi.vfs.newvfs.ArchiveFileSystem
 import com.intellij.util.text.DateFormatUtil
-import dev.turingcomplete.intellijbytecodeplugin.asm.AccessGroup
-import dev.turingcomplete.intellijbytecodeplugin.asm.AsmClassVersionUtils
-import dev.turingcomplete.intellijbytecodeplugin.asm.AsmMethodUtils
-import dev.turingcomplete.intellijbytecodeplugin.asm.AsmTypeUtils
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.AccessGroup
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.ClassVersionUtils
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.HtmlTextNode
@@ -27,7 +27,7 @@ import javax.swing.Icon
 
 
 internal class ClassStructureNode(private val classNode: ClassNode, private val classFile: VirtualFile)
-  : ValueNode(displayValue = { cxt -> AsmTypeUtils.toReadableTypeName(classNode.name, cxt.typeNameRenderMode) },
+  : ValueNode(displayValue = { cxt -> TypeUtils.toReadableName(classNode.name, cxt.typeNameRenderMode) },
               icon = determineClassIcon(classNode)) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
@@ -78,7 +78,7 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
   private fun addClassVersionNode() {
     add(HtmlTextNode("Class version:", classNode.version.toString(),
-                     postFix = AsmClassVersionUtils.toClassVersion(classNode.version)?.let {
+                     postFix = ClassVersionUtils.toClassVersion(classNode.version)?.let {
                        "<span class=\"contextHelp\">${it.specification}</span>"
                      },
                      icon = AllIcons.FileTypes.Java))
@@ -86,7 +86,7 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
   private fun addSuperNameNode() {
     classNode.superName?.let { superName ->
-      add(ValueNode("Super:", { ctx -> AsmTypeUtils.toReadableTypeName(superName, ctx.typeNameRenderMode) }, icon = AllIcons.Hierarchy.Supertypes))
+      add(ValueNode("Super:", { ctx -> TypeUtils.toReadableName(superName, ctx.typeNameRenderMode) }, icon = AllIcons.Hierarchy.Supertypes))
     }
   }
 
@@ -114,15 +114,15 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
   private fun addOuterClassNode() {
     classNode.outerClass?.let { outerClass ->
-      add(ValueNode("Outer class:", { ctx -> AsmTypeUtils.toReadableTypeName(outerClass, ctx.typeNameRenderMode) }))
+      add(ValueNode("Outer class:", { ctx -> TypeUtils.toReadableName(outerClass, ctx.typeNameRenderMode) }))
     }
   }
 
   private fun addOuterMethodNode() {
     classNode.outerMethod?.let { outerMethod ->
       add(ValueNode("Outer method:",
-                    { ctx -> AsmMethodUtils.toReadableDeclaration(outerMethod, classNode.outerMethodDesc ?: "", classNode.outerMethodDesc ?: "", ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, true) },
-                    { ctx -> AsmMethodUtils.toReadableDeclaration(outerMethod, classNode.outerMethodDesc ?: "", classNode.outerMethodDesc ?: "", ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, false) }
+                    { ctx -> MethodDeclarationUtils.toReadableDeclaration(outerMethod, classNode.outerMethodDesc ?: "", classNode.outerMethodDesc ?: "", ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, true) },
+                    { ctx -> MethodDeclarationUtils.toReadableDeclaration(outerMethod, classNode.outerMethodDesc ?: "", classNode.outerMethodDesc ?: "", ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, false) }
                    ))
     }
   }
@@ -134,18 +134,18 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
     add(TextNode("Nest").apply {
       classNode.nestHostClass?.let { nestHostClass ->
-        add(ValueNode("Nest host:", { ctx -> AsmTypeUtils.toReadableTypeName(nestHostClass, ctx.typeNameRenderMode) }))
+        add(ValueNode("Nest host:", { ctx -> TypeUtils.toReadableName(nestHostClass, ctx.typeNameRenderMode) }))
       }
 
       addTitleNodeWithElements(classNode.nestMembers, { TextNode("Nest Members") }) { _, nestMember ->
-        ValueNode(displayValue = { ctx -> AsmTypeUtils.toReadableTypeName(nestMember, ctx.typeNameRenderMode) })
+        ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(nestMember, ctx.typeNameRenderMode) })
       }
     })
   }
 
   private fun addInnerClasses() {
     addTitleNodeWithElements(classNode.innerClasses, { TextNode("Inner classes", AllIcons.Nodes.Class) }) { _, innerClass ->
-      ValueNode(displayValue = { ctx -> AsmTypeUtils.toReadableTypeName(innerClass.name, ctx.typeNameRenderMode) }, icon = AllIcons.Nodes.Class)
+      ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(innerClass.name, ctx.typeNameRenderMode) }, icon = AllIcons.Nodes.Class)
     }
   }
 
@@ -157,7 +157,7 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
   private fun addInterfacesNode() {
     addTitleNodeWithElements(classNode.interfaces, { TextNode("Interfaces", AllIcons.Nodes.Interface) }) { _, `interface` ->
-      ValueNode(displayValue = { ctx -> AsmTypeUtils.toReadableTypeName(`interface`, ctx.typeNameRenderMode) }, icon = AllIcons.Nodes.Interface)
+      ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(`interface`, ctx.typeNameRenderMode) }, icon = AllIcons.Nodes.Interface)
     }
   }
 
@@ -183,7 +183,7 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
   private fun addPermittedSubclassesNode() {
     addTitleNodeWithElements(classNode.permittedSubclasses, { TextNode("Permitted subclasses", AllIcons.General.OverridingMethod) }) { _, subclass ->
-      ValueNode(displayValue = { ctx -> AsmTypeUtils.toReadableTypeName(subclass, ctx.typeNameRenderMode) }, icon = AllIcons.General.OverridingMethod)
+      ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(subclass, ctx.typeNameRenderMode) }, icon = AllIcons.General.OverridingMethod)
     }
   }
 

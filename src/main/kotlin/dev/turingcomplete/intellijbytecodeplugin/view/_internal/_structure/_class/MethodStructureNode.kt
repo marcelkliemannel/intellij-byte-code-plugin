@@ -3,13 +3,14 @@ package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._cla
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.project.DumbAwareToggleAction
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.table.JBTable
 import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
-import dev.turingcomplete.intellijbytecodeplugin.asm.*
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.*
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Label
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNode
@@ -33,8 +34,8 @@ import kotlin.streams.toList
 
 
 internal class MethodStructureNode(private val methodNode: MethodNode, private val classNode: ClassNode)
-  : ValueNode(displayValue = { ctx -> AsmMethodUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, true) },
-              rawValue = { ctx -> AsmMethodUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, false) },
+  : ValueNode(displayValue = { ctx -> MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, true) },
+              rawValue = { ctx -> MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, false) },
               icon = AllIcons.Nodes.Method) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
@@ -63,7 +64,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
 
   private fun addMethodExceptionsNode() {
     addTitleNodeWithElements(methodNode.exceptions, { TextNode("Exceptions", AllIcons.Nodes.ExceptionClass) }) { _, exception ->
-      ValueNode(displayValue = { ctx -> AsmTypeUtils.toReadableTypeName(exception, ctx.typeNameRenderMode) },
+      ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(exception, ctx.typeNameRenderMode) },
                 icon = AllIcons.Nodes.ExceptionClass)
     }
   }
@@ -78,7 +79,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
     add(TextNode("Parameters", AllIcons.Nodes.Parameter).apply {
       nameToAccess.mapIndexed { index, nameToAccess ->
         val valueNode = if (index < methodParameterTypes.size) {
-          ValueNode(displayValue = { ctx -> "${nameToAccess.first}: ${AsmTypeUtils.toReadableType(methodParameterTypes[index], ctx.typeNameRenderMode)}" }, icon = AllIcons.Nodes.Parameter)
+          ValueNode(displayValue = { ctx -> "${nameToAccess.first}: ${TypeUtils.toReadableType(methodParameterTypes[index], ctx.typeNameRenderMode)}" }, icon = AllIcons.Nodes.Parameter)
         }
         else {
           ValueNode(displayValue = nameToAccess.first, icon = AllIcons.Nodes.Parameter)
@@ -114,7 +115,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
 
     add(TextNode("Instructions", AllIcons.Actions.ListFiles).apply {
       asyncAdd(true) {
-        val (labelNames, methodFrames) = AsmFrameUtils.collectMethodFrames(methodNode, classNode)
+        val (labelNames, methodFrames) = MethodFramesUtils.collectFrames(methodNode, classNode)
         methodFrames.forEach { methodFrame ->
           val postFix = when {
             (methodFrame.instruction.opcode >= 0) -> "<span class=\"contextHelp\">Opcode: ${methodFrame.instruction.opcode}</span>"
@@ -137,7 +138,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
 
   private fun addLocalVariablesNode() {
     addTitleNodeWithElements(sortedLocalVariables, { TextNode("Local Variables", AllIcons.Nodes.Variable) }) { index, localVariable ->
-      ValueNode(displayValue = { ctx -> "#${localVariable.index} ${localVariable.name}: ${AsmTypeUtils.toReadableType(localVariable.desc, ctx.typeNameRenderMode)}" },
+      ValueNode(displayValue = { ctx -> "#${localVariable.index} ${localVariable.name}: ${TypeUtils.toReadableType(localVariable.desc, ctx.typeNameRenderMode)}" },
                 icon = AllIcons.Nodes.Variable).apply {
         asyncAdd {
           addSignatureNode(localVariable.signature)
@@ -159,7 +160,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  private class ShowFramesNode(private val methodFrames: List<AsmFrameUtils.MethodFrame>,
+  private class ShowFramesNode(private val methodFrames: List<MethodFramesUtils.MethodFrame>,
                                private val methodNode: MethodNode) : HyperLinkNode("Show frames") {
     init {
       addHyperLinkListener(createHyperLinkListener())
@@ -200,8 +201,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
       }
 
       if (tryCatchBlock.type != null) {
-        HtmlTextNode("Type:",
-                     { ctx -> AsmTypeUtils.toReadableTypeName(tryCatchBlock.type, ctx.typeNameRenderMode) },
+        HtmlTextNode(displayValue = { ctx -> TypeUtils.toReadableName(tryCatchBlock.type, ctx.typeNameRenderMode) },
                      postFix = postFix)
       }
       else {
@@ -212,7 +212,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  private class FramesPanel(initialTypeNameRenderMode: AsmTypeUtils.TypeNameRenderMode, methodFrames: List<AsmFrameUtils.MethodFrame>)
+  private class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, methodFrames: List<MethodFramesUtils.MethodFrame>)
     : SimpleToolWindowPanel(false, true) {
 
     private val stacksAndLocalsModel = FramesModel(initialTypeNameRenderMode, methodFrames)
@@ -238,7 +238,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
         init {
           templatePresentation.icon = AllIcons.Actions.Edit
 
-          AsmTypeUtils.TypeNameRenderMode.values().forEach {
+          TypeUtils.TypeNameRenderMode.values().forEach {
             add(RenderOption(it.title, { stacksAndLocalsModel.typeNameRenderMode = it; }, { stacksAndLocalsModel.typeNameRenderMode == it }))
           }
         }
@@ -246,7 +246,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
     }
 
     private fun createShowMultipleValuesVerticallyToggleAction(): ToggleAction {
-      return object : ToggleAction("Show Multiple Values in Multiple Rows", null, AllIcons.Actions.SplitHorizontally) {
+      return object : DumbAwareToggleAction("Show Multiple Values in Multiple Rows", null, AllIcons.Actions.SplitHorizontally) {
 
         override fun isSelected(e: AnActionEvent): Boolean = stacksAndLocalsModel.frameAsMultipleRows
 
@@ -262,10 +262,10 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  private class FramesModel(initialTypeNameRenderMode: AsmTypeUtils.TypeNameRenderMode,
-                            private val frames: List<AsmFrameUtils.MethodFrame>) : AbstractTableModel() {
+  private class FramesModel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode,
+                            private val frames: List<MethodFramesUtils.MethodFrame>) : AbstractTableModel() {
 
-    var typeNameRenderMode: AsmTypeUtils.TypeNameRenderMode by Delegates.observable(initialTypeNameRenderMode, rebuildData())
+    var typeNameRenderMode: TypeUtils.TypeNameRenderMode by Delegates.observable(initialTypeNameRenderMode, rebuildData())
     var frameAsMultipleRows: Boolean by Delegates.observable(true, rebuildData())
 
     private lateinit var data: Array<Array<String>>
@@ -305,10 +305,10 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
     private fun collectFrameAsSingleRow(): Array<Array<String>> {
       return frames.map { frame ->
         val locals = frame.locals.joinToString(" | ") { local ->
-          AsmTypeUtils.toReadableType(local, typeNameRenderMode)
+          TypeUtils.toReadableType(local, typeNameRenderMode)
         }
         val stackElements = frame.stack.joinToString(" | ") { stackElement ->
-          AsmTypeUtils.toReadableType(stackElement, typeNameRenderMode)
+          TypeUtils.toReadableType(stackElement, typeNameRenderMode)
         }
         arrayOf(frame.textifiedInstruction, locals, stackElements)
       }.toTypedArray()
@@ -320,10 +320,10 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
         val frameData = Array(maxRows) { Array(3) { "" } }
         frameData[0][0] = frame.textifiedInstruction
         frame.locals.forEachIndexed { localIndex, local ->
-          frameData[localIndex][1] = AsmTypeUtils.toReadableType(local, typeNameRenderMode)
+          frameData[localIndex][1] = TypeUtils.toReadableType(local, typeNameRenderMode)
         }
         frame.stack.forEachIndexed { stackIndex, stackElement ->
-          frameData[stackIndex][2] = AsmTypeUtils.toReadableType(stackElement, typeNameRenderMode)
+          frameData[stackIndex][2] = TypeUtils.toReadableType(stackElement, typeNameRenderMode)
         }
         frameData
       }.reduceOrNull { acc, unit -> acc.plus(unit) } ?: arrayOf()

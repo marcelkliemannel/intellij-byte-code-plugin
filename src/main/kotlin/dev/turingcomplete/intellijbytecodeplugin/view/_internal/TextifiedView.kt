@@ -1,7 +1,7 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal
 
 import com.intellij.icons.AllIcons
-import dev.turingcomplete.intellijbytecodeplugin.asm.AsmTraceUtils
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.TraceUtils
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.Textifier
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeParsingResultView
@@ -23,7 +23,7 @@ class TextifiedView(classFileContext: ClassFileContext)
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
   override fun parseByteCode(parsingOptions: Int) : String {
-    return AsmTraceUtils.traceVisit(classFileContext.classReader(), parsingOptions, Textifier())
+    return TraceUtils.traceVisit(classFileContext.classReader(), parsingOptions, Textifier())
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //

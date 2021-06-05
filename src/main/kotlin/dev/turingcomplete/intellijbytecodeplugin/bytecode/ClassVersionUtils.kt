@@ -1,6 +1,6 @@
-package dev.turingcomplete.intellijbytecodeplugin.asm
+package dev.turingcomplete.intellijbytecodeplugin.bytecode
 
-object AsmClassVersionUtils {
+object ClassVersionUtils {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   val CLASS_VERSIONS = arrayOf(ClassVersion(61, "Java SE 17"),

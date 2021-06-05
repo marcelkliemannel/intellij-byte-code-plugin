@@ -50,7 +50,6 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
-  private val toolbarActionsComponent: JComponent by lazy { createToolbarActionsComponent() }
   private val editor: EditorEx by lazy { createEditor() }
   private val parsingIndicatorLabel by lazy { JBLabel("Parsing...") }
 
@@ -81,7 +80,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
     return SimpleToolWindowPanel(true, false).apply {
       toolbar = JPanel(GridBagLayout()).apply {
         val bag = UiUtils.createDefaultGridBag().setDefaultAnchor(GridBagConstraints.WEST)
-        add(toolbarActionsComponent, bag.nextLine().next().fillCellHorizontally().weightx(1.0))
+        add(createToolbarActionsComponent(), bag.nextLine().next().fillCellHorizontally().weightx(1.0))
         add(parsingIndicatorLabel.apply { border = JBUI.Borders.empty(2) }, bag.next().fillCellVertically())
         add(goToMethodsLink, bag.next().fillCellHorizontally().overrideLeftInset(2).overrideLeftInset(2))
       }
@@ -110,7 +109,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
     asyncParseByteCode()
   }
 
-  protected fun getText(): String = editor.document.text
+  protected fun getText(): String? = if (parsingIndicatorLabel.isVisible) null else editor.document.text
 
   protected fun setText(text: String) {
     DocumentUtil.writeInRunUndoTransparentAction {
@@ -125,7 +124,9 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
 
   override fun getData(dataId: String): Any? {
     return when {
-      CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.`is`(dataId) -> LightVirtualFile(openInEditorFileName(), editor.document.text)
+      CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.`is`(dataId) && !parsingIndicatorLabel.isVisible -> {
+        LightVirtualFile(openInEditorFileName(), editor.document.text)
+      }
       else -> super.getData(dataId)
     }
   }
@@ -155,12 +156,18 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
 
   private fun createToolbarActionsComponent(): JComponent {
     val toolbarActionsGroup = DefaultActionGroup().apply {
-      add(DefaultActionGroup("Parsing Options", true).apply {
-        templatePresentation.icon = AllIcons.General.Filter
+      add(object: DefaultActionGroup("Parsing Options", true) {
+        init {
+          templatePresentation.icon = AllIcons.General.Filter
 
-        add(ToggleParsingOptionAction("Skip Debug Information", { skipDebug }, { skipDebug = !skipDebug }))
-        add(ToggleParsingOptionAction("Skip Method Code", { skipCode }, { skipCode = !skipCode }))
-        add(ToggleParsingOptionAction("Skip Frames", { skipFrame }, { skipFrame = !skipFrame }))
+          add(ToggleParsingOptionAction("Skip Debug Information", { skipDebug }, { skipDebug = !skipDebug }))
+          add(ToggleParsingOptionAction("Skip Method Code", { skipCode }, { skipCode = !skipCode }))
+          add(ToggleParsingOptionAction("Skip Frames", { skipFrame }, { skipFrame = !skipFrame }))
+        }
+
+        override fun update(e: AnActionEvent) {
+          e.presentation.isEnabled = !parsingIndicatorLabel.isVisible
+        }
       })
 
       addSeparator()
@@ -198,27 +205,9 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
   }
 
   private fun asyncParseByteCode() {
-    UIUtil.setEnabled(toolbarActionsComponent, false, true)
     parsingIndicatorLabel.isVisible = true
 
-    val doParseByteCode = {
-      parsingResultCache.computeIfAbsent(calculateParsingOptions()) { parsingOptions ->
-        val text = parseByteCode(parsingOptions)
-
-        val lineOfMethod = mutableMapOf<Int, String>()
-        if (goToMethodsRegex != null) {
-          text.lines().forEachIndexed { lineNumber, line ->
-            val methodMatcher = goToMethodsRegex.matchEntire(line)
-            if (methodMatcher != null) {
-              lineOfMethod[lineNumber] = methodMatcher.groups["name"]!!.value
-            }
-          }
-        }
-
-        ByteCodeParsingResult(text, lineOfMethod)
-      }
-    }
-    AsyncUtils.runAsync(classFileContext.project(), doParseByteCode, { result ->
+    AsyncUtils.runAsync(classFileContext.project(), doParseByteCode(goToMethodsRegex), { result ->
       goToMethods.clear()
       goToMethods.addAll(result.goToMethods.toList().sortedBy { it.second })
 
@@ -236,10 +225,27 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
         // Go to
         goToMethodsLink.isEnabled = goToMethods.isNotEmpty()
 
-        UIUtil.setEnabled(toolbarActionsComponent, true, true)
         parsingIndicatorLabel.isVisible = false
       }
-    }, { cause -> onError("Failed to parse byte code.", cause) })
+    }, { cause -> onError("Failed to parse byte code", cause) })
+  }
+
+  private fun doParseByteCode(goToMethodsRegex: Regex?): () -> ByteCodeParsingResult = {
+    parsingResultCache.computeIfAbsent(calculateParsingOptions()) { parsingOptions ->
+      val text = parseByteCode(parsingOptions)
+
+      val lineOfMethod = mutableMapOf<Int, String>()
+      if (goToMethodsRegex != null) {
+        text.lines().forEachIndexed { lineNumber, line ->
+          val methodMatcher = goToMethodsRegex.matchEntire(line)
+          if (methodMatcher != null) {
+            lineOfMethod[lineNumber] = methodMatcher.groups["name"]!!.value
+          }
+        }
+      }
+
+      ByteCodeParsingResult(text, lineOfMethod)
+    }
   }
 
   private fun calculateParsingOptions(): Int {

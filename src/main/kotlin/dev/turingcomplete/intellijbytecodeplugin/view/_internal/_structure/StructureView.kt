@@ -14,8 +14,6 @@ import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction.Companion.addAllByteCodeActions
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeView
-import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._class.ClassStructureNode
-import dev.turingcomplete.intellijbytecodeplugin.view.common.OpenInEditorAction
 import javax.swing.JComponent
 
 class StructureView(classFileContext: ClassFileContext)
@@ -37,7 +35,6 @@ class StructureView(classFileContext: ClassFileContext)
   }
 
   override fun retry() {
-    createRootNode(classFileContext)
     tree.reload()
   }
 
@@ -49,10 +46,6 @@ class StructureView(classFileContext: ClassFileContext)
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
-
-  private fun createRootNode(classFileContext: ClassFileContext) : ClassStructureNode {
-    return ClassStructureNode(classFileContext.classNode(), classFileContext.classFile())
-  }
 
   private fun createToolbar(): JComponent {
     val toolbarGroup = DefaultActionGroup().apply {

@@ -1,13 +1,13 @@
-package dev.turingcomplete.intellijbytecodeplugin.asm
+package dev.turingcomplete.intellijbytecodeplugin.bytecode
 
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
 
-object AsmTypeUtils {
+object TypeUtils {
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
-  fun toReadableTypeName(internalName: String, renderMode: TypeNameRenderMode): String {
+  fun toReadableName(internalName: String, renderMode: TypeNameRenderMode): String {
     return when(renderMode) {
       TypeNameRenderMode.INTERNAL -> internalName
       TypeNameRenderMode.QUALIFIED -> internalName.replace("/", ".")
@@ -34,7 +34,7 @@ object AsmTypeUtils {
       Type.LONG -> "long";
       Type.DOUBLE -> "double";
       Type.ARRAY -> "${toReadableType(type.elementType, renderMode)}${"[]".repeat(type.dimensions)}"
-      else -> toReadableTypeName(type.internalName, renderMode)
+      else -> toReadableName(type.internalName, renderMode)
     }
   }
   
