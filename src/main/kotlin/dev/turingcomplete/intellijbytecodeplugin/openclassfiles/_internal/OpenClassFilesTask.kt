@@ -40,7 +40,7 @@ import java.nio.file.Path
  * in the 'IntelliJ IDEA Community Edition' project, which is licensed under
  * 'Apache License 2.0'.
  */
-class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private val project: Project) {
+internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private val project: Project) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
@@ -146,28 +146,27 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
     return this
   }
 
-  fun consumePsiElements(psiElements: List<PsiElement>): OpenClassFilesTask {
+  fun consumePsiElements(psiElements: List<PsiElement>, originPsiFile: PsiFile? = null): OpenClassFilesTask {
     psiElements.forEach { psiElement ->
-      // Consume as element in module descriptor
-      val containingModule = PsiTreeUtil.getParentOfType(psiElement, PsiJavaModule::class.java, false)
-      if (containingModule != null) {
-        consumeJavaVirtualFile(psiElement, psiElement.containingFile, "module-info")
+      if (psiElement is PsiFile) {
+        consumePsiFiles(listOf(psiElement))
         return@forEach
       }
 
-      // Consume as element in class
-      var psiClass: PsiClass?
+      // - Try to consume as element in module descriptor
+
+      val containingModule = PsiTreeUtil.getParentOfType(psiElement, PsiJavaModule::class.java, false)
+      if (containingModule != null) {
+        consumeJavaVirtualFile(psiElement, psiElement.containingFile, "module-info", originPsiFile)
+        return@forEach
+      }
+
+      // - Try to consume as element in class
 
       // If the element is in a synthetic method in an inner enum or record,
       // `findNextPsiClass` would find the outer class as the parent PSI class.
       val lightMethod = PsiTreeUtil.getParentOfType(psiElement, LightMethod::class.java, false)
-      if (lightMethod != null) {
-        psiClass = lightMethod.containingClass
-      }
-      else {
-        psiClass = findNextPsiClass(psiElement)
-      }
-
+      val psiClass = lightMethod?.containingClass ?: findNextPsiClass(psiElement)
       if (psiClass == null) {
         errors.add("Couldn't find class for selected element.")
         return@forEach
@@ -176,7 +175,7 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
       val psiFile = psiClass.originalElement.containingFile
       if (psiFile !is PsiJavaFile) {
         errors.add("File '${psiFile.name}' is neither a Java class nor a source file.")
-        return this
+        return@forEach
       }
 
       consumePsiClass(psiClass, psiFile)
@@ -230,17 +229,21 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
     consumeJavaVirtualFile(psiClass, sourcePsiFile, jvmClassName)
   }
 
-  private fun consumeJavaVirtualFile(psiElement: PsiElement?, sourcePsiFile: PsiFile, jvmFileName: String) {
+  private fun consumeJavaVirtualFile(psiElement: PsiElement?,
+                                     sourcePsiFile: PsiFile,
+                                     jvmFileName: String,
+                                     editorPsiFile: PsiFile? = null) {
+
     val sourceFile = sourcePsiFile.virtualFile
     if (sourceFile == null) {
       errors.add("Virtual file '${sourcePsiFile.name}' is not associated with a physical file.")
       return
     }
 
-    // If the source file is from a library, we need the corresponding class file.
     val file = psiElement?.originalElement?.containingFile?.virtualFile ?: sourceFile
 
-    // 'file' is a class file
+    // -- Check if 'file' is a class file --
+
     if (FileTypeRegistry.getInstance().isFileOfType(file, JavaClassFileType.INSTANCE)) {
       // This code is reached if a compiled class file is opened in the editor,
       // and the action is executed outgoing from a PSI element.
@@ -260,7 +263,21 @@ class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private va
       return
     }
 
-    // 'file' is a Java source file
+    // -- Check if 'file' is a Java source file --
+
+    // There is an edge case there the 'psiElement' is from a library class file,
+    // but the 'psiElement?.originalElement?.containingFile', which was used to
+    // determine the 'file' instance, returns the path to the Java source file
+    // and not the original class file. This case occurs at least for the
+    // 'module-info.class' of JDK modules in IntelliJ 2021.1. Since it's obviously
+    // not possible to compile such files (which would be tried in the next block),
+    // we use as a fall back the current opened file in the editor, which was
+    // used to find the 'psiElement' in the first place.
+    if (projectFileIndex.isInLibrary(file) && editorPsiFile != null) {
+      consumePsiFiles(listOf(editorPsiFile))
+      return
+    }
+
     val moduleToExpectedClassFilePath = ReadAction.compute<Pair<Module, Path>?, Throwable> {
       val module = projectFileIndex.getModuleForFile(file)
       val expectedClassFilePath = if (module != null) findExpectedClassFilePath(module, jvmFileName, file) else null

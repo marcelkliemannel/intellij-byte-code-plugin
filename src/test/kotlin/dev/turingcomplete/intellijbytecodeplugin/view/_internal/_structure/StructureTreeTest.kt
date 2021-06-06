@@ -3,7 +3,6 @@ package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure
 import com.intellij.ide.highlighter.ArchiveFileType
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.fileTypes.FileTypeManager
-import com.intellij.openapi.vfs.VirtualFileManager
 import dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase
 import dev.turingcomplete.intellijbytecodeplugin._ui.DefaultClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
@@ -58,11 +57,8 @@ class StructureTreeTest(testName: String, classFilePath: String)  : ClassFileCon
 
   @Test
   fun testFullStructureTreeCreation() {
-    val classFile = VirtualFileManager.getInstance().findFileByUrl(classFilePath)
-    Assert.assertNotNull("File $classFilePath not found", classFile)
-
     var fullyCreated = false
-    DefaultClassFileContext.loadSync(project, classFile!!,
+    DefaultClassFileContext.loadSync(project, classFileAsVirtualFile,
                                      {
                                        val tree = StructureTree.create(it, testRootDisposable)
                                        loadAllChildren(tree, tree.getChildren())

@@ -76,7 +76,7 @@ abstract class ClassFileConsumerTestCase(val classFilePath: String) : LightPlatf
 
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
-  protected lateinit var virtualFile: VirtualFile
+  protected lateinit var classFileAsVirtualFile: VirtualFile
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
@@ -90,7 +90,7 @@ abstract class ClassFileConsumerTestCase(val classFilePath: String) : LightPlatf
 
     val virtualFile0 = VirtualFileManager.getInstance().findFileByUrl(classFilePath)
     Assert.assertNotNull("File $classFilePath not found", virtualFile0)
-    virtualFile = virtualFile0 as VirtualFile
+    classFileAsVirtualFile = virtualFile0 as VirtualFile
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //

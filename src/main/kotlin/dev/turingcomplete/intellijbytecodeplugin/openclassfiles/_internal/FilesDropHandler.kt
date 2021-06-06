@@ -17,7 +17,7 @@ import java.awt.dnd.DropTargetListener
 import javax.swing.JComponent
 import javax.swing.TransferHandler
 
-class FilesDropHandler(private val project: Project) : TransferHandler(), EditorDropHandler, DropTargetListener {
+internal class FilesDropHandler(private val project: Project) : TransferHandler(), EditorDropHandler, DropTargetListener {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //

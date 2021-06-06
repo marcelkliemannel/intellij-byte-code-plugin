@@ -196,8 +196,8 @@ class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
       OpenClassFilesTask(openClassFile, project).consumePsiFiles(psiFiles).openFiles()
     }
 
-    override fun openPsiElements(psiElements: List<PsiElement>) {
-      OpenClassFilesTask(openClassFile, project).consumePsiElements(psiElements).openFiles()
+    override fun openPsiElements(psiElements: List<PsiElement>, originPsiFile: PsiFile?) {
+      OpenClassFilesTask(openClassFile, project).consumePsiElements(psiElements, originPsiFile).openFiles()
     }
 
     override fun openFiles(files: List<VirtualFile>) {

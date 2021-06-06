@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesListener
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
 
-class FileChooserAction : OpenClassFilesToolWindowAction("Open Class Files...",
+internal class FileChooserAction : OpenClassFilesToolWindowAction("Open Class Files...",
                                                          "Open class files...",
                                                          AllIcons.General.OpenDisk) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //

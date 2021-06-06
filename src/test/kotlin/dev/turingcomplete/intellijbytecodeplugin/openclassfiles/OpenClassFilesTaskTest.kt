@@ -20,7 +20,7 @@ class OpenClassFilesTaskTest(testName: String, classFilePath: String) : ClassFil
   companion object {
     @org.junit.runners.Parameterized.Parameters(name = "{0}")
     @JvmStatic
-    fun data(): List<Array<String>> = ClassFileConsumerTestCase.testData()
+    fun data(): List<Array<String>> = testData()
   }
 
   // -- Properties -------------------------------------------------------------------------------------------------- //
@@ -34,7 +34,7 @@ class OpenClassFilesTaskTest(testName: String, classFilePath: String) : ClassFil
     super.setUp()
 
     psiJavaFile = ReadAction.compute<PsiJavaFile, Throwable> {
-      PsiManager.getInstance(project).findFile(virtualFile) as PsiJavaFile?
+      PsiManager.getInstance(project).findFile(classFileAsVirtualFile) as PsiJavaFile?
     }
   }
 
@@ -42,10 +42,10 @@ class OpenClassFilesTaskTest(testName: String, classFilePath: String) : ClassFil
   fun testOpenFile() {
     val actualClassFilesReadyToOpen = mutableListOf<VirtualFile>()
     OpenClassFilesTask({ actualClassFilesReadyToOpen.add(it) }, project)
-            .consumeFiles(listOf(virtualFile))
+            .consumeFiles(listOf(classFileAsVirtualFile))
             .openFiles()
     Assert.assertEquals(1, actualClassFilesReadyToOpen.size)
-    Assert.assertEquals(virtualFile, actualClassFilesReadyToOpen[0])
+    Assert.assertEquals(classFileAsVirtualFile, actualClassFilesReadyToOpen[0])
   }
 
   @Test
@@ -59,7 +59,7 @@ class OpenClassFilesTaskTest(testName: String, classFilePath: String) : ClassFil
             .consumePsiFiles(listOf(psiJavaFile!!))
             .openFiles()
     Assert.assertEquals(1, actualClassFilesReadyToOpen.size)
-    Assert.assertEquals(virtualFile, actualClassFilesReadyToOpen[0])
+    Assert.assertEquals(classFileAsVirtualFile, actualClassFilesReadyToOpen[0])
   }
 
   @Test
@@ -87,7 +87,7 @@ class OpenClassFilesTaskTest(testName: String, classFilePath: String) : ClassFil
    */
   @Test
   fun testInnerClassPsiElements() {
-    if (!virtualFile.name.contains("$") || psiJavaFile == null) {
+    if (!classFileAsVirtualFile.name.contains("$") || psiJavaFile == null) {
       return
     }
 
@@ -124,7 +124,7 @@ class OpenClassFilesTaskTest(testName: String, classFilePath: String) : ClassFil
 
     var filesOpened = 0
     OpenClassFilesTask({ filesOpened++; Assert.assertEquals(expectedClassFileName, it.name) }, project)
-            .consumePsiElements(psiElements)
+            .consumePsiElements(psiElements, editorPsiFile)
             .openFiles()
     Assert.assertEquals(psiElements.size, filesOpened)
   }

@@ -7,8 +7,7 @@ import com.intellij.psi.PsiDocumentManager
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesListener
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
 
-
-class CurrentEditorFileAction : OpenClassFilesToolWindowAction("Analyze Current Editor File",
+internal class CurrentEditorFileAction : OpenClassFilesToolWindowAction("Analyze Current Editor File",
                                                                "Analyze current editor file") {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //

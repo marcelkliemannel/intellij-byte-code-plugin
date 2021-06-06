@@ -18,7 +18,7 @@ interface OpenClassFilesListener {
 
   fun openPsiFiles(psiFiles: List<PsiFile>)
 
-  fun openPsiElements(psiElements: List<PsiElement>)
+  fun openPsiElements(psiElements: List<PsiElement>, editorPsiFile: PsiFile? = null)
 
   fun openFiles(files: List<VirtualFile>)
 

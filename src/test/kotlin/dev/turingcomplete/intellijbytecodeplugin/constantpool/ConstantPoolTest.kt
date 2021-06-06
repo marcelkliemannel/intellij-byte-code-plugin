@@ -22,7 +22,7 @@ class ConstantPoolTest(testName: String, classFilePath: String) : ClassFileConsu
 
   @Test
   fun testCreationOfConstantPool() {
-    ConstantPool.create(virtualFile)
+    ConstantPool.create(classFileAsVirtualFile)
   }
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //

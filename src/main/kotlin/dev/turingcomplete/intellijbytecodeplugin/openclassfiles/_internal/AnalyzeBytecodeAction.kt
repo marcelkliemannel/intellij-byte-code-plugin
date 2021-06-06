@@ -14,8 +14,7 @@ import com.intellij.psi.util.PsiUtilBase
 import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodePluginIcons
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesListener
 
-
-class AnalyzeByteCodeAction : DumbAwareAction(TITLE, null, ByteCodePluginIcons.ACTION_ICON) {
+internal class AnalyzeByteCodeAction : DumbAwareAction(TITLE, null, ByteCodePluginIcons.ACTION_ICON) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
@@ -33,8 +32,9 @@ class AnalyzeByteCodeAction : DumbAwareAction(TITLE, null, ByteCodePluginIcons.A
         true
       }
       else {
-        findPsiElement(project, e.dataContext)?.let { psiElement ->
-          OpenClassFilesTask.isOpenableFile(psiElement.containingFile)
+        findPsiElement(project, e.dataContext).let { result ->
+          val psiElement = result.first
+          OpenClassFilesTask.isOpenableFile(psiElement?.containingFile)
         }
       }
     } ?: false
@@ -43,9 +43,11 @@ class AnalyzeByteCodeAction : DumbAwareAction(TITLE, null, ByteCodePluginIcons.A
   override fun actionPerformed(e: AnActionEvent) {
     val project = CommonDataKeys.PROJECT.getData(e.dataContext) ?: return
 
-    val psiElement = findPsiElement(project, e.dataContext)
+    val result = findPsiElement(project, e.dataContext)
+    val psiElement = result.first
+    val editorPsiFile = result.second
     if (psiElement != null) {
-      project.messageBus.syncPublisher(OpenClassFilesListener.OPEN_CLASS_FILES_TOPIC).openPsiElements(listOf(psiElement))
+      project.messageBus.syncPublisher(OpenClassFilesListener.OPEN_CLASS_FILES_TOPIC).openPsiElements(listOf(psiElement), editorPsiFile)
       return
     }
 
@@ -57,11 +59,14 @@ class AnalyzeByteCodeAction : DumbAwareAction(TITLE, null, ByteCodePluginIcons.A
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
-  private fun findPsiElement(project: Project, dataContext: DataContext): PsiElement? {
-    val editor = dataContext.getData(CommonDataKeys.EDITOR) ?: return dataContext.getData(CommonDataKeys.PSI_ELEMENT)
+  private fun findPsiElement(project: Project, dataContext: DataContext): Pair<PsiElement?, PsiFile?> {
+    val editor = dataContext.getData(CommonDataKeys.EDITOR)
+                 ?: return Pair(dataContext.getData(CommonDataKeys.PSI_ELEMENT), dataContext.getData(CommonDataKeys.PSI_FILE))
 
     val editorPsiFile = PsiUtilBase.getPsiFileInEditor(editor, project)
-    return findPsiElementInInjectedEditor(editor, editorPsiFile, project) ?: editorPsiFile?.findElementAt(editor.caretModel.offset)
+    val psiElement = findPsiElementInInjectedEditor(editor, editorPsiFile, project)
+                     ?: editorPsiFile?.findElementAt(editor.caretModel.offset)
+    return Pair(psiElement, editorPsiFile)
   }
 
   private fun findPsiElementInInjectedEditor(editor: Editor, editorPsiFile: PsiFile?, project: Project): PsiElement? {
