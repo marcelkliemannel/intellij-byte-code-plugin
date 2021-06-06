@@ -17,7 +17,7 @@ import javax.swing.JPanel
 import javax.swing.tree.DefaultMutableTreeNode
 
 @Deprecated(message = "Not fully implemented yet. May be added in future versions.")
-class InstructionsOverviewTool : ByteCodeTool("Instructions Overview") {
+internal class InstructionsOverviewTool : ByteCodeTool("Instructions Overview") {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //

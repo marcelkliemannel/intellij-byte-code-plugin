@@ -26,7 +26,7 @@ import javax.swing.JPanel
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 
-class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.Nodes.RwAccess), DocumentListener, ActionListener {
+internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.Nodes.RwAccess), DocumentListener, ActionListener {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {

@@ -3,7 +3,7 @@ package dev.turingcomplete.intellijbytecodeplugin.common._internal
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.DataKey
 
-object DataProviderUtils {
+internal object DataProviderUtils {
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //

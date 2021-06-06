@@ -2,7 +2,7 @@ package dev.turingcomplete.intellijbytecodeplugin._ui
 
 import com.intellij.openapi.util.IconLoader
 
-object ByteCodePluginIcons {
+internal object ByteCodePluginIcons {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   @JvmField

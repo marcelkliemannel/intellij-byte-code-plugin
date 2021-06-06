@@ -9,10 +9,9 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNode
 import org.jetbrains.annotations.TestOnly
 
-
-class DefaultClassFileContext private constructor(private val project: Project,
-                                                  private val classFile: VirtualFile,
-                                                  private val workAsync: Boolean)
+internal class DefaultClassFileContext private constructor(private val project: Project,
+                                                           private val classFile: VirtualFile,
+                                                           private val workAsync: Boolean)
   : ClassFileContext {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //

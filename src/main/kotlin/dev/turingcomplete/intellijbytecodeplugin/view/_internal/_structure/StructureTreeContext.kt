@@ -6,7 +6,7 @@ import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
-class StructureTreeContext(val project: Project, private val syncStructure: () -> Unit) {
+internal class StructureTreeContext(val project: Project, private val syncStructure: () -> Unit) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
 

@@ -17,7 +17,7 @@ import dev.turingcomplete.intellijbytecodeplugin.view._internal.ErrorStateHandle
 import javax.swing.JComponent
 import javax.swing.SwingConstants
 
-class ClassFileTab(private val project: Project, private val classFile: VirtualFile)
+internal class ClassFileTab(private val project: Project, private val classFile: VirtualFile)
   : ErrorStateHandler(), DumbAware, Disposable {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //

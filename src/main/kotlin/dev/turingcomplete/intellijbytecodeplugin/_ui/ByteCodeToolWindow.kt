@@ -31,8 +31,7 @@ import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
 import java.awt.dnd.DropTarget
 import javax.swing.Icon
 
-
-class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
+internal class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {

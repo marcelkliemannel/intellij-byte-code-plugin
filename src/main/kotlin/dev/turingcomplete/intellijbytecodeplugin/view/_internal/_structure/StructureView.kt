@@ -16,7 +16,7 @@ import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction.Companion.a
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeView
 import javax.swing.JComponent
 
-class StructureView(classFileContext: ClassFileContext)
+internal class StructureView(classFileContext: ClassFileContext)
   : ByteCodeView(classFileContext, "Structure", AllIcons.Toolwindows.ToolWindowStructure), DataProvider {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //

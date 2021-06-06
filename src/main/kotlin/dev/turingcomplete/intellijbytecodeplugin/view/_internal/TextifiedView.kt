@@ -7,7 +7,7 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.Textifie
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeParsingResultView
 
 
-class TextifiedView(classFileContext: ClassFileContext)
+internal class TextifiedView(classFileContext: ClassFileContext)
   : ByteCodeParsingResultView(classFileContext, "Textified", AllIcons.FileTypes.JavaClass, METHOD_LINE_REGEX) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //

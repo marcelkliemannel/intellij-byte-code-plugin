@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>dev.turingcomplete.intellijbytecodeplugin</id>
   <name>Byte Code Analyzer</name>
-  <vendor email="support@yourcompany.com" url="http://www.marcelkliemannel.com">Marcel Kliemannel</vendor>
+  <vendor email="dev@marcelkliemannel.com" url="http://www.marcelkliemannel.com">Marcel Kliemannel</vendor>
 
   <description><![CDATA[
     Enter short description for your plugin here.<br>

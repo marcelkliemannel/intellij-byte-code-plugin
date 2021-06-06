@@ -26,7 +26,6 @@ import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
 import javax.swing.Icon
 
-
 internal class ClassStructureNode(private val classNode: ClassNode, private val classFile: VirtualFile)
   : ValueNode(displayValue = { cxt -> TypeUtils.toReadableName(classNode.name, cxt.typeNameRenderMode) },
               icon = determineClassIcon(classNode),

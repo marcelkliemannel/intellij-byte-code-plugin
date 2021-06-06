@@ -1,6 +1,6 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common
 
-interface InteractiveNode {
+internal interface InteractiveNode {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //

@@ -12,7 +12,7 @@ import java.util.*
 import javax.swing.JLabel
 import javax.swing.table.DefaultTableModel
 
-class AccessCalculatorPanel(private val accessGroup: AccessGroup) : BorderLayoutPanel() {
+internal class AccessCalculatorPanel(private val accessGroup: AccessGroup) : BorderLayoutPanel() {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
 

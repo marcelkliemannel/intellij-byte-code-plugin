@@ -25,7 +25,7 @@ import javax.swing.SwingConstants
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 
-class SignatureParserTool : ByteCodeTool("Signature Parser") {
+internal class SignatureParserTool : ByteCodeTool("Signature Parser") {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {

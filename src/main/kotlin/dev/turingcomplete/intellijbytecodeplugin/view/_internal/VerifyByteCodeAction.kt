@@ -29,7 +29,7 @@ import javax.swing.BorderFactory
 import javax.swing.JPanel
 import javax.swing.SwingConstants
 
-class VerifyByteCodeAction : ByteCodeAction("Verify Byte Code", null, AllIcons.General.InspectionsOK) {
+internal class VerifyByteCodeAction : ByteCodeAction("Verify Byte Code", null, AllIcons.General.InspectionsOK) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //

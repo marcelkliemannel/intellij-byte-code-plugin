@@ -33,7 +33,6 @@ import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 import kotlin.streams.toList
 
-
 internal class MethodStructureNode(private val methodNode: MethodNode, private val classNode: ClassNode)
   : ValueNode(displayValue = { ctx -> MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, true) },
               rawValue = { ctx -> MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, false) },

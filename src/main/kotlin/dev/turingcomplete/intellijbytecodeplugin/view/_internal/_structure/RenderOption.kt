@@ -5,9 +5,9 @@ import com.intellij.ui.DumbAwareActionButton
 import com.intellij.util.PlatformIcons
 import com.intellij.util.ui.EmptyIcon
 
-class RenderOption(renderModeName: String,
-                   private val setValue: () -> Unit,
-                   private val isSelected: () -> Boolean) : DumbAwareActionButton(renderModeName) {
+internal class RenderOption(renderModeName: String,
+                            private val setValue: () -> Unit,
+                            private val isSelected: () -> Boolean) : DumbAwareActionButton(renderModeName) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //

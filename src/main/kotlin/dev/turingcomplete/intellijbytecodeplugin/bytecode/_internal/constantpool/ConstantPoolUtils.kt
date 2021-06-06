@@ -3,8 +3,7 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode._internal.constantpoo
 import java.io.DataInputStream
 import java.nio.ByteBuffer
 
-
-object ConstantPoolUtils {
+internal object ConstantPoolUtils {
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //

@@ -8,7 +8,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.DataProviderUtils
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction
 
-class DecompileByteCodeAction : ByteCodeAction("Decompile Class File", null, AllIcons.Actions.Compile) {
+internal class DecompileByteCodeAction : ByteCodeAction("Decompile Class File", null, AllIcons.Actions.Compile) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //
