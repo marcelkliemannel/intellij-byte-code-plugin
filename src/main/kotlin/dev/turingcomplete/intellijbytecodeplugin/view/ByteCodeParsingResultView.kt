@@ -109,7 +109,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
     asyncParseByteCode()
   }
 
-  protected fun getText(): String? = if (parsingIndicatorLabel.isVisible) null else editor.document.text
+  protected fun getText(): String? = if (isByteCodeParsingResultAvailable()) editor.document.text else null
 
   protected fun setText(text: String) {
     DocumentUtil.writeInRunUndoTransparentAction {
@@ -124,8 +124,8 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
 
   override fun getData(dataId: String): Any? {
     return when {
-      CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.`is`(dataId) && !parsingIndicatorLabel.isVisible -> {
-        LightVirtualFile(openInEditorFileName(), editor.document.text)
+      CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.`is`(dataId) && isByteCodeParsingResultAvailable() -> {
+        return LightVirtualFile(openInEditorFileName(), editor.document.text)
       }
       else -> super.getData(dataId)
     }
@@ -166,7 +166,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
         }
 
         override fun update(e: AnActionEvent) {
-          e.presentation.isEnabled = !parsingIndicatorLabel.isVisible
+          e.presentation.isEnabled = isByteCodeParsingResultAvailable()
         }
       })
 
@@ -229,6 +229,8 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
       }
     }, { cause -> onError("Failed to parse byte code", cause) })
   }
+
+  private fun isByteCodeParsingResultAvailable() = !parsingIndicatorLabel.isVisible
 
   private fun doParseByteCode(goToMethodsRegex: Regex?): () -> ByteCodeParsingResult = {
     parsingResultCache.computeIfAbsent(calculateParsingOptions()) { parsingOptions ->

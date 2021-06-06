@@ -2,11 +2,12 @@ package dev.turingcomplete.intellijbytecodeplugin.view.common
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.util.NlsActions
+import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
+import dev.turingcomplete.intellijbytecodeplugin.common._internal.DataProviderUtils
 import org.jetbrains.annotations.Nullable
 import javax.swing.Icon
 
@@ -17,12 +18,13 @@ class OpenInEditorAction(@Nullable @NlsActions.ActionText text: String = "Open i
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
+  override fun update(e: AnActionEvent) {
+    e.presentation.isEnabled = CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.getData(e.dataContext) != null
+  }
+
   override fun actionPerformed(e: AnActionEvent) {
-    val project = CommonDataKeys.PROJECT.getData(e.dataContext) ?: throw IllegalStateException("snh: Missing data: ${CommonDataKeys.PROJECT.name}")
-
-    val openInEditorFile = dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.getData(e.dataContext)
-                           ?: throw IllegalStateException("snh: Missing data: ${dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.name}")
-
+    val openInEditorFile = CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.getData(e.dataContext) ?: return
+    val project = DataProviderUtils.getData(com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT, e.dataContext)
     FileEditorManager.getInstance(project).openEditor(OpenFileDescriptor(project, openInEditorFile), true)
   }
 

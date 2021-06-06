@@ -33,6 +33,8 @@
                  implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$OnErrorDataRule"/>
     <getDataRule key="dev.turingcomplete.intellijbytecodeplugin.openInEditor"
                  implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$OpenInEditorDataRule"/>
+    <getDataRule key="dev.turingcomplete.intellijbytecodeplugin.byteViewActionsAvailable"
+                 implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$ByteViewActionsAvailableDataRule"/>
   </extensions>
 
   <extensions defaultExtensionNs="dev.turingcomplete.intellijbytecodeplugin">

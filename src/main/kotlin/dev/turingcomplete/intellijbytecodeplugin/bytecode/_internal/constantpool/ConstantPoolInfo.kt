@@ -40,7 +40,7 @@ internal abstract class ConstantPoolInfo(val type: String,
   internal open class PlainValue(private val name: String? = null, private val value: String) : Value() {
 
     override fun createUnresolvedDisplayText(): String {
-      return "${if (name != null) "$name=" else ""}$value}"
+      return "${if (name != null) "$name=" else ""}$value"
     }
   }
 

@@ -4,8 +4,7 @@ import com.intellij.ide.highlighter.ArchiveFileType
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.testFramework.LightPlatform4TestCase
-import dev.turingcomplete.intellijbytecodeplugin.TestUtils
+import dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase
 import dev.turingcomplete.intellijbytecodeplugin._ui.DefaultClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
@@ -21,13 +20,13 @@ import javax.swing.tree.TreeNode
  * `kotlin-stdlib` into a [StructureTree].
  */
 @RunWith(org.junit.runners.Parameterized::class)
-class StructureTreeTest(testName: String, private val classFilePath: String) : LightPlatform4TestCase() {
+class StructureTreeTest(testName: String, classFilePath: String)  : ClassFileConsumerTestCase(classFilePath) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
     @org.junit.runners.Parameterized.Parameters(name = "{0}")
     @JvmStatic
-    fun data(): List<Array<String>> = TestUtils.data()
+    fun data(): List<Array<String>> = testData()
   }
 
   // -- Properties -------------------------------------------------------------------------------------------------- //

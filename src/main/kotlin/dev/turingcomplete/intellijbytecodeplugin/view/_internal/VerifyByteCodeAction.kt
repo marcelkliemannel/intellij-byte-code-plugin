@@ -15,6 +15,7 @@ import dev.turingcomplete.intellijbytecodeplugin._ui.overrideTopInset
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
+import dev.turingcomplete.intellijbytecodeplugin.common._internal.DataProviderUtils
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.analysis.AnalyzerException
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.CheckClassAdapter
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction
@@ -36,11 +37,9 @@ class VerifyByteCodeAction : ByteCodeAction("Verify Byte Code", null, AllIcons.G
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
   override fun actionPerformed(e: AnActionEvent) {
-    val classFileContext = CommonDataKeys.CLASS_FILE_CONTEXT_DATA_KEY.getData(e.dataContext)
-                           ?: throw IllegalStateException("snh: Missing data: ${CommonDataKeys.CLASS_FILE_CONTEXT_DATA_KEY.name}")
+    val classFileContext = DataProviderUtils.getData(CommonDataKeys.CLASS_FILE_CONTEXT_DATA_KEY, e.dataContext)
 
-    val onError = CommonDataKeys.ON_ERROR_DATA_KEY.getData(e.dataContext)
-                           ?: throw IllegalStateException("snh: Missing data: ${CommonDataKeys.ON_ERROR_DATA_KEY.name}")
+    val onError = DataProviderUtils.getData(CommonDataKeys.ON_ERROR_DATA_KEY, e.dataContext)
 
     val execute = {
       val resultWriter = StringWriter()

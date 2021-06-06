@@ -28,7 +28,7 @@ object CommonDataKeys {
   val ON_ERROR_DATA_KEY = DataKey.create<(String, Throwable) -> Unit>("dev.turingcomplete.intellijbytecodeplugin.onError")
 
   /**
-   * The data key is also hard coded for the [OnErrorDataRule] in the `plugin.xml`.
+   * The data key is also hard coded for the [OpenInEditorDataRule] in the `plugin.xml`.
    */
   val OPEN_IN_EDITOR_DATA_KEY = DataKey.create<VirtualFile>("dev.turingcomplete.intellijbytecodeplugin.openInEditor")
 

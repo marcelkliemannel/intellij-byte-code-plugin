@@ -1,36 +1,30 @@
 package dev.turingcomplete.intellijbytecodeplugin.openclassfiles
 
-import com.intellij.ide.highlighter.ArchiveFileType
 import com.intellij.openapi.application.ReadAction
-import com.intellij.openapi.application.WriteAction
-import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
-import dev.turingcomplete.intellijbytecodeplugin.TestUtils
+import dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.OpenClassFilesTask
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(org.junit.runners.Parameterized::class)
-class OpenClassFilesTaskTest(testName: String, private val classFilePath: String) : LightJavaCodeInsightFixtureTestCase() {
+class OpenClassFilesTaskTest(testName: String, classFilePath: String) : ClassFileConsumerTestCase(classFilePath) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
     @org.junit.runners.Parameterized.Parameters(name = "{0}")
     @JvmStatic
-    fun data(): List<Array<String>> = TestUtils.data()
+    fun data(): List<Array<String>> = ClassFileConsumerTestCase.testData()
   }
 
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
-  private lateinit var virtualFile: VirtualFile
   private var psiJavaFile: PsiJavaFile? = null
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
@@ -39,16 +33,8 @@ class OpenClassFilesTaskTest(testName: String, private val classFilePath: String
   override fun setUp() {
     super.setUp()
 
-    WriteAction.runAndWait<Throwable> {
-      FileTypeManager.getInstance().associateExtension(ArchiveFileType.INSTANCE, "jmod")
-    }
-
-    val virtualFile0 = VirtualFileManager.getInstance().findFileByUrl(classFilePath)
-    Assert.assertNotNull("File $classFilePath not found", virtualFile0)
-    virtualFile = virtualFile0 as VirtualFile
-
     psiJavaFile = ReadAction.compute<PsiJavaFile, Throwable> {
-      PsiManager.getInstance(project).findFile(virtualFile0) as PsiJavaFile?
+      PsiManager.getInstance(project).findFile(virtualFile) as PsiJavaFile?
     }
   }
 
