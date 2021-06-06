@@ -9,6 +9,7 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Attribute
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.AnnotationNode
 import dev.turingcomplete.intellijbytecodeplugin.tool._internal.SignatureParserTool
+import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.SearchProvider
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureTreeContext
 import org.apache.commons.lang.StringEscapeUtils
 import java.util.*
@@ -16,7 +17,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.JComponent
 import javax.swing.tree.DefaultMutableTreeNode
 
-internal abstract class StructureNode : DefaultMutableTreeNode(), LeafState.Supplier {
+internal abstract class StructureNode(val searchProvider: SearchProvider? = null)
+  : DefaultMutableTreeNode(), LeafState.Supplier {
+
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
@@ -97,7 +100,7 @@ internal abstract class StructureNode : DefaultMutableTreeNode(), LeafState.Supp
                                          mapElement: (Int, T) -> StructureNode) {
 
     if (elements != null && elements.isNotEmpty()) {
-      val addElements : TextNode.() -> Unit = {
+      val addElements: TextNode.() -> Unit = {
         elements.mapIndexed(mapElement).forEach { elementNode ->
           add(elementNode)
         }
@@ -177,10 +180,11 @@ internal abstract class StructureNode : DefaultMutableTreeNode(), LeafState.Supp
     val internalName = Type.getType(annotation.desc).internalName
     return HtmlTextNode(displayValue = { ctx -> TypeUtils.toReadableName(internalName, ctx.typeNameRenderMode) + values },
                         postFix = postFix,
-                        icon = AllIcons.Nodes.Annotationtype)
+                        icon = AllIcons.Nodes.Annotationtype,
+                        searchProvider = SearchProvider.Class(internalName))
   }
 
-  private fun formatAnnotationValue(value: Any?) : String {
+  private fun formatAnnotationValue(value: Any?): String {
     return when (value) {
       null -> "null"
       is Collection<*> -> "[${value.joinToString(", ") { formatAnnotationValue(it) }}]"

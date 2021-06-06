@@ -124,7 +124,7 @@ class OpenClassFilesTaskTest(testName: String, classFilePath: String) : ClassFil
 
     var filesOpened = 0
     OpenClassFilesTask({ filesOpened++; Assert.assertEquals(expectedClassFileName, it.name) }, project)
-            .consumePsiElements(psiElements, editorPsiFile)
+            .consumePsiElements(psiElements)
             .openFiles()
     Assert.assertEquals(psiElements.size, filesOpened)
   }

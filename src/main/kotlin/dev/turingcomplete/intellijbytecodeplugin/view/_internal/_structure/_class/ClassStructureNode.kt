@@ -14,6 +14,7 @@ import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNode
+import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.SearchProvider
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.HtmlTextNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.HyperLinkNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.TextNode
@@ -28,7 +29,8 @@ import javax.swing.Icon
 
 internal class ClassStructureNode(private val classNode: ClassNode, private val classFile: VirtualFile)
   : ValueNode(displayValue = { cxt -> TypeUtils.toReadableName(classNode.name, cxt.typeNameRenderMode) },
-              icon = determineClassIcon(classNode)) {
+              icon = determineClassIcon(classNode),
+              searchProvider = SearchProvider.Class(classNode.name)) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
@@ -86,7 +88,10 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
   private fun addSuperNameNode() {
     classNode.superName?.let { superName ->
-      add(ValueNode("Super:", { ctx -> TypeUtils.toReadableName(superName, ctx.typeNameRenderMode) }, icon = AllIcons.Hierarchy.Supertypes))
+      add(ValueNode("Super:",
+                    { ctx -> TypeUtils.toReadableName(superName, ctx.typeNameRenderMode) },
+                    icon = AllIcons.Hierarchy.Supertypes,
+                    searchProvider = SearchProvider.Class(superName)))
     }
   }
 
@@ -114,7 +119,8 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
   private fun addOuterClassNode() {
     classNode.outerClass?.let { outerClass ->
-      add(ValueNode("Outer class:", { ctx -> TypeUtils.toReadableName(outerClass, ctx.typeNameRenderMode) }))
+      add(ValueNode("Outer class:", { ctx -> TypeUtils.toReadableName(outerClass, ctx.typeNameRenderMode) },
+                    searchProvider = SearchProvider.Class(outerClass)))
     }
   }
 
@@ -134,18 +140,23 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
     add(TextNode("Nest").apply {
       classNode.nestHostClass?.let { nestHostClass ->
-        add(ValueNode("Nest host:", { ctx -> TypeUtils.toReadableName(nestHostClass, ctx.typeNameRenderMode) }))
+        add(ValueNode("Nest host:",
+                      { ctx -> TypeUtils.toReadableName(nestHostClass, ctx.typeNameRenderMode) },
+                      searchProvider = SearchProvider.Class(nestHostClass)))
       }
 
       addTitleNodeWithElements(classNode.nestMembers, { TextNode("Nest Members") }) { _, nestMember ->
-        ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(nestMember, ctx.typeNameRenderMode) })
+        ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(nestMember, ctx.typeNameRenderMode) },
+                  searchProvider = SearchProvider.Class(nestMember))
       }
     })
   }
 
   private fun addInnerClasses() {
     addTitleNodeWithElements(classNode.innerClasses, { TextNode("Inner classes", AllIcons.Nodes.Class) }) { _, innerClass ->
-      ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(innerClass.name, ctx.typeNameRenderMode) }, icon = AllIcons.Nodes.Class)
+      ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(innerClass.name, ctx.typeNameRenderMode) },
+                icon = AllIcons.Nodes.Class,
+                searchProvider = SearchProvider.Class(innerClass.name))
     }
   }
 
@@ -157,7 +168,9 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
   private fun addInterfacesNode() {
     addTitleNodeWithElements(classNode.interfaces, { TextNode("Interfaces", AllIcons.Nodes.Interface) }) { _, `interface` ->
-      ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(`interface`, ctx.typeNameRenderMode) }, icon = AllIcons.Nodes.Interface)
+      ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(`interface`, ctx.typeNameRenderMode) },
+                icon = AllIcons.Nodes.Interface,
+                searchProvider = SearchProvider.Class(`interface`))
     }
   }
 
@@ -183,7 +196,9 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
   private fun addPermittedSubclassesNode() {
     addTitleNodeWithElements(classNode.permittedSubclasses, { TextNode("Permitted subclasses", AllIcons.General.OverridingMethod) }) { _, subclass ->
-      ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(subclass, ctx.typeNameRenderMode) }, icon = AllIcons.General.OverridingMethod)
+      ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(subclass, ctx.typeNameRenderMode) },
+                icon = AllIcons.General.OverridingMethod,
+                searchProvider = SearchProvider.Class(subclass))
     }
   }
 

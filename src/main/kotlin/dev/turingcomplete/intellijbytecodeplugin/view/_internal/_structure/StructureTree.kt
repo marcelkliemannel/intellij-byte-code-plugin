@@ -40,7 +40,7 @@ import javax.swing.tree.TreeNode
 internal class StructureTree private constructor(classFileContext: ClassFileContext,
                                                  parent: Disposable,
                                                  private val structureTreeModel: StructureTreeModel)
-  : Tree(AsyncTreeModel(StructureTreeModel(classFileContext), true, parent)) {
+  : Tree(AsyncTreeModel(StructureTreeModel(classFileContext), true, parent)), DataProvider {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
@@ -85,6 +85,16 @@ internal class StructureTree private constructor(classFileContext: ClassFileCont
   @TestOnly
   internal fun getChildren(parent: Any): List<TreeNode>? {
     return structureTreeModel.getChildren(parent)
+  }
+
+  override fun getData(dataId: String): Any? {
+    return when {
+      PlatformDataKeys.PREDEFINED_TEXT.`is`(dataId) -> {
+        val lastPathComponent = selectionModel.selectionPath?.lastPathComponent
+        return if (lastPathComponent is StructureNode) lastPathComponent.searchProvider?.value else null
+      }
+      else -> null
+    }
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
@@ -206,6 +216,11 @@ internal class StructureTree private constructor(classFileContext: ClassFileCont
                       ?: return
 
       val actions = DefaultActionGroup().apply {
+        valueNode.searchProvider?.let {
+          add(it.searchAction())
+          addSeparator()
+        }
+
         add(StructureNodeCopyValueAction(valueNode, context))
         add(StructureViewValueAction(valueNode, context))
       }

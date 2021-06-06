@@ -7,6 +7,7 @@ import com.intellij.ui.ColorUtil
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
+import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.SearchProvider
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureTreeContext
 import javax.swing.Icon
 import javax.swing.JComponent
@@ -16,7 +17,9 @@ internal class HtmlTextNode(preFix: String? = null,
                             displayValue: (StructureTreeContext) -> String,
                             rawValue: (StructureTreeContext) -> String = displayValue,
                             postFix: String? = null,
-                            icon: Icon? = null) : ValueNode(preFix, displayValue, rawValue, postFix, icon) {
+                            icon: Icon? = null,
+                            searchProvider: SearchProvider? = null)
+  : ValueNode(preFix, displayValue, rawValue, postFix, icon, searchProvider) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
