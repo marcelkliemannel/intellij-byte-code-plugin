@@ -27,6 +27,7 @@ import com.intellij.psi.util.ClassUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiUtil
 import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindow.Companion.PLUGIN_NAME
+import java.net.URL
 import java.nio.file.Path
 
 /**
@@ -197,15 +198,15 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
       return
     }
 
+    val outdatedClassFilesText = outdatedClassFiles.joinToString(", ", transform = { "'${it.sourceFile.name}'" })
+    val missingClassFilesText = missingClassFiles.joinToString(", ", transform = { "'${it.sourceFile.name}'" })
     val compileScope = sequenceOf(prepareForCompilation(outdatedClassFiles,
-                                                        "The following source file(s) are not up-to-date: " +
-                                                        outdatedClassFiles.joinToString(", ", transform = { it.sourceFile.name }) +
-                                                        " should it/these be compiled?",
+                                                        "The source file $outdatedClassFilesText is not up-to-date, should it be compiled?",
+                                                        "The source files $outdatedClassFilesText are not up-to-date, should these be compiled?",
                                                         true),
                                   prepareForCompilation(missingClassFiles,
-                                                        "No class file could be found for the following source file(s): " +
-                                                        missingClassFiles.joinToString(", ", transform = { it.sourceFile.name }) +
-                                                        " should it/they be compiled?",
+                                                        "The class file for the source file $missingClassFilesText could not be found, should it be compiled?",
+                                                        "The class files for the source files $missingClassFilesText could not be found, should these be compiled?",
                                                         false))
             .filterNotNull()
             .reduceOrNull { first, second -> CompositeScope(first, second) }
@@ -287,9 +288,9 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
                      "indices are updating.")
         }
         else {
-          errors.add("Couldn't determine the expected class file path for source file '${sourceFile.name}', because " +
-                     "it may not belong to this project.\n" +
-                     "Try to compile the file separately and open the resulted class file directly.")
+          errors.add("Couldn't determine the expected class file path for source file '${sourceFile.name}'.\n" +
+                     "Try to recompile the project or, if its a non-project Java source file, compile the file " +
+                     "separately and open the resulted class file directly.")
         }
         null
       }
@@ -301,7 +302,7 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
     val expectedClassFilePath = moduleToExpectedClassFilePath.second
 
     val classFile = VirtualFileManager.getInstance().findFileByNioPath(expectedClassFilePath)
-    if (classFile?.isValid == false) {
+    if (classFile == null || !classFile.isValid) {
       missingClassFiles.add(ClassFileNeedingPreparation(module, file, expectedClassFilePath))
     }
     else if (!compilerManager.isUpToDate(compilerManager.createFilesCompileScope(arrayOf(file)))) {
@@ -327,37 +328,50 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
   private fun findExpectedClassFilePath(module: Module, jvmClassName: String, sourceFile: VirtualFile): Path? {
     val compiler = CompilerModuleExtension.getInstance(module) ?: return null
     val isTest = projectFileIndex.isInTestSourceContent(sourceFile)
-    val classRoot = (if (isTest) compiler.compilerOutputPathForTests else compiler.compilerOutputPath) ?: return null
+    // Don't use 'compilerOutputPath' here, because if there is a compiler output
+    // path but nothing was compiled yet (and therefore the directory does not
+    // exists), it returns null.
+    val classRootUrl = (if (isTest) compiler.compilerOutputUrlForTests else compiler.compilerOutputUrl) ?: return null
+    // The URL may be starting with a protocol (e.g. 'file:/'), which means that
+    // the URL string cannot simply be wrapped in a Path.of(), since it sees the
+    // protocol as a path component and thus the file never exists.
+    val classRoot = URL(classRootUrl).path
     val relativePath = "${jvmClassName.replace('.', '/')}.class"
-    return Path.of(classRoot.path, relativePath)
+    return Path.of(classRoot, relativePath)
   }
 
 
   private fun prepareForCompilation(classFilesNeedingPreparation: List<ClassFileNeedingPreparation>,
-                                    question: String,
+                                    singularQuestion: String,
+                                    pluralQuestion: String,
                                     tryToUseClassesAsTheyAre: Boolean): CompileScope? {
 
     if (classFilesNeedingPreparation.isEmpty()) {
       return null
     }
 
+    val useSingular = classFilesNeedingPreparation.size == 1
     val options = mutableListOf<String>()
     if (tryToUseClassesAsTheyAre) {
-      options.add("Try to use class(es) as they are")
+      options.add(if (useSingular) "Try to use the class as it is" else "Try to use classes as they are")
     }
-    options.add("Compile only class(es)")
+    options.add(if (useSingular) "Compile only the class" else "Compile only classes")
     val compileOnlyClassesAnswerIndex = options.size - 1
 
-    options.add("Compile whole module(s)")
+    options.add(if (useSingular) "Compile whole module" else "Compile whole modules")
     val compileWholeModulesAnswerIndex = options.size - 1
 
-    options.add("Compile whole module(s) and dependent modules")
+    options.add(if (useSingular) "Compile whole module tree" else "Compile whole module trees")
     val compileWholeModulesAndDependentModulesAnswerIndex = options.size - 1
 
     options.add("Cancel")
     val cancelAnswerIndex = options.size - 1
 
-    val answer = Messages.showDialog(project, question, MESSAGE_DIALOG_TITLE, options.toTypedArray(), 0, null)
+    val answer = Messages.showDialog(project,
+                                     if (useSingular) singularQuestion else pluralQuestion,
+                                     MESSAGE_DIALOG_TITLE,
+                                     options.toTypedArray(),
+                                     0, null)
     return if (answer == -1 || answer == cancelAnswerIndex) {
       null
     }
@@ -437,11 +451,21 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
         return
       }
 
-      ApplicationManager.getApplication().invokeLater {
+      if (compileContext.project.isDisposed) {
+        return
+      }
+
+      ApplicationManager.getApplication().executeOnPooledThread {
         val virtualFileManager = VirtualFileManager.getInstance()
-        classFilesNeedingPreparation.mapNotNull { virtualFileManager.findFileByNioPath(it.expectedClassFilePath) }
-                .filter { it.isValid }
-                .forEach { openFile(it) }
+        classFilesNeedingPreparation.forEach {
+          val virtualFile = virtualFileManager.refreshAndFindFileByNioPath(it.expectedClassFilePath)
+          if (virtualFile != null && virtualFile.isValid) {
+            openFile(virtualFile)
+          }
+          else {
+            LOGGER.warn("Failed to find class file '${it.expectedClassFilePath}' after compilation.")
+          }
+        }
       }
     }
   }
