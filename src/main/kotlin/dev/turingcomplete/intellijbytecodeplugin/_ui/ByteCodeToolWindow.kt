@@ -5,6 +5,7 @@ import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
@@ -35,7 +36,7 @@ internal class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
-    const val ID = "dev.turingcomplete.intellijbytecodeplugin.toolwindow"
+    const val ID = "Byte Code"
     const val PLUGIN_NAME = "Byte Code Analyzer"
 
     fun <T> getData(dataProvider: DataProvider, dataKey: DataKey<T>): Any? {
@@ -58,8 +59,6 @@ internal class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
     Disposer.register(toolWindow.disposable, this)
 
     toolWindow.apply {
-      title = "Byte Code"
-      stripeTitle = "Byte Code"
       setIcon(ByteCodePluginIcons.TOOL_WINDOW_ICON)
       initDropTarget(project)
       setupEmptyText(project)
@@ -204,16 +203,18 @@ internal class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
     }
 
     private fun openClassFile(classFile: VirtualFile) {
-      assert(classFile.extension == "class")
+      ApplicationManager.getApplication().invokeLater {
+        assert(classFile.extension == "class")
 
-      val newClassFileTab = ClassFileTab(project, classFile)
-      Disposer.register(this@ByteCodeToolWindow, newClassFileTab)
-      val content = contentManager.factory.createContent(newClassFileTab.createComponent(true),
-                                                         classFile.nameWithoutExtension,
-                                                         true)
-      content.putUserData(ClassFileTab.CLASS_FILE_TAB_KEY, newClassFileTab)
-      contentManager.addContent(content)
-      contentManager.setSelectedContent(content, true)
+        val newClassFileTab = ClassFileTab(project, classFile)
+        Disposer.register(this@ByteCodeToolWindow, newClassFileTab)
+        val content = contentManager.factory.createContent(newClassFileTab.createComponent(true),
+                                                           classFile.nameWithoutExtension,
+                                                           true)
+        content.putUserData(ClassFileTab.CLASS_FILE_TAB_KEY, newClassFileTab)
+        contentManager.addContent(content)
+        contentManager.setSelectedContent(content, true)
+      }
     }
   }
 }

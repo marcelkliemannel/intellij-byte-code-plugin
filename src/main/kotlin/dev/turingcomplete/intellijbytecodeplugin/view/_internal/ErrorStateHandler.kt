@@ -20,7 +20,7 @@ import java.awt.event.ActionEvent
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.*
 
-internal abstract class ErrorStateHandler {
+abstract class ErrorStateHandler {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
