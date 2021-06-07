@@ -137,7 +137,7 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
       return
     }
 
-    add(TextNode("Nest").apply {
+    add(TextNode("Nest", AllIcons.Actions.GroupBy).apply {
       classNode.nestHostClass?.let { nestHostClass ->
         add(ValueNode("Nest host:",
                       { ctx -> TypeUtils.toReadableName(nestHostClass, ctx.typeNameRenderMode) },

@@ -32,6 +32,8 @@ object CommonDataKeys {
    */
   val OPEN_IN_EDITOR_DATA_KEY = DataKey.create<VirtualFile>("dev.turingcomplete.intellijbytecodeplugin.openInEditor")
 
+  val VALUE = DataKey.create<String>("dev.turingcomplete.intellijbytecodeplugin.value")
+
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
   // -- Private Methods --------------------------------------------------------------------------------------------- //

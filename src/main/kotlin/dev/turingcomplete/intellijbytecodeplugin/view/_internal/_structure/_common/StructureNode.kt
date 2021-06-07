@@ -129,7 +129,7 @@ internal abstract class StructureNode(val searchProvider: SearchProvider? = null
       return
     }
 
-    add(TextNode("Signature").apply {
+    add(TextNode("Signature", AllIcons.Nodes.Type).apply {
       asyncAdd {
         add(ValueNode("Raw:", StringEscapeUtils.escapeHtml(signature), signature))
 

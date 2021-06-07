@@ -3,31 +3,30 @@ package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.DumbAware
-import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.ui.LoadingNode
 import com.intellij.ui.scale.JBUIScale
 import com.intellij.ui.tree.AsyncTreeModel
 import com.intellij.ui.tree.BaseTreeModel
 import com.intellij.ui.treeStructure.Tree
-import com.intellij.util.PlatformIcons
+import com.intellij.util.castSafelyTo
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.tree.TreeUtil
-import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
+import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
+import dev.turingcomplete.intellijbytecodeplugin.view._internal.CopyValueAction
+import dev.turingcomplete.intellijbytecodeplugin.view._internal.ViewValueAction
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._class.ClassStructureNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.InteractiveNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.StructureNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.ValueNode
 import org.jetbrains.annotations.TestOnly
 import java.awt.Component
-import java.awt.datatransfer.StringSelection
 import java.awt.event.*
 import java.util.*
 import javax.swing.AbstractCellEditor
@@ -88,10 +87,12 @@ internal class StructureTree private constructor(classFileContext: ClassFileCont
   }
 
   override fun getData(dataId: String): Any? {
+    val selectedStructureNode = selectionModel.selectionPath?.lastPathComponent.castSafelyTo<StructureNode>() ?: return null
+
     return when {
-      PlatformDataKeys.PREDEFINED_TEXT.`is`(dataId) -> {
-        val lastPathComponent = selectionModel.selectionPath?.lastPathComponent
-        return if (lastPathComponent is StructureNode) lastPathComponent.searchProvider?.value else null
+      PlatformDataKeys.PREDEFINED_TEXT.`is`(dataId) -> selectedStructureNode.searchProvider?.value
+      CommonDataKeys.VALUE.`is`(dataId) -> {
+        if (selectedStructureNode is ValueNode) selectedStructureNode.rawValue(context) else null
       }
       else -> null
     }
@@ -221,34 +222,14 @@ internal class StructureTree private constructor(classFileContext: ClassFileCont
           addSeparator()
         }
 
-        add(StructureNodeCopyValueAction(valueNode, context))
-        add(StructureViewValueAction(valueNode, context))
+        add(CopyValueAction())
+        add(ViewValueAction())
       }
 
       ActionManager.getInstance()
               .createActionPopupMenu(ActionPlaces.UNKNOWN, actions)
               .component
               .show(event.getComponent(), event.x, event.y)
-    }
-  }
-
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
-
-  private class StructureNodeCopyValueAction(private val valueNode: ValueNode, private val context: StructureTreeContext)
-    : DumbAwareAction("Copy Value", null, PlatformIcons.COPY_ICON) {
-
-    override fun actionPerformed(e: AnActionEvent) {
-      CopyPasteManager.getInstance().setContents(StringSelection(valueNode.rawValue(context)))
-    }
-  }
-
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
-
-  private class StructureViewValueAction(private val valueNode: ValueNode, private val context: StructureTreeContext)
-    : DumbAwareAction("View Value") {
-
-    override fun actionPerformed(e: AnActionEvent) {
-      UiUtils.PopUp.showTextAreaPopup(valueNode.rawValue(context), e.dataContext)
     }
   }
 
