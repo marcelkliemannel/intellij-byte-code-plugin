@@ -112,6 +112,10 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
   protected fun getText(): String? = if (isByteCodeParsingResultAvailable()) editor.document.text else null
 
   protected fun setText(text: String) {
+    val gotToMethods = parseGoToMethods(text).toList().sortedBy { it.second }
+    goToMethods.clear()
+    goToMethods.addAll(gotToMethods)
+
     DocumentUtil.writeInRunUndoTransparentAction {
       editor.document.apply {
         setReadOnly(false)
@@ -207,7 +211,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
   private fun asyncParseByteCode() {
     parsingIndicatorLabel.isVisible = true
 
-    AsyncUtils.runAsync(classFileContext.project(), doParseByteCode(goToMethodsRegex), { result ->
+    AsyncUtils.runAsync(classFileContext.project(), doParseByteCode(), { result ->
       goToMethods.clear()
       goToMethods.addAll(result.goToMethods.toList().sortedBy { it.second })
 
@@ -232,22 +236,25 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
 
   private fun isByteCodeParsingResultAvailable() = !parsingIndicatorLabel.isVisible
 
-  private fun doParseByteCode(goToMethodsRegex: Regex?): () -> ByteCodeParsingResult = {
+  private fun doParseByteCode(): () -> ByteCodeParsingResult = {
     parsingResultCache.computeIfAbsent(calculateParsingOptions()) { parsingOptions ->
       val text = parseByteCode(parsingOptions)
-
-      val lineOfMethod = mutableMapOf<Int, String>()
-      if (goToMethodsRegex != null) {
-        text.lines().forEachIndexed { lineNumber, line ->
-          val methodMatcher = goToMethodsRegex.matchEntire(line)
-          if (methodMatcher != null) {
-            lineOfMethod[lineNumber] = methodMatcher.groups["name"]!!.value
-          }
-        }
-      }
-
+      val lineOfMethod = parseGoToMethods(text)
       ByteCodeParsingResult(text, lineOfMethod)
     }
+  }
+
+  private fun parseGoToMethods(text: String): Map<Int, String> {
+    val lineOfMethod = mutableMapOf<Int, String>()
+    if (goToMethodsRegex != null) {
+      text.lines().forEachIndexed { lineNumber, line ->
+        val methodMatcher = goToMethodsRegex.matchEntire(line)
+        if (methodMatcher != null) {
+          lineOfMethod[lineNumber] = methodMatcher.groups["name"]!!.value
+        }
+      }
+    }
+    return lineOfMethod
   }
 
   private fun calculateParsingOptions(): Int {

@@ -46,7 +46,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
   private fun addReturnTypeNode() {
-    val hasReturnType = "<clinit>" != methodNode.name || "<init>" != methodNode.name
+    val hasReturnType = methodNode.name != "<clinit>" && methodNode.name != "<init>"
     if (!hasReturnType) {
       return
     }

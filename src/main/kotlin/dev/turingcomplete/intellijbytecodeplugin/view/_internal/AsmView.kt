@@ -61,7 +61,11 @@ class AsmView(classFileContext: ClassFileContext)
 
     override fun actionPerformed(e: AnActionEvent) {
       val text = getText() ?: return
-      createPsiFile(text)?.let { psiFile -> formatCode(psiFile) { setText(it) } }
+      createPsiFile(text)?.let { psiFile ->
+        formatCode(psiFile) {
+          setText(it)
+        }
+      }
     }
 
     private fun createPsiFile(asmifiedText: String): PsiFile? {
