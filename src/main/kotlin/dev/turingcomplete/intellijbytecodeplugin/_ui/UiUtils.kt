@@ -10,7 +10,6 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.render.RenderingUtil
 import com.intellij.util.ui.GridBag
-import com.intellij.util.ui.JBEmptyBorder
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
 import java.awt.Color
@@ -87,9 +86,7 @@ internal object UiUtils {
 
   object PopUp {
     fun showTextAreaPopup(value: String, dataContext: DataContext) {
-      val valueTextArea = Panel.NotEditableTextArea(value).apply {
-        border = JBEmptyBorder(0)
-      }
+      val valueTextArea = Panel.NotEditableTextArea(value, true)
       JBPopupFactory.getInstance()
               .createComponentPopupBuilder(valueTextArea, valueTextArea)
               .setRequestFocus(true)
@@ -124,14 +121,14 @@ internal object UiUtils {
       }
     }
 
-    class NotEditableTextArea(value: String) : BorderLayoutPanel() {
+    class NotEditableTextArea(value: String, withoutBorder: Boolean = false) : BorderLayoutPanel() {
 
       init {
         val textArea = JBTextArea(value).apply {
           isEditable = false
         }
 
-        addToCenter(ScrollPaneFactory.createScrollPane(textArea))
+        addToCenter(ScrollPaneFactory.createScrollPane(textArea, withoutBorder))
       }
     }
   }
