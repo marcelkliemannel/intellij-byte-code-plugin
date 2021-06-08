@@ -113,6 +113,10 @@ Byte code actions (e.g., the decompile action) will be added to each byte code v
 * Extension name: `dev.turingcomplete.intellijbytecodeplugin.byteCodeAction`
 * Interface: `dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction`
 
+### Tests
+
+There are some tests that are testing the parsing of the structure tree and the constant pool and the opening of files with all class files from the java.base module and from the groovy-all kotlin-stdlib libraries. Since this involves tens of thousands of files, these tests take a lot of time. Therefore, execution in `dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase.LIMIT_CLASSES` is limited to 800 class per library. When a new version is to be released it is advisable that this value should be increased significantly for a test run.
+
 ## Planned Features
 
 - Detailed byte code instructions overview.
