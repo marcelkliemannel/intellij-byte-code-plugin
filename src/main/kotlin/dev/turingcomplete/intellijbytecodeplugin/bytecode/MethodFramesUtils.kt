@@ -1,5 +1,6 @@
 package dev.turingcomplete.intellijbytecodeplugin.bytecode
 
+import dev.turingcomplete.intellijbytecodeplugin._ui.DefaultClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Label
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
@@ -63,7 +64,7 @@ object MethodFramesUtils {
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  private class ExtendedTextifier : Textifier(Opcodes.ASM9) {
+  private class ExtendedTextifier : Textifier(DefaultClassFileContext.ASM_API) {
 
     init {
       tab = "";
@@ -107,7 +108,7 @@ object MethodFramesUtils {
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  private class ExtendedInterpreter : BasicInterpreter(Opcodes.ASM9) {
+  private class ExtendedInterpreter : BasicInterpreter(DefaultClassFileContext.ASM_API) {
 
     override fun newValue(type: Type?): BasicValue? {
       return if (type != null && (type.sort == Type.OBJECT || type.sort == Type.ARRAY)) {
