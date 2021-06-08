@@ -7,8 +7,8 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.Textifie
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeParsingResultView
 
 
-internal class TextifiedView(classFileContext: ClassFileContext)
-  : ByteCodeParsingResultView(classFileContext, "Textified", AllIcons.FileTypes.JavaClass, METHOD_LINE_REGEX) {
+internal class PlainView(classFileContext: ClassFileContext)
+  : ByteCodeParsingResultView(classFileContext, "Plain", AllIcons.FileTypes.JavaClass, METHOD_LINE_REGEX) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
@@ -30,6 +30,6 @@ internal class TextifiedView(classFileContext: ClassFileContext)
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
   class MyCreator : Creator {
-    override fun create(classFileContext: ClassFileContext) = TextifiedView(classFileContext)
+    override fun create(classFileContext: ClassFileContext) = PlainView(classFileContext)
   }
 }

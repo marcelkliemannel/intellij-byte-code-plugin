@@ -18,8 +18,8 @@ import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.ASMifier
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeParsingResultView
 
-class AsmifiedView(classFileContext: ClassFileContext)
-  : ByteCodeParsingResultView(classFileContext, "Asmified", AllIcons.FileTypes.Text, METHOD_LINE_REGEX) {
+class AsmView(classFileContext: ClassFileContext)
+  : ByteCodeParsingResultView(classFileContext, "ASM", AllIcons.FileTypes.Text, METHOD_LINE_REGEX) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
@@ -82,6 +82,6 @@ class AsmifiedView(classFileContext: ClassFileContext)
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
   class MyCreator : Creator {
-    override fun create(classFileContext: ClassFileContext) = AsmifiedView(classFileContext)
+    override fun create(classFileContext: ClassFileContext) = AsmView(classFileContext)
   }
 }
