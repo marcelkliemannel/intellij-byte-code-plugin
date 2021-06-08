@@ -1,36 +1,18 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._class
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.project.DumbAware
-import com.intellij.openapi.project.DumbAwareToggleAction
-import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.ui.ScrollPaneFactory
-import com.intellij.ui.components.JBLabel
-import com.intellij.ui.table.JBTable
-import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.*
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Label
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNode
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.LabelNode
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.MethodNode
-import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.RenderOption
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.SearchProvider
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.*
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.HyperLinkNode.HyperLinkListener
-import java.awt.Component
-import java.awt.Dimension
 import java.util.*
 import java.util.stream.IntStream
-import javax.swing.JComponent
-import javax.swing.JTable
-import javax.swing.table.AbstractTableModel
-import javax.swing.table.TableCellRenderer
-import kotlin.math.max
-import kotlin.properties.Delegates
-import kotlin.reflect.KProperty
 import kotlin.streams.toList
 
 internal class MethodStructureNode(private val methodNode: MethodNode, private val classNode: ClassNode)
@@ -48,6 +30,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
   init {
     asyncAdd(true) {
       addAccessNode(methodNode.access, AccessGroup.METHOD)
+      addReturnTypeNode()
       addSignatureNode(methodNode.signature)
       addAnnotationsNode("Annotations", methodNode.visibleAnnotations, methodNode.invisibleAnnotations)
       addAnnotationsNode("Type Annotations", methodNode.visibleTypeAnnotations, methodNode.invisibleTypeAnnotations)
@@ -61,6 +44,18 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
 
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
   // -- Private Methods --------------------------------------------------------------------------------------------- //
+
+  private fun addReturnTypeNode() {
+    val hasReturnType = "<clinit>" != methodNode.name || "<init>" != methodNode.name
+    if (!hasReturnType) {
+      return
+    }
+
+    val methodType = Type.getMethodType(methodNode.desc)
+    add(ValueNode("Return type:",
+                  { ctx -> TypeUtils.toReadableType(methodType.returnType, ctx.typeNameRenderMode) },
+                  icon = AllIcons.Actions.Rollback))
+  }
 
   private fun addMethodExceptionsNode() {
     addTitleNodeWithElements(methodNode.exceptions, { TextNode("Exceptions", AllIcons.Nodes.ExceptionClass) }) { _, exception ->
