@@ -3,6 +3,7 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode
 import com.jetbrains.rd.util.EnumSet
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.Access.*
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes.*
+import java.util.*
 
 enum class Access(val value: Int) {
   PUBLIC(ACC_PUBLIC),
@@ -47,9 +48,9 @@ enum class AccessGroup(val accesses: EnumSet<Access>) {
   fun toReadableAccess(access: Int): List<String> {
     return accesses.asSequence()
             .filter { (it.value and access) != 0 }
-            .map { it.name.toLowerCase() }
+            .map { it.name.lowercase(Locale.getDefault()) }
             .toList()
   }
 
-  override fun toString() = name.toLowerCase().capitalize().replace("_", " ")
+  override fun toString() = name.lowercase(Locale.getDefault()).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }.replace("_", " ")
 }
