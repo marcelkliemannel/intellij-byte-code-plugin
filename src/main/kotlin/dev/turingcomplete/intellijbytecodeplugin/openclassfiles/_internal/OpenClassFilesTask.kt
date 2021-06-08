@@ -197,8 +197,8 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
       return
     }
 
-    val outdatedClassFilesText = outdatedClassFiles.joinToString(", ", transform = { "'${it.sourceFile.name} (${it.expectedClassFilePath})'" })
-    val missingClassFilesText = missingClassFiles.joinToString(", ", transform = { "'${it.sourceFile.name} (${it.expectedClassFilePath})'" })
+    val outdatedClassFilesText = outdatedClassFiles.joinToString(", ", transform = { "'${it.sourceFile.name}'" })
+    val missingClassFilesText = missingClassFiles.joinToString(", ", transform = { "'${it.sourceFile.name}'" })
     val compileScope = sequenceOf(prepareForCompilation(outdatedClassFiles,
                                                         "The source file $outdatedClassFilesText is not up-to-date, should it be compiled?",
                                                         "The source files $outdatedClassFilesText are not up-to-date, should these be compiled?",
