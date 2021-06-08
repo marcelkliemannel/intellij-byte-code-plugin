@@ -59,7 +59,6 @@ internal class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
     Disposer.register(toolWindow.disposable, this)
 
     toolWindow.apply {
-      setIcon(ByteCodePluginIcons.TOOL_WINDOW_ICON)
       initDropTarget(project)
       setupEmptyText(project)
       initActions(project)

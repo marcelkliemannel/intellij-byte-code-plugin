@@ -23,7 +23,7 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <toolWindow id="Byte Code" factoryClass="dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindow"
-                anchor="right" canCloseContents="true" secondary="true"/>
+                anchor="right" canCloseContents="true" secondary="true" icon="dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodePluginIcons.TOOL_WINDOW_ICON"/>
 
     <notificationGroup displayType="BALLOON" id="dev.turingcomplete.intellijbytecodeplugin.notificationGroup"/>
 
@@ -51,9 +51,9 @@
     <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._constantpool.ConstantPoolView$MyCreator"/>
     <byteCodeView
-            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.TextifiedView$MyCreator"/>
+            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.PlainView$MyCreator"/>
     <byteCodeView
-            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.AsmifiedView$MyCreator"/>
+            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.AsmView$MyCreator"/>
 
     <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.DecompileByteCodeAction"/>
     <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.VerifyByteCodeAction"/>
