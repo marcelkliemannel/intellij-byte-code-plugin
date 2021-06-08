@@ -27,7 +27,6 @@ import com.intellij.psi.util.ClassUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiUtil
 import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindow.Companion.PLUGIN_NAME
-import java.net.URL
 import java.nio.file.Path
 
 /**
@@ -198,8 +197,8 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
       return
     }
 
-    val outdatedClassFilesText = outdatedClassFiles.joinToString(", ", transform = { "'${it.sourceFile.name}'" })
-    val missingClassFilesText = missingClassFiles.joinToString(", ", transform = { "'${it.sourceFile.name}'" })
+    val outdatedClassFilesText = outdatedClassFiles.joinToString(", ", transform = { "'${it.sourceFile.name} (${it.expectedClassFilePath})'" })
+    val missingClassFilesText = missingClassFiles.joinToString(", ", transform = { "'${it.sourceFile.name} (${it.expectedClassFilePath})'" })
     val compileScope = sequenceOf(prepareForCompilation(outdatedClassFiles,
                                                         "The source file $outdatedClassFilesText is not up-to-date, should it be compiled?",
                                                         "The source files $outdatedClassFilesText are not up-to-date, should these be compiled?",
@@ -308,11 +307,8 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
     else if (!compilerManager.isUpToDate(compilerManager.createFilesCompileScope(arrayOf(file)))) {
       outdatedClassFiles.add(ClassFileNeedingPreparation(module, file, expectedClassFilePath))
     }
-    else if (classFile != null) {
-      readyToOpen.add(classFile)
-    }
     else {
-      LOGGER.warn("Couldn't find virtual file for expected class file: $expectedClassFilePath")
+      readyToOpen.add(classFile)
     }
   }
 
@@ -331,15 +327,10 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
     // Don't use 'compilerOutputPath' here, because if there is a compiler output
     // path but nothing was compiled yet (and therefore the directory does not
     // exists), it returns null.
-    val classRootUrl = (if (isTest) compiler.compilerOutputUrlForTests else compiler.compilerOutputUrl) ?: return null
-    // The URL may be starting with a protocol (e.g. 'file:/'), which means that
-    // the URL string cannot simply be wrapped in a Path.of(), since it sees the
-    // protocol as a path component and thus the file never exists.
-    val classRoot = URL(classRootUrl).path
+    val classRoot = (if (isTest) compiler.compilerOutputForTestsPointer else compiler.compilerOutputPointer) ?: return null
     val relativePath = "${jvmClassName.replace('.', '/')}.class"
-    return Path.of(classRoot, relativePath)
+    return Path.of(classRoot.presentableUrl, relativePath)
   }
-
 
   private fun prepareForCompilation(classFilesNeedingPreparation: List<ClassFileNeedingPreparation>,
                                     singularQuestion: String,
@@ -355,7 +346,7 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
     if (tryToUseClassesAsTheyAre) {
       options.add(if (useSingular) "Try to use the class as it is" else "Try to use classes as they are")
     }
-    options.add(if (useSingular) "Compile only the class" else "Compile only classes")
+    options.add(if (useSingular) "Compile only this file" else "Compile only these files")
     val compileOnlyClassesAnswerIndex = options.size - 1
 
     options.add(if (useSingular) "Compile whole module" else "Compile whole modules")
