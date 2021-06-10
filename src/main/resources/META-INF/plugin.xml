@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>dev.turingcomplete.intellijbytecodeplugin</id>
   <name>Byte Code Analyzer</name>
-  <vendor email="dev@marcelkliemannel.com" url="http://www.marcelkliemannel.com/project/intellij-byte-code-plugin">Marcel Kliemannel</vendor>
+  <vendor email="dev@marcelkliemannel.com" url="http://marcelkliemannel.com/projects/intellij-byte-code-plugin">Marcel Kliemannel</vendor>
 
   <description><![CDATA[
 <p>This plugin provides a modern and powerful byte code analyzer tool window. Its supports Java, Kotlin, Groovy and other JVM language class files. Based on ASM 9.1, it currently supports class files up to Java 16.</p>
@@ -12,7 +12,7 @@
 
 <h3>Class File Views</h3>
 <ul>
-  <li>The <b>Structure View</b> of a class file gives a quick and detailed tree overview of the individual components of a class file.</li>
+  <li>The <b>Structure View</b> gives a quick and detailed tree overview of the individual components of a class file.</li>
   <li>The <b>Constant Pool View</b> provides insights into the constant pool entries.</li>
   <li>The <b>Plain View</b> gives a textified representation of the byte code.</li>
   <li>The <b>ASM View</b> provides Java source code that contains all instructions to generate the class via the ASM library.</li>
