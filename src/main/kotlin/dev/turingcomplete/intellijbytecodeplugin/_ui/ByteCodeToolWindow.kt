@@ -65,7 +65,7 @@ internal class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
     }
 
     project.messageBus.connect(this).apply {
-      subscribe(OpenClassFilesListener.OPEN_CLASS_FILES_TOPIC, MyOpenClassFilesListener(project, toolWindow.contentManager))
+      subscribe(OpenClassFilesListener.OPEN_CLASS_FILES_TOPIC, MyOpenClassFilesListener(project, toolWindow))
     }
   }
 
@@ -185,7 +185,7 @@ internal class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  private inner class MyOpenClassFilesListener(private val project: Project, private val contentManager: ContentManager) : OpenClassFilesListener {
+  private inner class MyOpenClassFilesListener(private val project: Project, private val toolWindow: ToolWindow) : OpenClassFilesListener {
 
     private val openClassFile: (VirtualFile) -> Unit = { openClassFile(it) }
 
@@ -207,12 +207,15 @@ internal class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
 
         val newClassFileTab = ClassFileTab(project, classFile)
         Disposer.register(this@ByteCodeToolWindow, newClassFileTab)
+        val contentManager = toolWindow.contentManager
         val content = contentManager.factory.createContent(newClassFileTab.createComponent(true),
                                                            classFile.nameWithoutExtension,
                                                            true)
         content.putUserData(ClassFileTab.CLASS_FILE_TAB_KEY, newClassFileTab)
         contentManager.addContent(content)
-        contentManager.setSelectedContent(content, true)
+        toolWindow.show {
+          contentManager.setSelectedContent(content, true)
+        }
       }
     }
   }
