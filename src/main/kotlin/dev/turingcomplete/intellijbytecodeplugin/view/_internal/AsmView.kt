@@ -1,10 +1,6 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.ActionGroup
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.project.DumbAwareAction
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TraceUtils
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.ASMifier
@@ -30,31 +26,6 @@ class AsmView(classFileContext: ClassFileContext)
   }
 
   override fun openInEditorFileName() = "${classFileContext.classFile().nameWithoutExtension}Dump.java"
-
-  override fun additionalToolBarActions(): ActionGroup {
-    return DefaultActionGroup().apply {
-      add(ReformatCodeAction())
-    }
-  }
-
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
-
-  private inner class ReformatCodeAction : DumbAwareAction("Reformat Code", null, AllIcons.Actions.PrettyPrint) {
-
-    override fun update(e: AnActionEvent) {
-      e.presentation.isEnabled = getText() != null
-    }
-
-    override fun actionPerformed(e: AnActionEvent) {
-      val text = getText() ?: return
-      createPsiFile(text)?.let { psiFile ->
-        formatCode(psiFile) {
-          setTextASM(it)
-        }
-      }
-    }
-  }
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 

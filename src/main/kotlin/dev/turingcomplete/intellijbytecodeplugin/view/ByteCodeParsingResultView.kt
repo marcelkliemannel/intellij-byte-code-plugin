@@ -100,8 +100,6 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
 
   protected open fun openInEditorFileName(): String = "${classFileContext.classFile().nameWithoutExtension}.txt"
 
-  protected open fun additionalToolBarActions(): ActionGroup? = null
-
   override fun dispose() {
     if (!editor.isDisposed) {
       EditorFactory.getInstance().releaseEditor(editor)
@@ -116,7 +114,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
 
   protected fun getText(): String? = if (isByteCodeParsingResultAvailable()) editor.document.text else null
 
-  protected fun setTextASM(text: String) {
+  private fun setTextASM(text: String) {
     val gotToMethods = parseGoToMethods(text).toList().sortedBy { it.second }
     goToMethods.clear()
     goToMethods.addAll(gotToMethods)
@@ -187,8 +185,6 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
 
       add(OpenInEditorAction())
 
-      additionalToolBarActions()?.let { addAll(it) }
-
       addAllByteCodeActions()
     }
 
@@ -242,14 +238,14 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
     }, { cause -> onError("Failed to parse byte code", cause) })
   }
 
-  fun createPsiFile(asmifiedText: String): PsiFile? {
+  private fun createPsiFile(asmifiedText: String): PsiFile? {
     return ApplicationManager.getApplication().runReadAction(Computable<PsiFile?> {
       val lightVirtualFile = LightVirtualFile(openInEditorFileName(), JavaFileType.INSTANCE, asmifiedText)
       PsiManager.getInstance(classFileContext.project()).findFile(lightVirtualFile)
     })
   }
 
-  fun formatCode(psiFile: PsiFile, onSuccess: (String) -> Unit) {
+  private fun formatCode(psiFile: PsiFile, onSuccess: (String) -> Unit) {
     val reformatProcessor = ReformatCodeProcessor(classFileContext.project(), psiFile, null, false)
     val rearrangeProcessor = RearrangeCodeProcessor(reformatProcessor)
     rearrangeProcessor.setPostRunnable { onSuccess(psiFile.text) }
