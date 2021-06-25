@@ -2,7 +2,7 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode
 
 import com.jetbrains.rd.util.EnumSet
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.Access.*
-import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes.*
+import org.jetbrains.org.objectweb.asm.Opcodes.*
 import java.util.*
 
 enum class Access(val value: Int) {
