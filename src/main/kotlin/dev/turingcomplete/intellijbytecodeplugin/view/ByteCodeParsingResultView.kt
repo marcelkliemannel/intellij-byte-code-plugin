@@ -1,5 +1,7 @@
 package dev.turingcomplete.intellijbytecodeplugin.view
 
+import com.intellij.codeInsight.actions.RearrangeCodeProcessor
+import com.intellij.codeInsight.actions.ReformatCodeProcessor
 import com.intellij.icons.AllIcons
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.ide.ui.LafManagerListener
@@ -16,7 +18,10 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.util.Computable
 import com.intellij.openapi.util.NlsActions
+import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiManager
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.ui.ColorUtil
 import com.intellij.ui.DumbAwareActionButton
@@ -111,11 +116,15 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
 
   protected fun getText(): String? = if (isByteCodeParsingResultAvailable()) editor.document.text else null
 
-  protected fun setText(text: String) {
+  protected fun setTextASM(text: String) {
     val gotToMethods = parseGoToMethods(text).toList().sortedBy { it.second }
     goToMethods.clear()
     goToMethods.addAll(gotToMethods)
 
+    this.setText(text)
+  }
+
+  private fun setText(text: String) {
     DocumentUtil.writeInRunUndoTransparentAction {
       editor.document.apply {
         setReadOnly(false)
@@ -160,7 +169,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
 
   private fun createToolbarActionsComponent(): JComponent {
     val toolbarActionsGroup = DefaultActionGroup().apply {
-      add(object: DefaultActionGroup("Parsing Options", true) {
+      add(object : DefaultActionGroup("Parsing Options", true) {
         init {
           templatePresentation.icon = AllIcons.General.Filter
 
@@ -217,14 +226,13 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
 
       ApplicationManager.getApplication().invokeLater {
         // Text
-        DocumentUtil.writeInRunUndoTransparentAction {
-          editor.document.apply {
-            setReadOnly(false)
-            setText(result.text)
-            setReadOnly(true)
+        if (this.title == "ASM")
+          createPsiFile(result.text)?.let { psiFile ->
+            formatCode(psiFile) {
+              this.setTextASM(it)
+            }
           }
-          editor.component.requestFocusInWindow()
-        }
+        else this.setText(result.text)
 
         // Go to
         goToMethodsLink.isEnabled = goToMethods.isNotEmpty()
@@ -232,6 +240,20 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
         parsingIndicatorLabel.isVisible = false
       }
     }, { cause -> onError("Failed to parse byte code", cause) })
+  }
+
+  fun createPsiFile(asmifiedText: String): PsiFile? {
+    return ApplicationManager.getApplication().runReadAction(Computable<PsiFile?> {
+      val lightVirtualFile = LightVirtualFile(openInEditorFileName(), JavaFileType.INSTANCE, asmifiedText)
+      PsiManager.getInstance(classFileContext.project()).findFile(lightVirtualFile)
+    })
+  }
+
+  fun formatCode(psiFile: PsiFile, onSuccess: (String) -> Unit) {
+    val reformatProcessor = ReformatCodeProcessor(classFileContext.project(), psiFile, null, false)
+    val rearrangeProcessor = RearrangeCodeProcessor(reformatProcessor)
+    rearrangeProcessor.setPostRunnable { onSuccess(psiFile.text) }
+    rearrangeProcessor.run()
   }
 
   private fun isByteCodeParsingResultAvailable() = !parsingIndicatorLabel.isVisible
