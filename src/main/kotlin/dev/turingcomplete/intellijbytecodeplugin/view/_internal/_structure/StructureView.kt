@@ -1,9 +1,6 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure
 
 import com.intellij.icons.AllIcons
-import com.intellij.ide.DefaultTreeExpander
-import com.intellij.ide.actions.CollapseAllAction
-import com.intellij.ide.actions.ExpandAllAction
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.DataProvider
@@ -22,7 +19,7 @@ internal class StructureView(classFileContext: ClassFileContext)
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
-  private val tree: StructureTree by lazy { StructureTree.create(classFileContext, this) }
+  private val tree: StructureTree by lazy { StructureTree(classFileContext, this) }
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
@@ -50,12 +47,6 @@ internal class StructureView(classFileContext: ClassFileContext)
   private fun createToolbar(): JComponent {
     val toolbarGroup = DefaultActionGroup().apply {
       addAll(tree.createToolBarActions())
-
-      addSeparator()
-
-      val treeExpander = DefaultTreeExpander(tree)
-      add(ExpandAllAction { treeExpander })
-      add(CollapseAllAction { treeExpander })
 
       addAllByteCodeActions()
     }
