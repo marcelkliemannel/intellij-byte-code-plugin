@@ -40,6 +40,7 @@ import javax.swing.JTree
 import javax.swing.tree.TreeCellEditor
 import javax.swing.tree.TreeCellRenderer
 import javax.swing.tree.TreeNode
+import javax.swing.tree.TreePath
 
 internal class StructureTree(classFileContext: ClassFileContext, parent: Disposable)
   : Tree(AsyncTreeModel(StructureTreeModel(classFileContext), true, parent)), DataProvider {
@@ -59,6 +60,8 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
     transferHandler = FilesDropHandler(classFileContext.project())
 
     Disposer.register(parent, structureTreeModel)
+
+    installSearchHandler()
   }
 
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
@@ -93,7 +96,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
     val selectedStructureNode = selectionModel.selectionPath?.lastPathComponent.castSafelyTo<StructureNode>() ?: return null
 
     return when {
-      PlatformDataKeys.PREDEFINED_TEXT.`is`(dataId) -> selectedStructureNode.searchProvider?.value
+      PlatformDataKeys.PREDEFINED_TEXT.`is`(dataId) -> selectedStructureNode.goToProvider?.value
       CommonDataKeys.VALUE.`is`(dataId) -> {
         if (selectedStructureNode is ValueNode) selectedStructureNode.rawValue(context) else null
       }
@@ -102,6 +105,14 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
+
+  private fun installSearchHandler() {
+    val treePathToSearchString: (TreePath) -> String? = { treePath ->
+      val lastPathComponent = treePath.lastPathComponent
+      if (lastPathComponent is StructureNode) lastPathComponent.searchText(context) else null
+    }
+    TreeSpeedSearch(this, treePathToSearchString, true)
+  }
 
   private fun syncTree(): () -> Unit = {
     TreeUtil.treeTraverser(this@StructureTree).forEach {
@@ -220,8 +231,8 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
                       ?: return
 
       val actions = DefaultActionGroup().apply {
-        valueNode.searchProvider?.let {
-          add(it.searchAction())
+        valueNode.goToProvider?.let {
+          add(it.goToAction())
           addSeparator()
         }
 

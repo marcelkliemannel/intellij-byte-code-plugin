@@ -46,7 +46,7 @@ internal class ConstantPool(val entries: List<ConstantPoolInfo>) {
         while (index <= constantPoolCount - 1) {
           val tag = dataInputStream.readUnsignedByte()
           val constantPoolInfo = TAG_INFO_CREATORS[tag]?.invoke(dataInputStream)
-                                 ?: throw IllegalStateException("Unknown constant pool entry tag: $tag (already read ${index} out of ${constantPoolCount - 1})")
+                                 ?: throw IllegalStateException("Unknown constant pool entry tag: $tag (already read $index out of ${constantPoolCount - 1})")
           entries.add(constantPoolInfo)
           val usedConstantPoolIndices = constantPoolInfo.usedConstantPoolIndices
           if (usedConstantPoolIndices > 1) {
@@ -68,11 +68,14 @@ internal class ConstantPool(val entries: List<ConstantPoolInfo>) {
   /**
    * The constant pool starts at index one, but the underling structure used in
    * this class at 0. To correctly resolve referenced indices from entries this
-   * method must be used. If its required to work on the 0-indexed structure,
-   * the property [entries] is to be used.
+   * method must be used.
+   *
+   * If its required to work on the 0-indexed structure, the property [entries]
+   * is to be used.
    */
   fun getReference(index: Int): ConstantPoolInfo {
-    return entries.getOrNull(index - 1) ?: throw IllegalArgumentException("Unknown constant pool entry index: $index")
+    return entries.getOrNull(index - 1)
+           ?: throw IllegalArgumentException("Unknown constant pool entry index: $index")
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //

@@ -5,14 +5,14 @@ import dev.turingcomplete.intellijbytecodeplugin.bytecode.AccessGroup
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.FieldNode
-import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.SearchProvider
+import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.GoToProvider
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.HtmlTextNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.ValueNode
 
 internal class FieldStructureNode private constructor(private val field: FieldNode, fieldTypeInternalName: String)
   : ValueNode(displayValue = { ctx -> "${field.name}: ${TypeUtils.toReadableName(fieldTypeInternalName, ctx.typeNameRenderMode)}" },
               icon = AllIcons.Nodes.Field,
-              searchProvider = SearchProvider.Class(fieldTypeInternalName)) {
+              goToProvider = GoToProvider.Class(fieldTypeInternalName)) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //

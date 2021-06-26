@@ -8,7 +8,8 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNode
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.LabelNode
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.MethodNode
-import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.SearchProvider
+import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.GoToProvider
+import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureTreeContext
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.*
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.HyperLinkNode.HyperLinkListener
 import java.util.*
@@ -43,6 +44,9 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
   }
 
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+
+  override fun searchText(context: StructureTreeContext) = rawValue(context)
+
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
   private fun addReturnTypeNode() {
@@ -61,7 +65,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
     addTitleNodeWithElements(methodNode.exceptions, { TextNode("Exceptions", AllIcons.Nodes.ExceptionClass) }) { _, exception ->
       ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(exception, ctx.typeNameRenderMode) },
                 icon = AllIcons.Nodes.ExceptionClass,
-                searchProvider = SearchProvider.Class(exception))
+                goToProvider = GoToProvider.Class(exception))
     }
   }
 
@@ -199,7 +203,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
       if (tryCatchBlock.type != null) {
         ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(tryCatchBlock.type, ctx.typeNameRenderMode) },
                   postFix = postFix,
-                  searchProvider = SearchProvider.Class(tryCatchBlock.type))
+                  goToProvider = GoToProvider.Class(tryCatchBlock.type))
       }
       else {
         TextNode(postFix.replaceFirstChar { it.titlecase(Locale.getDefault()) })

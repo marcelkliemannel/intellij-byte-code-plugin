@@ -4,7 +4,7 @@ import com.intellij.icons.AllIcons
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.AccessGroup
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ModuleNode
-import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.SearchProvider
+import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.GoToProvider
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.StructureNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.TextNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.ValueNode
@@ -98,12 +98,12 @@ internal class ModuleStructureNode(private val moduleNode: ModuleNode)
       val serviceInternalName = provides.service
       ValueNode("Service:",
                 { ctx -> TypeUtils.toReadableName(serviceInternalName, ctx.typeNameRenderMode) },
-                searchProvider = SearchProvider.Class(serviceInternalName)).apply {
+                goToProvider = GoToProvider.Class(serviceInternalName)).apply {
 
         provides.providers.forEach { provider ->
           add(ValueNode("with Provider:",
                         { ctx -> TypeUtils.toReadableName(provider, ctx.typeNameRenderMode) },
-                        searchProvider = SearchProvider.Class(provider)))
+                        goToProvider = GoToProvider.Class(provider)))
         }
       }
     }

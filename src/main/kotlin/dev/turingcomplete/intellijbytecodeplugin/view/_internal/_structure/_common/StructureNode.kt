@@ -9,7 +9,7 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Attribute
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.AnnotationNode
 import dev.turingcomplete.intellijbytecodeplugin.tool._internal.SignatureParserTool
-import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.SearchProvider
+import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.GoToProvider
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureTreeContext
 import org.apache.commons.lang.StringEscapeUtils
 import java.util.*
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.JComponent
 import javax.swing.tree.DefaultMutableTreeNode
 
-internal abstract class StructureNode(val searchProvider: SearchProvider? = null)
+internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
   : DefaultMutableTreeNode(), LeafState.Supplier {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
@@ -38,6 +38,13 @@ internal abstract class StructureNode(val searchProvider: SearchProvider? = null
   }
 
   protected abstract fun component(selected: Boolean, context: StructureTreeContext, componentValid: Boolean): JComponent
+
+  /**
+   * Gets the text which is used for the search inside the structure tree.
+   *
+   * @return null, if this node is not searchable.
+   */
+  abstract fun searchText(context: StructureTreeContext): String?
 
   fun invalidateComponent() {
     componentValid = false
@@ -181,7 +188,7 @@ internal abstract class StructureNode(val searchProvider: SearchProvider? = null
     return HtmlTextNode(displayValue = { ctx -> TypeUtils.toReadableName(internalName, ctx.typeNameRenderMode) + values },
                         postFix = postFix,
                         icon = AllIcons.Nodes.Annotationtype,
-                        searchProvider = SearchProvider.Class(internalName))
+                        goToProvider = GoToProvider.Class(internalName))
   }
 
   private fun formatAnnotationValue(value: Any?): String {

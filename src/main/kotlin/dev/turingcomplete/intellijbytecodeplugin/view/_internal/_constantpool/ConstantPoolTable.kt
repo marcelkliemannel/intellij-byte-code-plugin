@@ -2,6 +2,7 @@ package dev.turingcomplete.intellijbytecodeplugin.view._internal._constantpool
 
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAwareAction
+import com.intellij.ui.TableSpeedSearch
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.table.JBTable
 import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
@@ -54,6 +55,8 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
     }
 
     addMouseListener(MyMouseAdapter())
+
+    installSearchHandler()
   }
 
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
@@ -66,6 +69,17 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
+
+  private fun installSearchHandler() {
+    val cellValueToSearchString: (Any) -> String? = { cellValue ->
+      when (cellValue) {
+        is String -> cellValue
+        is ConstantPoolInfo -> toDisplayText(cellValue)
+        else -> null
+      }
+    }
+    TableSpeedSearch(this, cellValueToSearchString)
+  }
 
   private fun toDisplayText(value: ConstantPoolInfo): String {
     return if (resolveIndices) value.resolvedDisplayText(constantPool) else value.unresolvedDisplayText
