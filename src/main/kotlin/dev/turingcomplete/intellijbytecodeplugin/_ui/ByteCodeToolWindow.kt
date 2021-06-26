@@ -202,9 +202,9 @@ internal class ByteCodeToolWindow : ToolWindowFactory, DumbAware, Disposable {
     }
 
     private fun openClassFile(classFile: VirtualFile) {
-      ApplicationManager.getApplication().invokeLater {
-        assert(classFile.extension == "class")
+      assert(classFile.extension == "class")
 
+      ApplicationManager.getApplication().invokeLater {
         val newClassFileTab = ClassFileTab(project, classFile)
         Disposer.register(this@ByteCodeToolWindow, newClassFileTab)
         val contentManager = toolWindow.contentManager

@@ -60,7 +60,7 @@ class StructureTreeTest(testName: String, classFilePath: String)  : ClassFileCon
     var fullyCreated = false
     DefaultClassFileContext.loadSync(project, classFileAsVirtualFile,
                                      {
-                                       val tree = StructureTree.create(it, testRootDisposable)
+                                       val tree = StructureTree(it, testRootDisposable)
                                        loadAllChildren(tree, tree.getChildren())
                                        fullyCreated = true
                                      },

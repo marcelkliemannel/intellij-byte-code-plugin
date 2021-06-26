@@ -1,10 +1,15 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure
 
 import com.intellij.icons.AllIcons
+import com.intellij.ide.DefaultTreeExpander
+import com.intellij.ide.actions.CollapseAllAction
+import com.intellij.ide.actions.ExpandAllAction
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.util.Disposer
 import com.intellij.ui.LoadingNode
+import com.intellij.ui.TreeSpeedSearch
 import com.intellij.ui.scale.JBUIScale
 import com.intellij.ui.tree.AsyncTreeModel
 import com.intellij.ui.tree.BaseTreeModel
@@ -36,22 +41,12 @@ import javax.swing.tree.TreeCellEditor
 import javax.swing.tree.TreeCellRenderer
 import javax.swing.tree.TreeNode
 
-internal class StructureTree private constructor(classFileContext: ClassFileContext,
-                                                 parent: Disposable,
-                                                 private val structureTreeModel: StructureTreeModel)
+internal class StructureTree(classFileContext: ClassFileContext, parent: Disposable)
   : Tree(AsyncTreeModel(StructureTreeModel(classFileContext), true, parent)), DataProvider {
-
   // -- Companion Object -------------------------------------------------------------------------------------------- //
-
-  companion object {
-    fun create(classFileContext: ClassFileContext, parent: Disposable): StructureTree {
-      val structureTreeModel = StructureTreeModel(classFileContext)
-      return StructureTree(classFileContext, parent, structureTreeModel)
-    }
-  }
-
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
+  private val structureTreeModel = StructureTreeModel(classFileContext)
   private val context = StructureTreeContext(classFileContext.project(), syncTree())
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
@@ -62,6 +57,8 @@ internal class StructureTree private constructor(classFileContext: ClassFileCont
     isEditable = true
     addMouseListener(StructureTreeMouseAdapter())
     transferHandler = FilesDropHandler(classFileContext.project())
+
+    Disposer.register(parent, structureTreeModel)
   }
 
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
@@ -73,6 +70,12 @@ internal class StructureTree private constructor(classFileContext: ClassFileCont
   fun createToolBarActions(): ActionGroup {
     return DefaultActionGroup().apply {
       add(RenderOptionsGroup())
+
+      addSeparator()
+
+      val treeExpander = DefaultTreeExpander(this@StructureTree)
+      add(ExpandAllAction { treeExpander })
+      add(CollapseAllAction { treeExpander })
     }
   }
 
@@ -139,7 +142,7 @@ internal class StructureTree private constructor(classFileContext: ClassFileCont
       treeStructureChanged(null, null, null)
     }
 
-    fun createRootNode(): ClassStructureNode {
+    private fun createRootNode(): ClassStructureNode {
       return ClassStructureNode(classFileContext.classNode(), classFileContext.classFile())
     }
   }
