@@ -1,6 +1,5 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common
 
-import com.intellij.ide.plugins.newui.ListPluginComponent
 import com.intellij.openapi.util.text.HtmlBuilder
 import com.intellij.openapi.util.text.HtmlChunk
 import com.intellij.ui.ColorUtil
@@ -27,7 +26,7 @@ internal class HtmlTextNode(preFix: String? = null,
     private val contextHelpFont = JBUI.Fonts.smallFont()
     private val contextHelpFontCss = "font-family: '${contextHelpFont.family}'; font-size: ${contextHelpFont.size}pt;"
     private val notSelectedCss = ".contextHelp { color: #${ColorUtil.toHex(UIUtil.getContextHelpForeground())}; margin-left: 50pt; $contextHelpFontCss }"
-    private val selectedCss = ".contextHelp { color: #${ColorUtil.toHex(ListPluginComponent.SELECTION_COLOR)}; margin-left: 50pt; $contextHelpFontCss }"
+    private val selectedCss = ".contextHelp { color: #${ColorUtil.toHex(UIUtil.getListForeground(true, true))}; margin-left: 50pt; $contextHelpFontCss }"
   }
 
   // -- Properties -------------------------------------------------------------------------------------------------- //
