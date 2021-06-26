@@ -4,7 +4,7 @@ import com.intellij.ide.actions.GotoClassAction
 import com.intellij.ide.actions.SearchEverywhereBaseAction
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 
-internal abstract class SearchProvider(val value: String, val searchAction: () -> SearchEverywhereBaseAction) {
+internal abstract class GoToProvider(val value: String, val goToAction: () -> SearchEverywhereBaseAction) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //
@@ -13,5 +13,5 @@ internal abstract class SearchProvider(val value: String, val searchAction: () -
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
   class Class(internalName: String)
-    : SearchProvider(TypeUtils.toReadableName(internalName, TypeUtils.TypeNameRenderMode.QUALIFIED), { GotoClassAction() })
+    : GoToProvider(TypeUtils.toReadableName(internalName, TypeUtils.TypeNameRenderMode.QUALIFIED), { GotoClassAction() })
 }

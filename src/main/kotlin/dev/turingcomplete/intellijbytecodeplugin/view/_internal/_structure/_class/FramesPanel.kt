@@ -6,6 +6,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.DumbAwareToggleAction
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.ScrollPaneFactory
+import com.intellij.ui.TableSpeedSearch
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.table.JBTable
 import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
@@ -34,10 +35,7 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   private val stacksAndLocalsModel = FramesModel(initialTypeNameRenderMode, methodFrames)
-  private val table = JBTable(stacksAndLocalsModel).apply {
-    setDefaultRenderer(String::class.java, FramesCellRenderer())
-    addMouseListener(FramesTableMouseAdapter())
-  }
+  private val table : JBTable = createFramesTable()
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
 
@@ -95,6 +93,14 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
     val row = table.selectedRow
     val column = table.selectedColumn
     return if (row >= 0 && column >= 0) table.model.getValueAt(row, column) as String else null
+  }
+
+  private fun createFramesTable() : JBTable {
+    return JBTable(stacksAndLocalsModel).apply {
+      setDefaultRenderer(String::class.java, FramesCellRenderer())
+      addMouseListener(FramesTableMouseAdapter())
+      TableSpeedSearch(this)
+    }
   }
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //

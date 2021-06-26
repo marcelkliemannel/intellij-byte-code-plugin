@@ -7,7 +7,7 @@ import com.intellij.ui.ColorUtil
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
-import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.SearchProvider
+import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.GoToProvider
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureTreeContext
 import javax.swing.Icon
 import javax.swing.JComponent
@@ -18,8 +18,8 @@ internal class HtmlTextNode(preFix: String? = null,
                             rawValue: (StructureTreeContext) -> String = displayValue,
                             postFix: String? = null,
                             icon: Icon? = null,
-                            searchProvider: SearchProvider? = null)
-  : ValueNode(preFix, displayValue, rawValue, postFix, icon, searchProvider) {
+                            goToProvider: GoToProvider? = null)
+  : ValueNode(preFix, displayValue, rawValue, postFix, icon, goToProvider) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
@@ -53,6 +53,8 @@ internal class HtmlTextNode(preFix: String? = null,
 
     return if (selected) selectedComponent!! else notSelectedComponent!!
   }
+
+  override fun searchText(context: StructureTreeContext) = rawValue(context)
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 

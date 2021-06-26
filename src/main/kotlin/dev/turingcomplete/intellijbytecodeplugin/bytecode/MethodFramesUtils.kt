@@ -2,7 +2,6 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode
 
 import dev.turingcomplete.intellijbytecodeplugin._ui.DefaultClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Label
-import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.TypePath
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.AbstractInsnNode

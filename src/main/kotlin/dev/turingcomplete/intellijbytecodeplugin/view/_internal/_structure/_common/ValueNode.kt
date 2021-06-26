@@ -1,7 +1,7 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common
 
 import com.intellij.ui.components.JBLabel
-import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.SearchProvider
+import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.GoToProvider
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureTreeContext
 import javax.swing.Icon
 import javax.swing.JComponent
@@ -12,7 +12,7 @@ internal open class ValueNode(protected val preFix: String? = null,
                               val rawValue: (StructureTreeContext) -> String = displayValue,
                               protected val postFix: String? = null,
                               protected val icon: Icon? = null,
-                              searchProvider: SearchProvider? = null) : StructureNode(searchProvider) {
+                              goToProvider: GoToProvider? = null) : StructureNode(goToProvider) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
@@ -38,6 +38,8 @@ internal open class ValueNode(protected val preFix: String? = null,
 
     return component!!
   }
+
+  override fun searchText(context: StructureTreeContext): String = rawValue(context)
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
