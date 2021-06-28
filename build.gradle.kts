@@ -31,7 +31,7 @@ dependencies {
 
   api(shadowAsmJar.outputs.files)
 
-  val asmVersion = "9.1"
+  val asmVersion = "9.2"
   asm("org.ow2.asm:asm:$asmVersion")
   asm("org.ow2.asm:asm-analysis:$asmVersion")
   asm("org.ow2.asm:asm-util:$asmVersion")

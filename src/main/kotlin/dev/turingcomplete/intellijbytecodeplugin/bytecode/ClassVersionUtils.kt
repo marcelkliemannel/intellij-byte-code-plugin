@@ -3,7 +3,8 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode
 object ClassVersionUtils {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
-  val CLASS_VERSIONS = arrayOf(ClassVersion(61, "Java SE 17"),
+  val CLASS_VERSIONS = arrayOf(ClassVersion(62, "Java SE 18"),
+                               ClassVersion(61, "Java SE 17"),
                                ClassVersion(60, "Java SE 16"),
                                ClassVersion(59, "Java SE 15"),
                                ClassVersion(58, "Java SE 14"),
@@ -21,7 +22,7 @@ object ClassVersionUtils {
                                ClassVersion(46, "JDK 1.2"),
                                ClassVersion(45, "JDK 1.1"))
 
-  val MAJOR_TO_CLASS_VERSION: Map<Byte, ClassVersion> = CLASS_VERSIONS.map { it.major to it }.toMap()
+  val MAJOR_TO_CLASS_VERSION: Map<Byte, ClassVersion> = CLASS_VERSIONS.associateBy { it.major }
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //

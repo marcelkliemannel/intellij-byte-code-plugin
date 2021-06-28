@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Update ASM to 9.2 to support Java 18
 - Add search functionality to structure tree and constant pool (GitHub issue #3)
 
 ### Changed
