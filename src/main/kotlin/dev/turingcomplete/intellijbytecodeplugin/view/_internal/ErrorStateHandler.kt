@@ -10,7 +10,7 @@ import com.intellij.util.ui.JBEmptyBorder
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.rd.util.getThrowableText
-import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindow
+import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideTopInset
 import java.awt.Component
@@ -131,7 +131,7 @@ abstract class ErrorStateHandler {
       }, bag.nextLine().next().overrideTopInset(UIUtil.LARGE_VGAP))
 
       // Hint
-      add(JBLabel("<html>Please create a bug for the ${ByteCodeToolWindow.PLUGIN_NAME} plugin if this error should not occur.</html>",
+      add(JBLabel("<html>Please create a bug for the ${ByteCodeToolWindowFactory.PLUGIN_NAME} plugin if this error should not occur.</html>",
                   AllIcons.General.BalloonInformation, SwingConstants.LEFT),
           bag.nextLine().next().weightx(1.0).fillCellHorizontally().overrideTopInset(UIUtil.DEFAULT_VGAP))
     }

@@ -65,7 +65,7 @@ With the help of the signature parser a signature string can be broken down into
 
 ## Other
 
-Additionaly, there is an action to verify the byte code of a class file:
+Additionally, there is an action to verify the byte code of a class file:
 
 <img src="screenshots/validate-byte-code-action.png" alt="Verify Byte Code Action" width="683px" />
 
@@ -77,7 +77,7 @@ If you want to contribute something, please follow the code style in the `.edito
 
 ### Update ASM / add new Java version
 
-To update the bundled ASM, set the new version in the main `build.gradle.kts`. The new bundled ASM library should automatically be created, or execute the Gradle task `shadowAsmJar`. The ASM API version is defined globally in the variable: `dev.turingcomplete.intellijbytecodeplugin._ui.DefaultClassFileContext.ASM_API`. Also the new version must be set in the description block of the `plugin.xml` and in the `README.md`.
+To update the bundled ASM, set the new version in the main `build.gradle.kts`. The new bundled ASM library should automatically be created, or execute the Gradle task `shadowAsmJar`. The ASM API version is defined globally in the variable: `dev.turingcomplete.intellijbytecodeplugin._ui.DefaultClassFileContext.ASM_API`. Also, the new version must be set in the description block of the `plugin.xml` and in the `README.md`.
 
 New Java versions must be added to the field `dev.turingcomplete.intellijbytecodeplugin.bytecode.ClassVersionUtils.CLASS_VERSIONS`.
 
@@ -90,7 +90,7 @@ Open class files actions (e.g., the "open from disk" action) offer a way to read
 * Extension name: `dev.turingcomplete.intellijbytecodeplugin.openClassFilesAction`
 * Interface: `dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction`
 
-To open a class file in the byte code analyzer tool window, propagate the file via the topic `dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesListener$OPEN_CLASS_FILES_TOPIC`.
+To open a class file in the byte code analyzer tool window one of the methods in the service `project.getService(ByteCodeToolService::class.java)` can be called.
 
 #### Byte Code Tool
 
@@ -108,14 +108,14 @@ Byte code views (e.g., the structure view) display a representation of the byte 
 
 #### Byte Code Action
 
-Byte code actions (e.g., the decompile action) will be added to each byte code view toolbar. The refere to the currently opened class file.
+Byte code actions (e.g., the decompile action) will be added to each byte code view toolbar. They are working with the currently opened class file.
 
 * Extension name: `dev.turingcomplete.intellijbytecodeplugin.byteCodeAction`
 * Interface: `dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction`
 
 ### Tests
 
-There are some tests that are testing the parsing of the structure tree and the constant pool and the opening of files with all class files from the java.base module and from the groovy-all kotlin-stdlib libraries. Since this involves tens of thousands of files, these tests take a lot of time. Therefore, execution in `dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase.LIMIT_CLASSES` is limited to 800 class per library. When a new version is to be released it is advisable that this value should be increased significantly for a test run.
+There are some tests that are testing the parsing of the structure tree and the constant pool and the opening of files with all class files from the java base module and from the groovy-all kotlin-stdlib libraries. Since this involves tens of thousands of files, these tests take a lot of time. Therefore, execution in `dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase.LIMIT_CLASSES` is limited to 800 class per library. When a new version is to be released it is advisable that this value should be increased significantly for a test run.
 
 ## Planned Features
 

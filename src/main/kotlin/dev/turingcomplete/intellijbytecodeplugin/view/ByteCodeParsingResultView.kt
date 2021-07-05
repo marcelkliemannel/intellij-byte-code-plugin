@@ -160,7 +160,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
 
   private fun createToolbarActionsComponent(): JComponent {
     val toolbarActionsGroup = DefaultActionGroup().apply {
-      add(object: DefaultActionGroup("Parsing Options", true) {
+      add(object : DefaultActionGroup("Parsing Options", true) {
         init {
           templatePresentation.icon = AllIcons.General.Filter
 

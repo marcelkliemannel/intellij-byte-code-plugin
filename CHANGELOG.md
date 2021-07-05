@@ -6,10 +6,13 @@
 - Add search functionality to structure tree and constant pool (GitHub issue #3)
 
 ### Changed
+- [Internally] Migrate 'open class file' topic to a light service
 
 ### Removed
 
 ### Fixed
+- Fix open class file action does not open tool window if the window wasn't opened before
+
 ## [1.0.1] - 2021-06-14
 ### Fixed
 - Fix "Analyze Byte Code" does not show tool window (GitHub issue #1)

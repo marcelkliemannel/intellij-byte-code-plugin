@@ -26,7 +26,7 @@ import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.util.ClassUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiUtil
-import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindow.Companion.PLUGIN_NAME
+import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory.Companion.PLUGIN_NAME
 import java.nio.file.Path
 
 /**

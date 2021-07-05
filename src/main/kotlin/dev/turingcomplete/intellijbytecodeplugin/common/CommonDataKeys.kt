@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.DataKey
 import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.vfs.VirtualFile
-import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindow
+import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory
 
 /**
  * If the tool window is open but the focus is outside of it (e.g. in the editor)
@@ -43,7 +43,7 @@ object CommonDataKeys {
 
     override fun getData(dataProvider: DataProvider): Any? {
       return dataProvider.getData(CLASS_FILE_CONTEXT_DATA_KEY.name)
-             ?: ByteCodeToolWindow.getData(dataProvider, CLASS_FILE_CONTEXT_DATA_KEY)
+             ?: ByteCodeToolWindowFactory.getData(dataProvider, CLASS_FILE_CONTEXT_DATA_KEY)
     }
   }
 
@@ -53,7 +53,7 @@ object CommonDataKeys {
 
     override fun getData(dataProvider: DataProvider): Any? {
       return dataProvider.getData(ON_ERROR_DATA_KEY.name)
-             ?: ByteCodeToolWindow.getData(dataProvider, ON_ERROR_DATA_KEY)
+             ?: ByteCodeToolWindowFactory.getData(dataProvider, ON_ERROR_DATA_KEY)
     }
   }
 
@@ -63,7 +63,7 @@ object CommonDataKeys {
 
     override fun getData(dataProvider: DataProvider): Any? {
       return dataProvider.getData(OPEN_IN_EDITOR_DATA_KEY.name)
-             ?: ByteCodeToolWindow.getData(dataProvider, OPEN_IN_EDITOR_DATA_KEY)
+             ?: ByteCodeToolWindowFactory.getData(dataProvider, OPEN_IN_EDITOR_DATA_KEY)
     }
   }
 }

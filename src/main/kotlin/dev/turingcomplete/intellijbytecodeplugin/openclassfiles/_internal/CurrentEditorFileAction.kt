@@ -4,7 +4,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
-import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesListener
+import dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeToolService
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
 
 internal class CurrentEditorFileAction : OpenClassFilesToolWindowAction("Analyze Current Editor File",
@@ -23,7 +23,7 @@ internal class CurrentEditorFileAction : OpenClassFilesToolWindowAction("Analyze
         null
       }
     }.toList()
-    project.messageBus.syncPublisher(OpenClassFilesListener.OPEN_CLASS_FILES_TOPIC).openPsiFiles(editorPsiFiles)
+    project.getService(ByteCodeToolService::class.java).openPsiFiles(editorPsiFiles)
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //

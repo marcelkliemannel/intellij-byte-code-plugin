@@ -49,7 +49,7 @@
   </extensionPoints>
 
   <extensions defaultExtensionNs="com.intellij">
-    <toolWindow id="Byte Code" factoryClass="dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindow"
+    <toolWindow id="Byte Code" factoryClass="dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory"
                 anchor="right" canCloseContents="true" secondary="true" icon="dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodePluginIcons.TOOL_WINDOW_ICON"/>
 
     <notificationGroup displayType="BALLOON" id="dev.turingcomplete.intellijbytecodeplugin.notificationGroup"/>
