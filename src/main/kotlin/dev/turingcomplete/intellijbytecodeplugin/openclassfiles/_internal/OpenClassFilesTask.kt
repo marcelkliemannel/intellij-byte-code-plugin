@@ -133,14 +133,18 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
         }
       }
 
-      if (psiFile is PsiClassOwner) {
-        psiFile.classes.forEach { psiClass ->
-          consumePsiClass(psiClass, psiFile)
-        }
+      if (psiFile is PsiClassOwner && psiFile.classes.isNotEmpty()) {
+        psiFile.classes.forEach { psiClass -> consumePsiClass(psiClass, psiFile) }
         return@forEach
       }
 
-      errors.add("File '${psiFile.name}' is not a processable source file.")
+      val virtualFileOfPsiFile = psiFile.virtualFile
+      if (virtualFileOfPsiFile != null) {
+        consumeFiles(listOf(virtualFileOfPsiFile))
+        return@forEach
+      }
+
+      errors.add("File '${psiFile.name}' is not a processable class or source file.")
     }
 
     return this
@@ -168,7 +172,15 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
       val lightMethod = PsiTreeUtil.getParentOfType(psiElement, LightMethod::class.java, false)
       val psiClass = lightMethod?.containingClass ?: findNextPsiClass(psiElement)
       if (psiClass == null) {
-        errors.add("Couldn't find class for selected element.")
+        // If the element is outside of a class (e.g. the white space after the
+        // last closing bracket) we use the containing file as a fallback.
+        val fallbackClassFile = psiElement.containingFile ?: originPsiFile
+        if (fallbackClassFile != null) {
+          consumePsiFiles(listOf(fallbackClassFile))
+        }
+        else {
+          errors.add("Couldn't find class for selected element.")
+        }
         return@forEach
       }
 
