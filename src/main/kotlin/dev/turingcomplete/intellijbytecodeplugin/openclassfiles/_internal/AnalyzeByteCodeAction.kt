@@ -47,7 +47,8 @@ internal class AnalyzeByteCodeAction : DumbAwareAction(TITLE, null, ByteCodePlug
     val psiElement = result.first
     val editorPsiFile = result.second
     if (psiElement != null) {
-      project.getService(ByteCodeToolService::class.java).openPsiElements(listOf(psiElement), editorPsiFile)
+      val originalFile = CommonDataKeys.VIRTUAL_FILE.getData(e.dataContext)
+      project.getService(ByteCodeToolService::class.java).openPsiElements(listOf(psiElement), editorPsiFile, originalFile)
       return
     }
 

@@ -54,12 +54,16 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
         return false
       }
 
-      if (FileTypeRegistry.getInstance().isFileOfType(file, JavaClassFileType.INSTANCE) && file.isValid) {
+      if (isReadyToOpen(file)) {
         return true
       }
 
       val psiFile = PsiManagerEx.getInstance(project).findFile(file)
       return psiFile != null && isOpenableFile(psiFile)
+    }
+
+    private fun isReadyToOpen(file: VirtualFile): Boolean {
+      return FileTypeRegistry.getInstance().isFileOfType(file, JavaClassFileType.INSTANCE) && file.isValid
     }
 
     fun isOpenableFile(psiFile: PsiFile?): Boolean {
@@ -95,29 +99,45 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
         return@forEach
       }
 
-      if (FileTypeRegistry.getInstance().isFileOfType(file, JavaClassFileType.INSTANCE) && file.isValid) {
+      if (isReadyToOpen(file)) {
         readyToOpen.add(file)
+        return@forEach
+      }
+
+      if (DumbService.isDumb(project)) {
+        errors.add("Couldn't determine if file '${file.name}' is a processable class or source file " +
+                   "because indices are updating. Please try again after the indexing finished.")
+        return@forEach
+      }
+
+      val psiFile = PsiManagerEx.getInstance(project).findFile(file)
+      if (psiFile is PsiClassOwner) {
+        psiFilesToOpen.add(psiFile)
       }
       else {
-        val psiFile = PsiManagerEx.getInstance(project).findFile(file)
-        if (psiFile is PsiClassOwner) {
-          psiFilesToOpen.add(psiFile)
-        }
-        else {
-          errors.add("File '${file.name}' is not a class, a source file (which contains JVM classes) or does not exists.")
-        }
+        errors.add("File '${file.name}' is not a class, a source file (which contains JVM classes) or does not exists.")
       }
     }
 
     if (psiFilesToOpen.isNotEmpty()) {
-      consumePsiFiles(psiFilesToOpen)
+      consumePsiFiles(psiFilesToOpen, true)
     }
 
     return this
   }
 
-  fun consumePsiFiles(psiFiles: List<PsiFile>): OpenClassFilesTask {
+  /**
+   * @param doNotProcessAsVirtualFiles true, if the given `psiFiles` should not
+   * be processed as [VirtualFile]s by calling [consumeFiles].
+   */
+  fun consumePsiFiles(psiFiles: List<PsiFile>, doNotProcessAsVirtualFiles: Boolean = false): OpenClassFilesTask {
     psiFiles.forEach { psiFile ->
+      if (DumbService.isDumb(project)) {
+        errors.add("Couldn't determine if file '${psiFile.name}' is a processable class or source file " +
+                   "because indices are updating. Please try again after the indexing finished.")
+        return@forEach
+      }
+
       if (psiFile is PsiJavaFile) {
         // package-info.java
         if (psiFile.name == "package-info.java") {
@@ -138,19 +158,43 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
         return@forEach
       }
 
-      val virtualFileOfPsiFile = psiFile.virtualFile
-      if (virtualFileOfPsiFile != null) {
-        consumeFiles(listOf(virtualFileOfPsiFile))
-        return@forEach
+      if (!doNotProcessAsVirtualFiles) { // Prevent stack overflow if called from 'consumeFiles()'
+        val virtualFileOfPsiFile = psiFile.virtualFile
+        if (virtualFileOfPsiFile != null) {
+          consumeFiles(listOf(virtualFileOfPsiFile))
+          return@forEach
+        }
       }
 
-      errors.add("File '${psiFile.name}' is not a processable class or source file.")
+      errors.add("File '${psiFile.name}' is not a processable class or source file. If you tried to open a class file from " +
+                 "the editor or project view, try to open the compiled '.class' file of the class from the compiler output " +
+                 "directory directly.")
     }
 
     return this
   }
 
-  fun consumePsiElements(psiElements: List<PsiElement>, originPsiFile: PsiFile? = null): OpenClassFilesTask {
+  fun consumePsiElements(psiElements: List<PsiElement>, originPsiFile: PsiFile? = null, originalFile: VirtualFile? = null): OpenClassFilesTask {
+    if (DumbService.isDumb(project)) {
+      if (originalFile != null && isReadyToOpen(originalFile)) {
+        // Fallback to the original file
+        // Advantage:
+        // If the user opens the .class file in the out directory from the
+        // project view, IntelliJ would give us a PsiClass element. But if this
+        // is happening during indexing, it would not be possible to open the
+        // file although the indexing has no effect on the compiled file.
+        // Disadvantage:
+        // If the user tries to open an inner class of a decompiled .class file
+        // during indexing, we would now open the outermost class file.
+        readyToOpen.add(originalFile)
+      }
+      else {
+        errors.add("Couldn't process selection because indices are updating. Please try again after the indexing finished.")
+      }
+
+      return this
+    }
+
     psiElements.forEach { psiElement ->
       if (psiElement is PsiFile) {
         consumePsiFiles(listOf(psiElement))
@@ -295,8 +339,8 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
       val expectedClassFilePath = if (module != null) findExpectedClassFilePath(module, jvmFileName, file) else null
       if (module == null || expectedClassFilePath == null) {
         if (DumbService.isDumb(project)) {
-          errors.add("Couldn't determine the expected class file path for source file '${sourceFile.name}', because " +
-                     "indices are updating.")
+          errors.add("Couldn't determine the expected class file path for source file '${sourceFile.name}' because " +
+                     "indices are updating. Please try again after the indexing finished.")
         }
         else {
           errors.add("Couldn't determine the expected class file path for source file '${sourceFile.name}'.\n" +
@@ -336,7 +380,7 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
   private fun findExpectedClassFilePath(module: Module, jvmClassName: String, sourceFile: VirtualFile): Path? {
     val compiler = CompilerModuleExtension.getInstance(module) ?: return null
     val isTest = projectFileIndex.isInTestSourceContent(sourceFile)
-    // Don't use 'compilerOutputPath' here, because if there is a compiler output
+    // Don't use 'compilerOutputPath' here because if there is a compiler output
     // path but nothing was compiled yet (and therefore the directory does not
     // exists), it returns null.
     val classRoot = (if (isTest) compiler.compilerOutputForTestsPointer else compiler.compilerOutputPointer) ?: return null
