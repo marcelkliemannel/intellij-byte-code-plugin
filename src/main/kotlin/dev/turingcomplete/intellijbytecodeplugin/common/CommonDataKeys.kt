@@ -10,7 +10,7 @@ import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory
 /**
  * If the tool window is open but the focus is outside of it (e.g. in the editor)
  * and an [AnAction] inside the tool window is executed, the [DataProvider] inside
- * the tool window is not called, because the DataProvider is searched starting
+ * the tool window is not called because the DataProvider is searched starting
  * from the focused component. Therefore the two [DataKey]s are also registered
  * globally as [GetDataRule]s.
  */

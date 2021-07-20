@@ -8,6 +8,9 @@
 ### Removed
 
 ### Fixed
+## [2.0.1] - 2021-07-20
+### Fixed
+- Opening a class file while indexing could lead to a stack overflow error (GitHub issue #6)
 
 ## [2.0.0] - 2021-07-05
 ### Added

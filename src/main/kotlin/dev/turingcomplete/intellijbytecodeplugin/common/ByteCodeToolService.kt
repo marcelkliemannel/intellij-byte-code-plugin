@@ -27,8 +27,8 @@ class ByteCodeToolService(val project: Project) {
     OpenClassFilesTask(openClassFile, project).consumePsiFiles(psiFiles).openFiles()
   }
 
-  fun openPsiElements(psiElements: List<PsiElement>, originPsiFile: PsiFile? = null) {
-    OpenClassFilesTask(openClassFile, project).consumePsiElements(psiElements, originPsiFile).openFiles()
+  fun openPsiElements(psiElements: List<PsiElement>, originPsiFile: PsiFile? = null, originalFile: VirtualFile? = null) {
+    OpenClassFilesTask(openClassFile, project).consumePsiElements(psiElements, originPsiFile, originalFile).openFiles()
   }
 
   fun openFiles(files: List<VirtualFile>) {
