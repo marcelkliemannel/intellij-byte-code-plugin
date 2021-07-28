@@ -34,6 +34,7 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
   companion object {
     const val ID = "Byte Code"
     const val PLUGIN_NAME = "Byte Code Analyzer"
+    const val TOOLBAR_PLACE_PREFIX = "dev.turingcomplete.intellijbytecodeplugin.toolbar"
 
     fun <T> getData(dataProvider: DataProvider, dataKey: DataKey<T>): Any? {
       val project = dataProvider.getData(PROJECT.name).castSafelyTo<Project>() ?: return null
@@ -85,63 +86,69 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
   private fun ToolWindow.initDropTarget(project: Project) {
-    val toolWindowDropTarget = contentManager.component.dropTarget
-    if (toolWindowDropTarget != null) {
-      toolWindowDropTarget.addDropTargetListener(FilesDropHandler(project))
-    }
-    else {
-      contentManager.component.dropTarget = DropTarget(contentManager.component, FilesDropHandler(project))
+    ApplicationManager.getApplication().invokeLater {
+      val toolWindowDropTarget = contentManager.component.dropTarget
+      if (toolWindowDropTarget != null) {
+        toolWindowDropTarget.addDropTargetListener(FilesDropHandler(project))
+      }
+      else {
+        contentManager.component.dropTarget = DropTarget(contentManager.component, FilesDropHandler(project))
+      }
     }
   }
 
   private fun ToolWindow.setupEmptyText(project: Project) {
-    emptyText?.apply {
-      clear()
+    ApplicationManager.getApplication().invokeLater {
+      emptyText?.apply {
+        clear()
 
-      isCenterAlignText = false
+        isCenterAlignText = false
 
-      appendLine("To open class files, do one of the following:", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
+        appendLine("To open class files, do one of the following:", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
 
-      // The following code is used to create some indent to highlight the
-      // following options from the previous line.
-      val leftIndent = 7
-      val fakeIndentIcon = EmptyIcon.create(leftIndent, 16)
-      val fakeIndentIconAsIconBackground = EmptyIcon.create(16 + leftIndent, 16)
-      val indentIcon = { icon: Icon? ->
-        if (icon != null) {
-          val wrapperIcon = LayeredIcon(2)
-          wrapperIcon.setIcon(fakeIndentIconAsIconBackground, 0)
-          wrapperIcon.setIcon(icon, 1, leftIndent, 0)
-          wrapperIcon
+        // The following code is used to create some indent to highlight the
+        // following options from the previous line.
+        val leftIndent = 7
+        val fakeIndentIcon = EmptyIcon.create(leftIndent, 16)
+        val fakeIndentIconAsIconBackground = EmptyIcon.create(16 + leftIndent, 16)
+        val indentIcon = { icon: Icon? ->
+          if (icon != null) {
+            val wrapperIcon = LayeredIcon(2)
+            wrapperIcon.setIcon(fakeIndentIconAsIconBackground, 0)
+            wrapperIcon.setIcon(icon, 1, leftIndent, 0)
+            wrapperIcon
+          }
+          else {
+            fakeIndentIcon
+          }
         }
-        else {
-          fakeIndentIcon
+
+        appendLine(indentIcon(null), "From the action '${AnalyzeByteCodeAction.TITLE}'", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
+
+        OpenClassFilesToolWindowAction.EP.extensions.forEach { openClassFilesAction ->
+          appendLine(indentIcon(openClassFilesAction.icon), openClassFilesAction.linkTitle, SimpleTextAttributes.LINK_ATTRIBUTES) {
+            openClassFilesAction.execute(project)
+          }
         }
+
+        appendLine(indentIcon(AllIcons.Actions.Download), "Drop class files here to open", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
+
+        component.background = JBColor.background()
       }
-
-      appendLine(indentIcon(null), "From the action '${AnalyzeByteCodeAction.TITLE}'", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
-
-      OpenClassFilesToolWindowAction.EP.extensions.forEach { openClassFilesAction ->
-        appendLine(indentIcon(openClassFilesAction.icon), openClassFilesAction.linkTitle, SimpleTextAttributes.LINK_ATTRIBUTES) {
-          openClassFilesAction.execute(project)
-        }
-      }
-
-      appendLine(indentIcon(AllIcons.Actions.Download), "Drop class files here to open", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
-
-      component.background = JBColor.background()
     }
   }
 
   private fun ToolWindow.initActions(project: Project) {
-    setTitleActions(listOf(ByteCodeToolsActionsGroup()))
+    ApplicationManager.getApplication().invokeLater {
+      setTitleActions(listOf(ByteCodeToolsActionsGroup()))
 
-    if (this is ToolWindowEx) {
-      val newSessionActionsGroup = DefaultActionGroup(OpenClassFilesOptionsAction(project, contentManager))
-      setTabActions(newSessionActionsGroup)
+      if (this is ToolWindowEx) {
+        val newSessionActionsGroup = DefaultActionGroup(OpenClassFilesOptionsAction(project, contentManager))
+        setTabActions(newSessionActionsGroup)
 
-      val additionalGearActionsGroup = DefaultActionGroup(HelpLinksActionsGroup())
-      setAdditionalGearActions(additionalGearActionsGroup)
+        val additionalGearActionsGroup = DefaultActionGroup(HelpLinksActionsGroup())
+        setAdditionalGearActions(additionalGearActionsGroup)
+      }
     }
   }
 

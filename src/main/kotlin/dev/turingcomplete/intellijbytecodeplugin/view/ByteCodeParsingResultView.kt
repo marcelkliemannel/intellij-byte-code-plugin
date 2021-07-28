@@ -3,7 +3,10 @@ package dev.turingcomplete.intellijbytecodeplugin.view
 import com.intellij.icons.AllIcons
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.ide.ui.LafManagerListener
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.LogicalPosition
@@ -27,6 +30,7 @@ import com.intellij.util.PlatformIcons
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
+import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory.Companion.TOOLBAR_PLACE_PREFIX
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideLeftInset
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
@@ -80,7 +84,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
     return SimpleToolWindowPanel(true, false).apply {
       toolbar = JPanel(GridBagLayout()).apply {
         val bag = UiUtils.createDefaultGridBag().setDefaultAnchor(GridBagConstraints.WEST)
-        add(createToolbarActionsComponent(), bag.nextLine().next().fillCellHorizontally().weightx(1.0))
+        add(createToolbarActionsComponent(this), bag.nextLine().next().fillCellHorizontally().weightx(1.0))
         add(parsingIndicatorLabel.apply { border = JBUI.Borders.empty(2) }, bag.next().fillCellVertically())
         add(goToMethodsLink, bag.next().fillCellHorizontally().overrideLeftInset(2).overrideLeftInset(2))
       }
@@ -158,7 +162,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
     }
   }
 
-  private fun createToolbarActionsComponent(): JComponent {
+  private fun createToolbarActionsComponent(targetComponent: JComponent): JComponent {
     val toolbarActionsGroup = DefaultActionGroup().apply {
       add(object : DefaultActionGroup("Parsing Options", true) {
         init {
@@ -183,7 +187,10 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
       addAllByteCodeActions()
     }
 
-    return ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, toolbarActionsGroup, true).component
+    return ActionManager.getInstance().createActionToolbar("${TOOLBAR_PLACE_PREFIX}.parsingResultView", toolbarActionsGroup, true).run {
+      setTargetComponent(targetComponent)
+      component
+    }
   }
 
   private fun createEditor(): EditorEx {

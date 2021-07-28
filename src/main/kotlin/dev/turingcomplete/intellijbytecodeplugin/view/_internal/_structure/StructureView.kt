@@ -2,11 +2,11 @@ package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.ScrollPaneFactory
+import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction.Companion.addAllByteCodeActions
@@ -26,7 +26,7 @@ internal class StructureView(classFileContext: ClassFileContext)
 
   override fun createCenterComponent(): JComponent {
     return SimpleToolWindowPanel(true, false).apply {
-      toolbar = createToolbar()
+      toolbar = createToolbar(this)
       setContent(ScrollPaneFactory.createScrollPane(tree, false))
     }
   }
@@ -44,13 +44,16 @@ internal class StructureView(classFileContext: ClassFileContext)
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
-  private fun createToolbar(): JComponent {
+  private fun createToolbar(targetComponent: JComponent): JComponent {
     val toolbarGroup = DefaultActionGroup().apply {
       addAll(tree.createToolBarActions())
 
       addAllByteCodeActions()
     }
-    return ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, toolbarGroup, true).component
+    return ActionManager.getInstance().createActionToolbar("${ByteCodeToolWindowFactory.TOOLBAR_PLACE_PREFIX}.structureView", toolbarGroup, true).run {
+      setTargetComponent(targetComponent)
+      component
+    }
   }
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
