@@ -4,7 +4,7 @@
   <vendor email="dev@marcelkliemannel.com" url="https://marcelkliemannel.com/projects/intellij-byte-code-plugin">Marcel Kliemannel</vendor>
 
   <description><![CDATA[
-<p>This plugin provides a modern and powerful byte code analyzer tool window. Its supports Java, Kotlin, Groovy and other JVM language class files. Based on ASM 9.1, it currently supports class files up to Java 16.</p>
+<p>This IntelliJ plugin provides a modern and powerful tool window to analyze byte code. Its supports Java, Kotlin, Groovy, and other JVM language class files. Based on ASM 9.2, it currently supports class files up to Java 18.</p>
 
 <h2>Features</h2>
 
@@ -12,17 +12,17 @@
 
 <h3>Class File Views</h3>
 <ul>
-  <li>The <b>Structure View</b> gives a quick and detailed tree overview of the individual components of a class file.</li>
+  <li>The <b>Structure View</b> gives depth and human-readable insights into the individual elements of a given class file.</li>
   <li>The <b>Constant Pool View</b> provides insights into the constant pool entries.</li>
   <li>The <b>Plain View</b> gives a textified representation of the byte code.</li>
-  <li>The <b>ASM View</b> provides Java source code that contains all instructions to generate the class via the ASM library.</li>
+  <li>The <b>ASM View</b> provides Java source code that contains all instructions to generate the class via the <a href="https://asm.ow2.io">ASM library</a>.</li>
 </ul>
 
 <h3>Byte Code Tools</h3>
 <p>The following tools are providing a general way to better understand certain aspects of the byte code specification:</p>
 <ul>
-  <li>An <b>Access Converter</b> to split the compresses access value into readable single values.</li>
-  <li>A <b>signature parser</b> to broke a signature down into its components.</li>
+  <li>An <b>access Converter</b> to split the compressed access value into single readable values or calculate a compressed one.</li>
+  <li>A <b>signature parser</b> to split a signature down into its components.</li>
 </ul>
 
 <h3>Other</h3>

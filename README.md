@@ -2,29 +2,29 @@
 
 <img src="src/main/resources/META-INF/pluginIcon.svg" alt="Plugin Logo" width="120px"/>
 
-This IntelliJ plugin provides a modern and powerful byte code analyzer tool window. Its supports Java, Kotlin, Groovy and other JVM language class files.
+This IntelliJ plugin provides a modern and powerful tool window to analyze byte code. Its supports Java, Kotlin, Groovy, and other JVM language class files.
 
 [**It's available on the official IntelliJ plugin marketplace**](https://plugins.jetbrains.com/plugin/16970-byte-code-analyzer).
 
 The tool window is available via *View | Tool Windows | Byte Code* and will be shown by default in the lower right corner of IntelliJ.
 
-Class files can be either opened directly from the tool window or from the "Analyze Byte Code" action. This action is available in the project view and in the editor for JVM class or source files:
+Class files can be opened directly from the tool window or the "Analyze Byte Code" action. This action is available in the project view and the editor for JVM class or source files:
 
 <img src="screenshots/open-files-from-editor.png" alt="Open Files From Editor" width="368px"/>
 
-If the action is executed from the editor, the class relative to the current cursor position will be selected. This makes it easy to analyse inner, locale or anonymous classes.
+If the editor is the origin of the action execution, the analyzer will pick the class relative to the current cursor position. With this, it is easy to analyze inner, locale, or anonymous classes.
 
-The plugin currently uses [ASM 9.1](https://asm.ow2.io) under the hood, which supports JVM class files up to version 16.
+The plugin currently uses [ASM 9.2](https://asm.ow2.io) under the hood, supporting JVM class files up to version 18.
 
 ## Features
 
 ### Structure View
 
-The heart of the tool window is the structure view of a class file. It gives a quick and detailed tree overview of the individual components of a class file:
+The heart of the tool window is the structure view of a class file. It gives a depth and human-readable insights into the individual elements of a given class file:
 
 <img src="screenshots/tool-window-structure-view.png" alt="Structure View" width="405px"/>
 
-In addition to listing the method instructions, the state of the method frames can be viewed after each instruction:
+In addition to listing the method instructions, we can view the state of the method frames (locals and current stack) after the execution of each instruction:
 
 <img src="screenshots/show-method-frames-action.png" alt="Method Frames View" width="700px"/>
 
@@ -49,17 +49,17 @@ The ASM view provides Java source code that contains all instructions to generat
 
 ### Byte Code Tools
 
-Some generic byte code tools are provided via the menu in the upper right corner of the tool window. These are providing a general way to better understand certain aspects of the byte code specification. 
+The menu in the upper right corner of the tool window provides some generic byte code analyzing actions. These are providing a general way better to understand certain aspects of the byte code specification.
 
 #### Access Converter
 
-The access values are stored in a compressed single number in the byte code. With the help of the access converter tool, this number can be broken down into readable single values, and a compressed one can be calculated:
+The byte code stores access values in a single compressed number. With the help of the access converter tool, we can break this number into single readable values or calculate a compressed one:
 
 <img src="screenshots/access-converter-tool.png" alt="Access Converter" width="650px"/>
 
 #### Signature Parser
 
-With the help of the signature parser a signature string can be broken down into its components:
+With the help of the signature parser, we can split a signature string into its components:
 
 <img src="screenshots/signature-parser-tool.png" alt="Signature Parser" width="663px"/>
 
@@ -71,15 +71,18 @@ Additionally, there is an action to verify the byte code of a class file:
 
 ## Development
 
-In general all packages starting with an underscore `_` are seen as internal. The code in those packages is not intended to be used by other plugins and do not necessarily adhere to the semantics version rules.
+In general, all packages starting with an underscore `_` are internal. Therefore the code in those packages is not intended to be used by other plugins and does not necessarily adhere to the semantics version rules.
 
 If you want to contribute something, please follow the code style in the `.editorconfig` and sign your commits.
 
 ### Update ASM / add new Java version
 
-To update the bundled ASM, set the new version in the main `build.gradle.kts`. The new bundled ASM library should automatically be created, or execute the Gradle task `shadowAsmJar`. The ASM API version is defined globally in the variable: `dev.turingcomplete.intellijbytecodeplugin._ui.DefaultClassFileContext.ASM_API`. Also, the new version must be set in the description block of the `plugin.xml` and in the `README.md`.
+To update the bundled ASM library:
 
-New Java versions must be added to the field `dev.turingcomplete.intellijbytecodeplugin.bytecode.ClassVersionUtils.CLASS_VERSIONS`.
+- Set the new version in the main `build.gradle.kts`. (The new bundled ASM library should automatically be created or execute the Gradle task `shadowAsmJar`.)
+- Update the globally defined ASM API version in: `dev.turingcomplete.intellijbytecodeplugin._ui.DefaultClassFileContext.ASM_API`.
+- Set the new version in the description block of the `plugin.xml` and in the `README.md`.
+- New supported  Java versions must be added to the field: `dev.turingcomplete.intellijbytecodeplugin.bytecode.ClassVersionUtils.CLASS_VERSIONS`.
 
 ### Extension Points
 
@@ -115,7 +118,7 @@ Byte code actions (e.g., the decompile action) will be added to each byte code v
 
 ### Tests
 
-There are some tests that are testing the parsing of the structure tree and the constant pool and the opening of files with all class files from the java base module and from the groovy-all kotlin-stdlib libraries. Since this involves tens of thousands of files, these tests take a lot of time. Therefore, execution in `dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase.LIMIT_CLASSES` is limited to 800 class per library. When a new version is to be released it is advisable that this value should be increased significantly for a test run.
+Some tests are testing the parsing of the structure tree and the constant pool and the opening of files with all class files from the java base module and the `groovy-all` and `kotlin-stdlib` libraries. Since this involves tens of thousands of files, these tests take a lot of time. Therefore, execution in `dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase.LIMIT_CLASSES` is limited to 800 classes per library. This value should be increased significantly for at least one test run before a new version gets released.
 
 ## Planned Features
 
