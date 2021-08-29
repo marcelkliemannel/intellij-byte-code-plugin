@@ -126,8 +126,8 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
     override fun getColumnName(column: Int): String {
       return when (column) {
         0 -> "Instruction"
-        1 -> "Stack"
-        2 -> "Locals"
+        1 -> "Locals"
+        2 -> "Stack"
         else -> throw IllegalArgumentException("Unknown column index '$column'.")
       }
     }
