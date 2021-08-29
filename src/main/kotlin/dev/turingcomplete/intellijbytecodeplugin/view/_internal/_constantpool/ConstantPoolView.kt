@@ -8,6 +8,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.AnimatedIcon
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.components.JBLabel
+import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory
 import dev.turingcomplete.intellijbytecodeplugin.bytecode._internal.constantpool.ConstantPool
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
@@ -30,7 +31,7 @@ class ConstantPoolView(classFileContext: ClassFileContext)
 
   override fun createCenterComponent(): JComponent {
     return centerComponent.apply {
-      toolbar = createToolbar()
+      toolbar = createToolbar(this)
 
       asyncReadConstantPool()
     }
@@ -56,13 +57,16 @@ class ConstantPoolView(classFileContext: ClassFileContext)
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
-  private fun createToolbar(): JComponent {
+  private fun createToolbar(targetComponent: JComponent): JComponent {
     val toolbarGroup = DefaultActionGroup().apply {
       add(createResolveIndicesAction())
 
       addAllByteCodeActions()
     }
-    return ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, toolbarGroup, true).component
+    return ActionManager.getInstance().createActionToolbar("${ByteCodeToolWindowFactory.TOOLBAR_PLACE_PREFIX}.constantPoolView", toolbarGroup, true).run {
+      setTargetComponent(targetComponent)
+      component
+    }
   }
 
   private fun createResolveIndicesAction(): ToggleAction {

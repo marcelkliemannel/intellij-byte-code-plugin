@@ -50,7 +50,7 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <toolWindow id="Byte Code" factoryClass="dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory"
-                anchor="right" canCloseContents="true" secondary="true" icon="dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodePluginIcons.TOOL_WINDOW_ICON"/>
+                anchor="right" canCloseContents="true" secondary="true" icon="/icons/toolwindowicon.svg"/>
 
     <notificationGroup displayType="BALLOON" id="dev.turingcomplete.intellijbytecodeplugin.notificationGroup"/>
 
@@ -60,8 +60,6 @@
                  implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$OnErrorDataRule"/>
     <getDataRule key="dev.turingcomplete.intellijbytecodeplugin.openInEditor"
                  implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$OpenInEditorDataRule"/>
-    <getDataRule key="dev.turingcomplete.intellijbytecodeplugin.byteViewActionsAvailable"
-                 implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$ByteViewActionsAvailableDataRule"/>
   </extensions>
 
   <extensions defaultExtensionNs="dev.turingcomplete.intellijbytecodeplugin">

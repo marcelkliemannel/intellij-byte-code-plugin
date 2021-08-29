@@ -21,8 +21,8 @@ jobs:
       - uses: burrunan/gradle-cache-action@v1
 
       - name: Test Plugin
-        run: ./gradlew test
+        run: ./gradlew test --stacktrace
 
       - name: Verify Plugin
-        run: ./gradlew verifyPlugin
+        run: ./gradlew verifyPlugin --stacktrace
 

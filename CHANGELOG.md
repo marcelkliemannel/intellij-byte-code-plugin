@@ -8,6 +8,12 @@
 ### Removed
 
 ### Fixed
+- Fix swapped column names "Locals" and "Stack" in method frames dialog (GitHub issue #9)
+
+## [2.0.2] - 2021-07-28
+### Fixed
+- Fix compatibility with IntelliJ 2021.2
+
 ## [2.0.1] - 2021-07-20
 ### Fixed
 - Opening a class file while indexing could lead to a stack overflow error (GitHub issue #6)

@@ -9,6 +9,7 @@ import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.TableSpeedSearch
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.table.JBTable
+import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory
 import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodFramesUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
@@ -40,7 +41,7 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
   // -- Initialization ---------------------------------------------------------------------------------------------- //
 
   init {
-    toolbar = createToolbar()
+    toolbar = createToolbar(this)
     setContent(ScrollPaneFactory.createScrollPane(table, true))
     preferredSize = Dimension(700, 250)
   }
@@ -56,10 +57,13 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
-  private fun createToolbar(): JComponent {
+  private fun createToolbar(targetComponent: JComponent): JComponent {
     val toolbarGroup = DefaultActionGroup(createRenderOptionsActionGroup(),
                                           createShowMultipleValuesVerticallyToggleAction())
-    return ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, toolbarGroup, false).component
+    return ActionManager.getInstance().createActionToolbar("${ByteCodeToolWindowFactory.TOOLBAR_PLACE_PREFIX}.methodFrames", toolbarGroup, false).run {
+      setTargetComponent(targetComponent)
+      component
+    }
   }
 
   private fun createRenderOptionsActionGroup(): DefaultActionGroup {
@@ -122,8 +126,8 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
     override fun getColumnName(column: Int): String {
       return when (column) {
         0 -> "Instruction"
-        1 -> "Stack"
-        2 -> "Locals"
+        1 -> "Locals"
+        2 -> "Stack"
         else -> throw IllegalArgumentException("Unknown column index '$column'.")
       }
     }
