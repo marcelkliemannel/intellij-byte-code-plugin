@@ -98,6 +98,12 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
   }
 
   private fun ToolWindow.setupEmptyText(project: Project) {
+    if (this !is ToolWindowEx) {
+      // Should not happen because an unchecked cast to ToolWindowEx is done
+      // all other the core IntelliJ code.
+      return
+    }
+
     ApplicationManager.getApplication().invokeLater {
       emptyText?.apply {
         clear()
@@ -145,9 +151,6 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
       if (this is ToolWindowEx) {
         val newSessionActionsGroup = DefaultActionGroup(OpenClassFilesOptionsAction(project, contentManager))
         setTabActions(newSessionActionsGroup)
-
-        val additionalGearActionsGroup = DefaultActionGroup(HelpLinksActionsGroup())
-        setAdditionalGearActions(additionalGearActionsGroup)
       }
     }
   }
