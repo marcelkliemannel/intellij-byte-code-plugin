@@ -46,9 +46,11 @@ internal class StructureView(classFileContext: ClassFileContext)
 
   private fun createToolbar(targetComponent: JComponent): JComponent {
     val toolbarGroup = DefaultActionGroup().apply {
-      addAll(tree.createToolBarActions())
-
       addAllByteCodeActions()
+
+      addSeparator()
+
+      addAll(tree.createToolBarActions())
     }
     return ActionManager.getInstance().createActionToolbar("${ByteCodeToolWindowFactory.TOOLBAR_PLACE_PREFIX}.structureView", toolbarGroup, true).run {
       setTargetComponent(targetComponent)
