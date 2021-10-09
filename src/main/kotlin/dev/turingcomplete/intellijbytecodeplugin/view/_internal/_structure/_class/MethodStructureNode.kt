@@ -1,7 +1,6 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._class
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.ui.popup.JBPopupFactory
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.*
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Label
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
@@ -163,25 +162,9 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
   private class ShowFramesNode(private val methodFrames: List<MethodFramesUtils.MethodFrame>,
                                private val methodNode: MethodNode) : HyperLinkNode("Show frames") {
     init {
-      addHyperLinkListener(createHyperLinkListener())
-    }
-
-    private fun createHyperLinkListener() = HyperLinkListener { _, ctx ->
-      val stacksAndLocalsPanel = FramesPanel(ctx.typeNameRenderMode, methodFrames)
-      JBPopupFactory.getInstance()
-              .createComponentPopupBuilder(stacksAndLocalsPanel, stacksAndLocalsPanel)
-              .setRequestFocus(true)
-              .setTitle("Frames of method '${methodNode.name}${methodNode.desc}'")
-              .setFocusable(true)
-              .setResizable(true)
-              .setMovable(true)
-              .setModalContext(false)
-              .addUserData("SIMPLE_WINDOW")
-              .setCancelKeyEnabled(true)
-              .setCancelOnClickOutside(true)
-              .setCancelOnOtherWindowOpen(true)
-              .createPopup()
-              .showCenteredInCurrentWindow(ctx.project)
+      addHyperLinkListener { _, ctx ->
+        FramesDialog(methodNode, ctx.typeNameRenderMode, methodFrames, ctx.project).show()
+      }
     }
   }
 

@@ -164,6 +164,10 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
 
   private fun createToolbarActionsComponent(targetComponent: JComponent): JComponent {
     val toolbarActionsGroup = DefaultActionGroup().apply {
+      addAllByteCodeActions()
+
+      addSeparator()
+
       add(object : DefaultActionGroup("Parsing Options", true) {
         init {
           templatePresentation.icon = AllIcons.General.Filter
@@ -183,8 +187,6 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
       add(OpenInEditorAction())
 
       additionalToolBarActions()?.let { addAll(it) }
-
-      addAllByteCodeActions()
     }
 
     return ActionManager.getInstance().createActionToolbar("${TOOLBAR_PLACE_PREFIX}.parsingResultView", toolbarActionsGroup, true).run {

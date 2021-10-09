@@ -59,9 +59,11 @@ class ConstantPoolView(classFileContext: ClassFileContext)
 
   private fun createToolbar(targetComponent: JComponent): JComponent {
     val toolbarGroup = DefaultActionGroup().apply {
-      add(createResolveIndicesAction())
-
       addAllByteCodeActions()
+
+      addSeparator()
+
+      add(createResolveIndicesAction())
     }
     return ActionManager.getInstance().createActionToolbar("${ByteCodeToolWindowFactory.TOOLBAR_PLACE_PREFIX}.constantPoolView", toolbarGroup, true).run {
       setTargetComponent(targetComponent)

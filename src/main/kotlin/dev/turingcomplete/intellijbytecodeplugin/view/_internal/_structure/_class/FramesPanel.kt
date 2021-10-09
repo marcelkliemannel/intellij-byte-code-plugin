@@ -43,7 +43,6 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
   init {
     toolbar = createToolbar(this)
     setContent(ScrollPaneFactory.createScrollPane(table, true))
-    preferredSize = Dimension(700, 250)
   }
 
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //

@@ -11,6 +11,7 @@ import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.render.RenderingUtil
 import com.intellij.util.ui.GridBag
 import com.intellij.util.ui.JBUI
+import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import java.awt.Color
 import java.awt.Dimension
@@ -43,6 +44,7 @@ internal object UiUtils {
     fun createNumberField(value: Int? = null, columns: Int = 0) = JFormattedTextField(DecimalFormat("0")).apply {
       this.value = value
       this.columns = columns
+      this.background = UIUtil.getTextFieldBackground()
 
       (this.document as AbstractDocument).documentFilter = object : DocumentFilter() {
         override fun replace(fb: FilterBypass?, offset: Int, length: Int, text: String, attrs: AttributeSet?) {

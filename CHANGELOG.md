@@ -1,13 +1,16 @@
 # Changelog
 
 ## [Unreleased]
-### Added
-
 ### Changed
-
-### Removed
+- Move method frames to a non-modal dialog
+- Move byte code actions to the left to keep them at a fixed position
+- Move byte code related links to a separate group
+- Add report issue link
 
 ### Fixed
+- Fix TooManyListenersException (GitHub issue #12)
+- Fix removed ToolWindow#getEmptyText() in 2021.3 (GitHub issue #13)
+
 ## [2.0.3] - 2021-08-29
 ### Fixed
 - Fix swapped column names "Locals" and "Stack" in method frames dialog (GitHub issue #9)

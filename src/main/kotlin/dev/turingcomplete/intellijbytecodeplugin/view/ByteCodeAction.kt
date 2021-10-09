@@ -16,7 +16,6 @@ abstract class ByteCodeAction(@NlsActions.ActionText text : String?,
 
     fun DefaultActionGroup.addAllByteCodeActions() {
       EP.extensions.takeIf {it.isNotEmpty() }?.let {
-        addSeparator()
         addAll(it.toList())
       }
     }
