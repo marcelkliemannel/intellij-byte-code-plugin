@@ -93,7 +93,19 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
     ApplicationManager.getApplication().invokeLater {
       val toolWindowDropTarget = contentManager.component.dropTarget
       if (toolWindowDropTarget != null) {
-        toolWindowDropTarget.addDropTargetListener(FilesDropHandler(project))
+        try {
+          toolWindowDropTarget.addDropTargetListener(FilesDropHandler(project))
+          toolWindowDropTarget.dropTargetContext.dropTarget
+        }
+        catch (e: TooManyListenersException) {
+          // See GitHub#12. This exception was seen very rarely in production
+          // multiple times. It is not clear how a new created tool window can
+          // already have a drop target listener. This is probably caused if two
+          // project windows getting opened at the same time. Since it is not
+          // possible to check if there is already a listener, we have to catch
+          // this exception.
+          LOGGER.warnWithDebug("snh: New created byte code tool window already has a drop target listener.", e)
+        }
       }
       else {
         contentManager.component.dropTarget = DropTarget(contentManager.component, FilesDropHandler(project))
@@ -187,7 +199,7 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  private class ReportAnIssueAction : DumbAwareAction("Report An Issue") {
+  private class ReportAnIssueAction : DumbAwareAction("Report an Issue") {
 
     override fun actionPerformed(e: AnActionEvent) {
       BrowserUtil.browse("https://github.com/marcelkliemannel/intellij-byte-code-plugin/issues")
