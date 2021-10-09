@@ -6,6 +6,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
@@ -26,12 +27,15 @@ import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.Analyz
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
 import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
 import java.awt.dnd.DropTarget
+import java.util.*
 import javax.swing.Icon
 
 internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposable {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
+    private val LOGGER = Logger.getInstance(ByteCodeToolWindowFactory::class.java)
+
     const val ID = "Byte Code"
     const val PLUGIN_NAME = "Byte Code Analyzer"
     const val TOOLBAR_PLACE_PREFIX = "dev.turingcomplete.intellijbytecodeplugin.toolbar"
@@ -146,7 +150,17 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
 
   private fun ToolWindow.initActions(project: Project) {
     ApplicationManager.getApplication().invokeLater {
-      setTitleActions(listOf(ByteCodeToolsActionsGroup()))
+      val helpActionGroup = DefaultActionGroup("Help", true).apply {
+        templatePresentation.icon = AllIcons.Actions.Help
+        addAll(ByteCodeRelatedLinksActionsGroup(), ReportAnIssueAction())
+      }
+
+      val byteCodeToolsActionGroup = DefaultActionGroup("Byte Code Tools", true).apply {
+        templatePresentation.icon = AllIcons.General.ExternalTools
+        ByteCodeTool.EP.extensions.forEach { add(it.toAction()) }
+      }
+
+      setTitleActions(listOf(byteCodeToolsActionGroup, helpActionGroup))
 
       if (this is ToolWindowEx) {
         val newSessionActionsGroup = DefaultActionGroup(OpenClassFilesOptionsAction(project, contentManager))
@@ -173,17 +187,16 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  private class ByteCodeToolsActionsGroup : DefaultActionGroup("Byte Code Tools", true) {
+  private class ReportAnIssueAction : DumbAwareAction("Report An Issue") {
 
-    init {
-      ByteCodeTool.EP.extensions.forEach { add(it.toAction()) }
-      templatePresentation.icon = AllIcons.General.ExternalTools
+    override fun actionPerformed(e: AnActionEvent) {
+      BrowserUtil.browse("https://github.com/marcelkliemannel/intellij-byte-code-plugin/issues")
     }
   }
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  private class HelpLinksActionsGroup : DefaultActionGroup("Help Links", true) {
+  private class ByteCodeRelatedLinksActionsGroup : DefaultActionGroup("Byte Code Related Links", true) {
 
     val links = mapOf(Pair("Oracle: Java Language and Virtual Machine Specifications", "https://docs.oracle.com/javase/specs/index.html"),
                       Pair("Wikipedia: Java class file", "https://en.wikipedia.org/wiki/Java_class_file"),
@@ -192,7 +205,6 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
 
     init {
       links.forEach { (title, link) -> add(createLinkAction(title, link)) }
-      templatePresentation.icon = AllIcons.Actions.Help
     }
 
     private fun createLinkAction(title: String, link: String): AnAction = object : DumbAwareAction(title) {
