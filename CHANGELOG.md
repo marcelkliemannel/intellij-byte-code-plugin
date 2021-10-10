@@ -1,6 +1,15 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+
+### Changed
+- Improve icons of the byte code actions
+
+### Removed
+
+### Fixed
+## [2.1.0] - 2021-10-09
 ### Changed
 - Move method frames to a non-modal dialog
 - Move byte code actions to the left to keep them at a fixed position

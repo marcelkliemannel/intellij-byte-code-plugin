@@ -50,12 +50,14 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <toolWindow id="Byte Code" factoryClass="dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory"
-                anchor="right" canCloseContents="true" secondary="true" icon="/icons/toolwindowicon.svg"/>
+                anchor="right" canCloseContents="true" secondary="true" icon="/icons/toolwindow.svg"/>
 
     <notificationGroup displayType="BALLOON" id="dev.turingcomplete.intellijbytecodeplugin.notificationGroup"/>
 
     <getDataRule key="dev.turingcomplete.intellijbytecodeplugin.classFileContext"
                  implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$ClassFileContextDataRule"/>
+    <getDataRule key="dev.turingcomplete.intellijbytecodeplugin.classFileTab"
+                 implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$ClassFileTabDataRule"/>
     <getDataRule key="dev.turingcomplete.intellijbytecodeplugin.onError"
                  implementationClass="dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys$OnErrorDataRule"/>
     <getDataRule key="dev.turingcomplete.intellijbytecodeplugin.openInEditor"
