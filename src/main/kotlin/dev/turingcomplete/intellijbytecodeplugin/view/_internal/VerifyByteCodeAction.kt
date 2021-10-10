@@ -10,6 +10,7 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextArea
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
+import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodePluginIcons
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideTopInset
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
@@ -29,7 +30,7 @@ import javax.swing.BorderFactory
 import javax.swing.JPanel
 import javax.swing.SwingConstants
 
-internal class VerifyByteCodeAction : ByteCodeAction("Verify Byte Code", null, AllIcons.General.InspectionsOK) {
+internal class VerifyByteCodeAction : ByteCodeAction("Verify Byte Code", null, ByteCodePluginIcons.VERIFY_ICON) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //

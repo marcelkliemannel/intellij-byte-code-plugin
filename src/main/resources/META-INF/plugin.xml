@@ -82,6 +82,7 @@
     <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.AsmView$MyCreator"/>
 
+    <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.ReParseByteCodeAction"/>
     <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.DecompileByteCodeAction"/>
     <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.VerifyByteCodeAction"/>
   </extensions>

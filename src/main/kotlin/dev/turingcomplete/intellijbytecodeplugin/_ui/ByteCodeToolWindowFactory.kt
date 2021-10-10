@@ -43,10 +43,14 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
     fun <T> getData(dataProvider: DataProvider, dataKey: DataKey<T>): Any? {
       val project = dataProvider.getData(PROJECT.name).castSafelyTo<Project>() ?: return null
       val byteCodeToolWindow = ToolWindowManager.getInstance(project).getToolWindow(ID) ?: return null
-      return byteCodeToolWindow.contentManager.selectedContent
-              ?.getUserData(ClassFileTab.CLASS_FILE_TAB_KEY)
-              ?.selectedByteCodeView
-              ?.getData(dataKey.name)
+
+      val classFileTab = byteCodeToolWindow.contentManager.selectedContent?.getUserData(ClassFileTab.CLASS_FILE_TAB_KEY)
+      return if (dataKey.`is`(ClassFileTab.CLASS_FILE_TAB_KEY.toString())) {
+        classFileTab
+      }
+      else {
+        return classFileTab?.getData(dataKey.name)
+      }
     }
 
     fun openClassFile(classFile: VirtualFile, toolWindow: ToolWindow, project: Project) {

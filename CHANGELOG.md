@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- New byte code action to re-parse the opened class file
 
 ### Changed
 - Improve icons of the byte code actions

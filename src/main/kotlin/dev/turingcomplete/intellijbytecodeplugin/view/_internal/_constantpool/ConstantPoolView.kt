@@ -37,7 +37,7 @@ class ConstantPoolView(classFileContext: ClassFileContext)
     }
   }
 
-  override fun retry() {
+  override fun reParseClassNodeContext() {
     asyncReadConstantPool()
   }
 

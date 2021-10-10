@@ -31,7 +31,7 @@ internal class StructureView(classFileContext: ClassFileContext)
     }
   }
 
-  override fun retry() {
+  override fun reParseClassNodeContext() {
     tree.reload()
   }
 

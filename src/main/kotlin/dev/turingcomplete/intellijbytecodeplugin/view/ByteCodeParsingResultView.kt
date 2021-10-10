@@ -109,7 +109,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
     super.dispose()
   }
 
-  override fun retry() {
+  override fun reParseClassNodeContext() {
     asyncParseByteCode()
   }
 
@@ -178,7 +178,9 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
         }
 
         override fun update(e: AnActionEvent) {
-          e.presentation.isEnabled = isByteCodeParsingResultAvailable()
+          val enabled = isByteCodeParsingResultAvailable()
+          templatePresentation.isEnabled = enabled
+          e.presentation.isEnabled = enabled
         }
       })
 
