@@ -35,7 +35,6 @@ class ByteCodeToolService(val project: Project) {
     OpenClassFilesTask(openClassFile, project).consumeFiles(files).openFiles()
   }
 
-
   // -- Private Methods --------------------------------------------------------------------------------------------- //
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 }

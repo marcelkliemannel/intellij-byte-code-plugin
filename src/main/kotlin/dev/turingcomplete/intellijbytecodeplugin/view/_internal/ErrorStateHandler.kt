@@ -46,7 +46,7 @@ abstract class ErrorStateHandler {
 
   protected abstract fun createCenterComponent(): JComponent
 
-  protected abstract fun retry()
+  abstract fun reParseClassNodeContext()
 
   fun onError(message: String, cause: Throwable) {
     LOG.warn(message, cause)
@@ -67,7 +67,7 @@ abstract class ErrorStateHandler {
 
           revalidate()
           repaint()
-          retry()
+          reParseClassNodeContext()
         }
         removeAll()
         addToCenter(ErrorStatePanel(message, cause, retry))

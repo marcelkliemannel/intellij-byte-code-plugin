@@ -1,6 +1,7 @@
 package dev.turingcomplete.intellijbytecodeplugin._ui
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
@@ -18,7 +19,7 @@ import javax.swing.JComponent
 import javax.swing.SwingConstants
 
 internal class ClassFileTab(private val project: Project, private val classFile: VirtualFile)
-  : ErrorStateHandler(), DumbAware, Disposable {
+  : ErrorStateHandler(), DataProvider, DumbAware, Disposable {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
@@ -28,8 +29,7 @@ internal class ClassFileTab(private val project: Project, private val classFile:
 
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
-  private lateinit var byteCodeViews: List<ByteCodeView>
-  var selectedByteCodeView: ByteCodeView? = null
+  private var byteCodeViewTabs: ByteCodeViewTabs? = null
   private val centerComponentContainer = BorderLayoutPanel()
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
@@ -43,49 +43,47 @@ internal class ClassFileTab(private val project: Project, private val classFile:
     return centerComponentContainer
   }
 
-  override fun retry() {
-    loadClassNodeContext()
+  override fun reParseClassNodeContext() {
+    ApplicationManager.getApplication().invokeLater {
+      val previousSelectedByteCodeViewIndex = byteCodeViewTabs?.selectedByteCodeViewIndex
+      loadClassNodeContext(previousSelectedByteCodeViewIndex)
+    }
+  }
+
+  override fun getData(dataId: String): Any? {
+    if (byteCodeViewTabs == null) {
+      return null
+    }
+
+    // We are inside the EDT -> no threading issues
+    return byteCodeViewTabs!!.selectedBytecodeView().getData(dataId)
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
-  private fun loadClassNodeContext() {
+  private fun loadClassNodeContext(selectedByteCodeViewIndex: Int? = 0) {
     setCenter(JBLabel("Parsing '${classFile.nameWithoutExtension}'...", AnimatedIcon.Default(), SwingConstants.CENTER))
 
-    val onSuccess = loadTabs()
+    val onSuccess = loadTabs(selectedByteCodeViewIndex ?: 0)
     DefaultClassFileContext.loadAsync(project, classFile, onSuccess) { cause ->
       onError("Failed to parse class file '${classFile.name}'", cause)
     }
   }
 
-  private fun loadTabs(): (ClassFileContext) -> Unit = { classFileContext ->
+  private fun loadTabs(selectedByteCodeViewIndex: Int): (ClassFileContext) -> Unit = { classFileContext ->
     ApplicationManager.getApplication().invokeLater {
       if (project.isDisposed) {
         return@invokeLater
       }
 
-      val tabs = TabbedPaneWrapper(this).apply {
-        byteCodeViews = ByteCodeView.EP.extensions.mapIndexed { index, byteCodeViewCreator ->
-          val selected = index == 0
-          val classFileView = byteCodeViewCreator.create(classFileContext)
-          addTab(classFileView.title, classFileView.icon, classFileView.createComponent(selected), null)
-          if (selected) {
-            selectedByteCodeView = classFileView
-          }
-          Disposer.register(this@ClassFileTab, classFileView)
-          classFileView
-        }
-      }
+      byteCodeViewTabs = ByteCodeViewTabs(classFileContext, this)
+      // We are inside the EDT -> no threading issues
+      setCenter(byteCodeViewTabs!!.component)
 
-      tabs.addChangeListener {
-        val newSelectedByteCodeView = byteCodeViews[tabs.selectedIndex]
-        if (selectedByteCodeView != newSelectedByteCodeView) {
-          selectedByteCodeView = newSelectedByteCodeView
-          newSelectedByteCodeView.selected()
-        }
+      if (selectedByteCodeViewIndex != 0) {
+        // We are inside the EDT -> no threading issues
+        byteCodeViewTabs!!.selectBytecodeViewIndex(selectedByteCodeViewIndex)
       }
-
-      setCenter(tabs.component)
     }
   }
 
@@ -99,4 +97,35 @@ internal class ClassFileTab(private val project: Project, private val classFile:
   }
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
+
+  private class ByteCodeViewTabs(classFileContext: ClassFileContext, parentDisposable: Disposable)
+    : TabbedPaneWrapper(parentDisposable) {
+
+    private val byteCodeViews: List<ByteCodeView>
+    var selectedByteCodeViewIndex: Int
+
+    init {
+      byteCodeViews = ByteCodeView.EP.extensions.mapIndexed { index, byteCodeViewCreator ->
+        val selected = index == 0
+        val classFileView = byteCodeViewCreator.create(classFileContext)
+        addTab(classFileView.title, classFileView.icon, classFileView.createComponent(selected), null)
+        Disposer.register(parentDisposable, classFileView)
+        classFileView
+      }
+      selectedByteCodeViewIndex = 0
+
+      addChangeListener {
+        if (selectedByteCodeViewIndex != selectedIndex) {
+          selectedByteCodeViewIndex = selectedIndex
+          byteCodeViews[selectedByteCodeViewIndex].selected()
+        }
+      }
+    }
+
+    fun selectedBytecodeView() = byteCodeViews[selectedByteCodeViewIndex]
+
+    fun selectBytecodeViewIndex(index: Int) {
+      setSelectedIndex(index, true)
+    }
+  }
 }

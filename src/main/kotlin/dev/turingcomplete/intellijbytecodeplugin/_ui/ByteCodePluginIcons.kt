@@ -6,9 +6,11 @@ internal object ByteCodePluginIcons {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   @JvmField
-  val TOOL_WINDOW_ICON = IconLoader.getIcon("/icons/toolwindowicon.svg", ByteCodePluginIcons::class.java)
+  val TOOL_WINDOW_ICON = IconLoader.getIcon("/icons/toolwindow.svg", ByteCodePluginIcons::class.java)
 
-  val ACTION_ICON = IconLoader.getIcon("/icons/actionicon.svg", ByteCodePluginIcons::class.java)
+  val ACTION_ICON = IconLoader.getIcon("/icons/action.svg", ByteCodePluginIcons::class.java)
+
+  val VERIFY_ICON = IconLoader.getIcon("/icons/verify.svg", ByteCodePluginIcons::class.java)
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exported Methods -------------------------------------------------------------------------------------------- //
