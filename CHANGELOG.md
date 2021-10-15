@@ -2,14 +2,19 @@
 
 ## [Unreleased]
 ### Added
+
+### Changed
+
+### Removed
+
+### Fixed
+## [2.2.0] - 2021-10-15
+### Added
 - New byte code action to re-parse the opened class file
 
 ### Changed
 - Improve icons of the byte code actions
 
-### Removed
-
-### Fixed
 ## [2.1.0] - 2021-10-09
 ### Changed
 - Move method frames to a non-modal dialog
