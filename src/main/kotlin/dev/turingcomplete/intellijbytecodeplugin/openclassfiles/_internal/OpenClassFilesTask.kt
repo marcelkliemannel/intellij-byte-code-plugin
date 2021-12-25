@@ -216,7 +216,7 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
       val lightMethod = PsiTreeUtil.getParentOfType(psiElement, LightMethod::class.java, false)
       val psiClass = lightMethod?.containingClass ?: findNextPsiClass(psiElement)
       if (psiClass == null) {
-        // If the element is outside of a class (e.g. the white space after the
+        // If the element is outside a class (e.g. the white space after the
         // last closing bracket) we use the containing file as a fallback.
         val fallbackClassFile = psiElement.containingFile ?: originPsiFile
         if (fallbackClassFile != null) {
@@ -382,7 +382,7 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
     val isTest = projectFileIndex.isInTestSourceContent(sourceFile)
     // Don't use 'compilerOutputPath' here because if there is a compiler output
     // path but nothing was compiled yet (and therefore the directory does not
-    // exists), it returns null.
+    // exist), it returns null.
     val classRoot = (if (isTest) compiler.compilerOutputForTestsPointer else compiler.compilerOutputPointer) ?: return null
     val relativePath = "${jvmClassName.replace('.', '/')}.class"
     return Path.of(classRoot.presentableUrl, relativePath)
@@ -419,25 +419,27 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
                                      MESSAGE_DIALOG_TITLE,
                                      options.toTypedArray(),
                                      0, null)
-    return if (answer == -1 || answer == cancelAnswerIndex) {
-      null
-    }
-    else if (answer == compileOnlyClassesAnswerIndex) {
-      CompilerManager.getInstance(project).createFilesCompileScope(classFilesNeedingPreparation.map { it.sourceFile }.toTypedArray())
-    }
-    else if (answer == compileWholeModulesAnswerIndex || answer == compileWholeModulesAndDependentModulesAnswerIndex) {
-      val includeDependentModules = answer == compileWholeModulesAndDependentModulesAnswerIndex
-      CompilerManager.getInstance(project).createModulesCompileScope(classFilesNeedingPreparation.map { it.module }.toTypedArray(), includeDependentModules)
-    }
-    else {
-      if (tryToUseClassesAsTheyAre) {
-        classFilesNeedingPreparation
-                .mapNotNull { VirtualFileManager.getInstance().findFileByNioPath(it.expectedClassFilePath) }
-                .filter { it.isValid }
-                .forEach { readyToOpen.add(it) }
-      }
+    return when (answer) {
+        -1, cancelAnswerIndex -> {
+          null
+        }
+        compileOnlyClassesAnswerIndex -> {
+          CompilerManager.getInstance(project).createFilesCompileScope(classFilesNeedingPreparation.map { it.sourceFile }.toTypedArray())
+        }
+        compileWholeModulesAnswerIndex, compileWholeModulesAndDependentModulesAnswerIndex -> {
+          val includeDependentModules = answer == compileWholeModulesAndDependentModulesAnswerIndex
+          CompilerManager.getInstance(project).createModulesCompileScope(classFilesNeedingPreparation.map { it.module }.toTypedArray(), includeDependentModules)
+        }
+        else -> {
+          if (tryToUseClassesAsTheyAre) {
+            classFilesNeedingPreparation
+                    .mapNotNull { VirtualFileManager.getInstance().findFileByNioPath(it.expectedClassFilePath) }
+                    .filter { it.isValid }
+                    .forEach { readyToOpen.add(it) }
+          }
 
-      null
+          null
+        }
     }
   }
 

@@ -26,7 +26,7 @@ enum class Access(val value: Int) {
   STRICT(ACC_STRICT),
   SYNTHETIC(ACC_SYNTHETIC),
   ANNOTATION(ACC_ANNOTATION),
-  ENUM(ACC_ENUM),
+  ENUM(ACC_ENUM), // todo ???
   MANDATED(ACC_MANDATED),
   MODULE(ACC_MODULE),
   RECORD(ACC_RECORD),
@@ -47,8 +47,9 @@ enum class AccessGroup(val accesses: EnumSet<Access>) {
 
   fun toReadableAccess(access: Int): List<String> {
     return accesses.asSequence()
-            .filter { (it.value and access) != 0 }
-            .map { it.name.lowercase(Locale.getDefault()) }
+            .filter { it.check(access) }
+            .map { it.name.lowercase(Locale.ENGLISH) }
+            .sorted()
             .toList()
   }
 

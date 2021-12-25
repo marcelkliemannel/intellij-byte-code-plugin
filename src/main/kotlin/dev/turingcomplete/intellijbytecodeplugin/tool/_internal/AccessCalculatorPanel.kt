@@ -17,7 +17,7 @@ internal class AccessCalculatorPanel(private val accessGroup: AccessGroup) : Bor
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   private val result = JBLabel("Result:").apply {
-    border = JBEmptyBorder(0, 0, 2, 0);
+    border = JBEmptyBorder(0, 0, 2, 0)
   }.copyable()
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //

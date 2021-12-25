@@ -1,7 +1,6 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal
 
 import com.intellij.icons.AllIcons
-import com.intellij.icons.AllIcons.Actions.Compile
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.fileEditor.FileEditorManager

@@ -3,25 +3,14 @@ package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._cla
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.JBColor
-import com.intellij.ui.components.JBLabel
-import com.intellij.ui.components.JBPanel
-import com.intellij.ui.components.panels.VerticalLayout
-import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
-import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
-import dev.turingcomplete.intellijbytecodeplugin._ui.copyable
-import dev.turingcomplete.intellijbytecodeplugin._ui.overrideBottomInset
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodFramesUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.MethodNode
-import java.awt.BorderLayout
-import java.awt.Dimension
-import java.awt.GridBagLayout
 import javax.swing.BorderFactory
 import javax.swing.JComponent
-import javax.swing.JPanel
 
-class FramesDialog(private val methodNode: MethodNode,
+class FramesDialog(methodNode: MethodNode,
                    private val initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode,
                    private val methodFrames: List<MethodFramesUtils.MethodFrame>,
                    project: Project?) : DialogWrapper(project) {

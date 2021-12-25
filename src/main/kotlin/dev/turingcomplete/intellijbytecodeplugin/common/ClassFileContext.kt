@@ -1,6 +1,5 @@
 package dev.turingcomplete.intellijbytecodeplugin.common
 
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.ClassReader

@@ -10,10 +10,8 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.MethodNo
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.GoToProvider
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureTreeContext
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.*
-import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.HyperLinkNode.HyperLinkListener
 import java.util.*
 import java.util.stream.IntStream
-import kotlin.streams.toList
 
 internal class MethodStructureNode(private val methodNode: MethodNode, private val classNode: ClassNode)
   : ValueNode(displayValue = { ctx -> MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, true) },

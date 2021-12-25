@@ -50,7 +50,7 @@ class AsmView(classFileContext: ClassFileContext)
 
   /**
    * It would be nicer if this was done directly when parsing (because the ASM
-   * code looks really ugly), but unfortunately the reformat is executed in the
+   * code looks hideous), but unfortunately the reformat is executed in the
    * EDT, which results in a noticeable freeze the loading of the tab.
    */
   private inner class ReformatCodeAction : DumbAwareAction("Reformat Code", null, AllIcons.Actions.PrettyPrint) {

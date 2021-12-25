@@ -18,7 +18,6 @@ import dev.turingcomplete.intellijbytecodeplugin.view._internal.CopyValueAction
 import dev.turingcomplete.intellijbytecodeplugin.view._internal.ViewValueAction
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.RenderOption
 import java.awt.Component
-import java.awt.Dimension
 import java.awt.event.InputEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent

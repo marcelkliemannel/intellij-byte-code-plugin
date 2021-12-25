@@ -37,7 +37,7 @@ internal open class HyperLinkNode(private val text: String, initialHyperLinkList
     return component!!
   }
 
-  override fun searchText(context: StructureTreeContext) = null
+  override fun searchText(context: StructureTreeContext): Nothing? = null
 
   fun addHyperLinkListener(hyperLinkListener: HyperLinkListener) {
     hyperLinkListeners.add(hyperLinkListener)
