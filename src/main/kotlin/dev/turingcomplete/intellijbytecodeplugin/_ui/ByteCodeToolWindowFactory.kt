@@ -95,7 +95,10 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
 
   private fun ToolWindow.initDropTarget(project: Project) {
     ApplicationManager.getApplication().invokeLater {
-      val toolWindowDropTarget = contentManager.component.dropTarget
+      @Suppress("USELESS_ELVIS") // NPE happened in production
+      val component = contentManager.component ?: return@invokeLater
+
+      val toolWindowDropTarget = component.dropTarget
       if (toolWindowDropTarget != null) {
         try {
           toolWindowDropTarget.addDropTargetListener(FilesDropHandler(project))
