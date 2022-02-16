@@ -24,15 +24,15 @@ object TypeUtils {
 
   fun toReadableType(type: Type, renderMode: TypeNameRenderMode): String {
     return when (type.sort) {
-      Type.VOID -> "void";
-      Type.BOOLEAN -> "boolean";
-      Type.CHAR -> "char";
-      Type.BYTE -> "byte";
-      Type.SHORT -> "short";
-      Type.INT -> "int";
-      Type.FLOAT -> "float";
-      Type.LONG -> "long";
-      Type.DOUBLE -> "double";
+      Type.VOID -> "void"
+      Type.BOOLEAN -> "boolean"
+      Type.CHAR -> "char"
+      Type.BYTE -> "byte"
+      Type.SHORT -> "short"
+      Type.INT -> "int"
+      Type.FLOAT -> "float"
+      Type.LONG -> "long"
+      Type.DOUBLE -> "double"
       Type.ARRAY -> "${toReadableType(type.elementType, renderMode)}${"[]".repeat(type.dimensions)}"
       else -> toReadableName(type.internalName, renderMode)
     }

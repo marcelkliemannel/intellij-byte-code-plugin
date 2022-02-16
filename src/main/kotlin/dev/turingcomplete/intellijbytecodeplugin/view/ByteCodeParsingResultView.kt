@@ -69,7 +69,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
   // -- Initialization ---------------------------------------------------------------------------------------------- //
 
   init {
-    // Sync editor colors, if IntelliJ appearance changed
+    // Sync editor colors after IntelliJ appearance changed
     ApplicationManager.getApplication().messageBus.connect(this)
             .subscribe(LafManagerListener.TOPIC, LafManagerListener { editor.syncEditorColors() })
   }

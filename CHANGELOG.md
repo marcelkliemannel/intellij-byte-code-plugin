@@ -8,6 +8,10 @@
 ### Removed
 
 ### Fixed
+## [2.2.1] - 2022-02-16
+### Fixed
+- Fix display of enum access flags
+
 ## [2.2.0] - 2021-10-15
 ### Added
 - New byte code action to re-parse the opened class file

@@ -71,7 +71,7 @@ Additionally, there is an action to verify the byte code of a class file:
 
 ## Development
 
-In general, all packages starting with an underscore `_` are internal. Therefore the code in those packages is not intended to be used by other plugins and does not necessarily adhere to the semantics version rules.
+In general, all packages starting with an underscore `_` are internal. Therefore, the code in those packages is not intended to be used by other plugins and does not necessarily adhere to the semantics version rules.
 
 If you want to contribute something, please follow the code style in the `.editorconfig` and sign your commits.
 

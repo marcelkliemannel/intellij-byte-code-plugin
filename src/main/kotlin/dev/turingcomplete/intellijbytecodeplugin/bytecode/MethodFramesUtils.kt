@@ -66,9 +66,9 @@ object MethodFramesUtils {
   private class ExtendedTextifier : Textifier(DefaultClassFileContext.ASM_API) {
 
     init {
-      tab = "";
-      tab2 = "  ";
-      tab3 = "    ";
+      tab = ""
+      tab2 = "  "
+      tab3 = "    "
       ltab = ""
     }
 

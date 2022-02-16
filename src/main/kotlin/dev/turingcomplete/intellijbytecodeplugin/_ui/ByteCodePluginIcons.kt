@@ -5,6 +5,7 @@ import com.intellij.openapi.util.IconLoader
 internal object ByteCodePluginIcons {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
+  @Suppress("unused") // Referenced in plugin.xml
   @JvmField
   val TOOL_WINDOW_ICON = IconLoader.getIcon("/icons/toolwindow.svg", ByteCodePluginIcons::class.java)
 
