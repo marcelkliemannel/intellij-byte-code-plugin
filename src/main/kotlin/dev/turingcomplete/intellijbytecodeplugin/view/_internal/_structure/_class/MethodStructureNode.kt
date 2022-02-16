@@ -11,7 +11,6 @@ import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.GoToP
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureTreeContext
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.*
 import java.util.*
-import java.util.stream.IntStream
 
 internal class MethodStructureNode(private val methodNode: MethodNode, private val classNode: ClassNode)
   : ValueNode(displayValue = { ctx -> MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, true) },
@@ -98,7 +97,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
     else if (sortedLocalVariables != null) {
       // Get name from local variables
       val offset = if (Access.STATIC.check(methodNode.access)) 0 else 1
-      IntStream.range(offset, methodParameterTypes.size + offset).mapToObj { i ->
+      IntRange(offset, (methodParameterTypes.size - 1) + offset).map { i ->
         (sortedLocalVariables.elementAtOrNull(i)?.name ?: "<i>unknown</i>") to 0
       }.toList()
     }
