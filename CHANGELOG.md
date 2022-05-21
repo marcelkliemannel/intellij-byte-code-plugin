@@ -5,11 +5,14 @@
 
 ### Changed
 
-- Update bundled ASM to 9.3
-
 ### Removed
 
 ### Fixed
+
+## [2.3.0] - 2022-05-21
+### Changed
+- Update bundled ASM to 9.3
+
 ## [2.2.1] - 2022-02-16
 ### Fixed
 - Fix display of enum access flags

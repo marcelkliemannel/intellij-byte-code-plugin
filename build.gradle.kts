@@ -48,8 +48,9 @@ intellij {
 }
 
 changelog {
-  version.set(project.version as String)
-  header.set("[$version] - ${date()}")
+  val projectVersion = project.version as String
+  version.set(projectVersion)
+  header.set("[$projectVersion] - ${date()}")
   groups.set(listOf("Added", "Changed", "Removed", "Fixed"))
 }
 
@@ -76,7 +77,7 @@ tasks {
     certificateChain.set(project.provider { File(jetbrainsDir, "plugin-sign-chain.crt").readText() })
     privateKey.set(project.provider { File(jetbrainsDir, "plugin-sign-private-key.pem").readText() })
 
-    password.set(project.provider { properties("signing.password") })
+    password.set(project.provider { properties("jetbrains.sign-plugin.password") })
   }
 
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
