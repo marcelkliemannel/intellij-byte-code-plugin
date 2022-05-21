@@ -1,4 +1,3 @@
-import org.jetbrains.changelog.closure
 import org.jetbrains.changelog.date
 
 fun properties(key: String) = project.findProperty(key).toString()
@@ -6,9 +5,9 @@ fun properties(key: String) = project.findProperty(key).toString()
 plugins {
   java
   kotlin("jvm") version "1.5.10"
-  id("org.jetbrains.intellij") version "1.1.4"
+  id("org.jetbrains.intellij") version "1.5.3"
   id("com.github.johnrengelman.shadow") version "6.1.0"
-  id("org.jetbrains.changelog") version "1.1.2"
+  id("org.jetbrains.changelog") version "1.3.1"
 }
 
 group = properties("pluginGroup")
@@ -18,7 +17,7 @@ repositories {
   mavenCentral()
 }
 
-val asm by configurations.creating
+val asm : Configuration by configurations.creating
 
 val shadowAsmJar = tasks.create("shadowAsmJar", com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar::class) {
   group = "shadow"
@@ -49,9 +48,9 @@ intellij {
 }
 
 changelog {
-  version = project.version as String
-  header = closure { "[$version] - ${date()}" }
-  groups = listOf("Added", "Changed", "Removed", "Fixed")
+  version.set(project.version as String)
+  header.set("[$version] - ${date()}")
+  groups.set(listOf("Added", "Changed", "Removed", "Fixed"))
 }
 
 tasks {
@@ -68,22 +67,16 @@ tasks {
 
   publishPlugin {
     dependsOn("patchChangelog")
-    token.set("TOKEN")
+    token.set(project.provider { properties("jetbrains.marketplace.token") })
     channels.set(listOf(properties("pluginVersion").split('-').getOrElse(1) { "default" }.split('.').first()))
   }
 
   signPlugin {
-    certificateChain.set("""
------BEGIN CERTIFICATE-----
------END CERTIFICATE-----
-  """.trimIndent())
+    val jetbrainsDir = File(System.getProperty("user.home"), ".jetbrains")
+    certificateChain.set(project.provider { File(jetbrainsDir, "plugin-sign-chain.crt").readText() })
+    privateKey.set(project.provider { File(jetbrainsDir, "plugin-sign-private-key.pem").readText() })
 
-    privateKey.set("""
------BEGIN ENCRYPTED PRIVATE KEY-----
------END ENCRYPTED PRIVATE KEY-----
-  """.trimIndent())
-
-    password.set("PASSWORD")
+    password.set(project.provider { properties("signing.password") })
   }
 
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
