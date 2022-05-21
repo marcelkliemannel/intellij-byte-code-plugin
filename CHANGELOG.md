@@ -5,6 +5,8 @@
 
 ### Changed
 
+- Update bundled ASM to 9.3
+
 ### Removed
 
 ### Fixed
