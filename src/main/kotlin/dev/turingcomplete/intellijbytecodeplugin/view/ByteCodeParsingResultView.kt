@@ -179,7 +179,6 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
 
         override fun update(e: AnActionEvent) {
           val enabled = isByteCodeParsingResultAvailable()
-          templatePresentation.isEnabled = enabled
           e.presentation.isEnabled = enabled
         }
       })
