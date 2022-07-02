@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Add Support for Java 19
 
 ### Changed
 

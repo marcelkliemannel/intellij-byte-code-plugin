@@ -14,7 +14,7 @@ Class files can be opened directly from the tool window or the "Analyze Byte Cod
 
 If the editor is the origin of the action execution, the analyzer will pick the class relative to the current cursor position. With this, it is easy to analyze inner, locale, or anonymous classes.
 
-The plugin currently uses [ASM 9.2](https://asm.ow2.io) under the hood, supporting JVM class files up to version 18.
+The plugin currently uses [ASM 9.3](https://asm.ow2.io) under the hood, supporting JVM class files up to version 19.
 
 ## Features
 
@@ -120,14 +120,9 @@ Byte code actions (e.g., the decompile action) will be added to each byte code v
 
 Some tests are testing the parsing of the structure tree and the constant pool and the opening of files with all class files from the java base module and the `groovy-all` and `kotlin-stdlib` libraries. Since this involves tens of thousands of files, these tests take a lot of time. Therefore, execution in `dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase.LIMIT_CLASSES` is limited to 800 classes per library. This value should be increased significantly for at least one test run before a new version gets released.
 
-## Planned Features
-
-- Detailed byte code instructions overview.
-- Make texts translatable.
-
 ## License
 
-Copyright (c) 2021 Marcel Kliemannel
+Copyright (c) 2022 Marcel Kliemannel
 
 Licensed under the **Apache License, Version 2.0** (the "License"); you may not use this file except in compliance with the License.
 

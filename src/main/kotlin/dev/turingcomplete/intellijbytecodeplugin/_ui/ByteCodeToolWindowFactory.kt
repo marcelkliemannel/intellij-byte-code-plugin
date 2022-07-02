@@ -36,13 +36,13 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
   companion object {
     private val LOGGER = Logger.getInstance(ByteCodeToolWindowFactory::class.java)
 
-    const val ID = "Byte Code"
+    const val TOOL_WINDOW_ID = "Byte Code"
     const val PLUGIN_NAME = "Byte Code Analyzer"
     const val TOOLBAR_PLACE_PREFIX = "dev.turingcomplete.intellijbytecodeplugin.toolbar"
 
     fun <T> getData(dataProvider: DataProvider, dataKey: DataKey<T>): Any? {
       val project = dataProvider.getData(PROJECT.name).castSafelyTo<Project>() ?: return null
-      val byteCodeToolWindow = ToolWindowManager.getInstance(project).getToolWindow(ID) ?: return null
+      val byteCodeToolWindow = ToolWindowManager.getInstance(project).getToolWindow(TOOL_WINDOW_ID) ?: return null
 
       val classFileTab = byteCodeToolWindow.contentManager.selectedContent?.getUserData(ClassFileTab.CLASS_FILE_TAB_KEY)
       return if (dataKey.`is`(ClassFileTab.CLASS_FILE_TAB_KEY.toString())) {
@@ -77,7 +77,7 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
   override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-    assert(toolWindow.id == ID)
+    assert(toolWindow.id == TOOL_WINDOW_ID)
 
     Disposer.register(toolWindow.disposable, this)
 

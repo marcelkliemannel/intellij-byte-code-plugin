@@ -3,7 +3,8 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode
 object ClassVersionUtils {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
-  val CLASS_VERSIONS = arrayOf(ClassVersion(62, "Java SE 18"),
+  val CLASS_VERSIONS = arrayOf(ClassVersion(63, "Java SE 19"),
+                               ClassVersion(62, "Java SE 18"),
                                ClassVersion(61, "Java SE 17"),
                                ClassVersion(60, "Java SE 16"),
                                ClassVersion(59, "Java SE 15"),
