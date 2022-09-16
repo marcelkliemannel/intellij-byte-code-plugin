@@ -63,6 +63,12 @@ With the help of the signature parser, we can split a signature string into its 
 
 <img src="screenshots/signature-parser-tool.png" alt="Signature Parser" width="663px"/>
 
+#### Instructions Overview
+
+A built-in overview of all byte code instructions, with name, opcode, operands, stack modifications and a description:
+
+<img src="screenshots/instructions-overview.png" alt="Instructions Overview" width="912px"/>
+
 ## Other
 
 Additionally, there is an action to verify the byte code of a class file:
