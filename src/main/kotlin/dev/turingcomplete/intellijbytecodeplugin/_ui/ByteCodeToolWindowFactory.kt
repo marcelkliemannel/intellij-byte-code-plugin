@@ -27,7 +27,6 @@ import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.Analyz
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
 import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
 import java.awt.dnd.DropTarget
-import java.util.*
 import javax.swing.Icon
 
 internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposable {
@@ -95,27 +94,28 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
 
   private fun ToolWindow.initDropTarget(project: Project) {
     ApplicationManager.getApplication().invokeLater {
-      @Suppress("USELESS_ELVIS") // NPE happened in production
-      val component = contentManager.component ?: return@invokeLater
+      if (project.isDisposed) {
+        return@invokeLater
+      }
 
-      val toolWindowDropTarget = component.dropTarget
-      if (toolWindowDropTarget != null) {
-        try {
+      try {
+        @Suppress("USELESS_ELVIS") // NPE happened in production
+        val component = contentManager.component ?: return@invokeLater
+
+        val toolWindowDropTarget = component.dropTarget
+        if (toolWindowDropTarget != null) {
           toolWindowDropTarget.addDropTargetListener(FilesDropHandler(project))
-          toolWindowDropTarget.dropTargetContext.dropTarget
         }
-        catch (e: TooManyListenersException) {
-          // See GitHub#12. This exception was seen very rarely in production
-          // multiple times. It is not clear how a new created tool window can
-          // already have a drop target listener. This is probably caused if two
-          // project windows getting opened at the same time. Since it is not
-          // possible to check if there is already a listener, we have to catch
-          // this exception.
-          LOGGER.warnWithDebug("snh: New created byte code tool window already has a drop target listener.", e)
+        else {
+          contentManager.component.dropTarget = DropTarget(contentManager.component, FilesDropHandler(project))
         }
       }
-      else {
-        contentManager.component.dropTarget = DropTarget(contentManager.component, FilesDropHandler(project))
+      catch (e: Exception) {
+        // This method sometimes throws exceptions, because the UI is in an
+        // invalid state. For example:
+        // - `ContentManager#getComponent()` -> `NullPointerException` -> "because "this.myUI" is null"
+        // - `DropTarget#addDropTargetListener()` -> `TooManyListenersException`
+        LOGGER.warnWithDebug("snh: Failed to set drop target listener.", e)
       }
     }
   }

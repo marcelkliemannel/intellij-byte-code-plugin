@@ -2,13 +2,15 @@
 
 ## [Unreleased]
 ### Added
-- Add Support for Java 19
+- Add a built-in overview of all byte code instructions
+- Add better support for Java 19
 
 ### Changed
 
 ### Removed
 
 ### Fixed
+- Prevent potential NPE in the drag and drop mechanism
 
 ## [2.3.0] - 2022-05-21
 ### Changed
