@@ -36,7 +36,9 @@ dependencies {
   asm("org.ow2.asm:asm-util:$asmVersion")
   asm("org.ow2.asm:asm-commons:$asmVersion")
 
-  testImplementation(localGroovy())
+  // Both are used for test data
+  testImplementation("org.codehaus.groovy:groovy:3.0.12")
+  testImplementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.10")
 }
 
 intellij {
