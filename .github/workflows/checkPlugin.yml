@@ -25,3 +25,9 @@ jobs:
 
       - name: Verify Plugin
         run: ./gradlew verifyPlugin --stacktrace
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
