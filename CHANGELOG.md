@@ -3,11 +3,7 @@
 ## [Unreleased]
 ### Added
 - Add a built-in overview of all byte code instructions
-- Add better support for Java 19
-
-### Changed
-
-### Removed
+- Add class file version mapping for Java 19
 
 ### Fixed
 - Prevent potential NPE in the drag and drop mechanism
