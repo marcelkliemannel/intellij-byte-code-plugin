@@ -4,8 +4,8 @@ fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
   java
-  kotlin("jvm") version "1.5.10"
-  id("org.jetbrains.intellij") version "1.5.3"
+  kotlin("jvm") version "1.7.10"
+  id("org.jetbrains.intellij") version "1.9.0"
   id("com.github.johnrengelman.shadow") version "6.1.0"
   id("org.jetbrains.changelog") version "1.3.1"
 }
@@ -36,7 +36,9 @@ dependencies {
   asm("org.ow2.asm:asm-util:$asmVersion")
   asm("org.ow2.asm:asm-commons:$asmVersion")
 
-  testImplementation(localGroovy())
+  // Both are used for test data
+  testImplementation("org.codehaus.groovy:groovy:3.0.12")
+  testImplementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.10")
 }
 
 intellij {

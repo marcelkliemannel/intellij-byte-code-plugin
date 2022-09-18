@@ -3,7 +3,9 @@ package dev.turingcomplete.intellijbytecodeplugin._ui
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.ui.DialogWrapper.IdeModalityType
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.ui.HyperlinkLabel
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
@@ -21,6 +23,7 @@ import java.text.DecimalFormat
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import javax.swing.*
+import javax.swing.table.TableCellRenderer
 import javax.swing.text.AbstractDocument
 import javax.swing.text.AttributeSet
 import javax.swing.text.DocumentFilter
@@ -34,6 +37,12 @@ internal object UiUtils {
           .setDefaultAnchor(GridBagConstraints.NORTHWEST)
           .setDefaultInsets(0, 0, 0, 0)
           .setDefaultFill(GridBagConstraints.NONE)
+
+  fun createLink(title: String, url: String): HyperlinkLabel {
+    return HyperlinkLabel(title).apply {
+      setHyperlinkTarget(url)
+    }
+  }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
@@ -69,8 +78,8 @@ internal object UiUtils {
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
   object Dialog {
-    fun show(title: String, content: JComponent, size: Dimension, project: Project?) {
-      object : DialogWrapper(project) {
+    fun show(title: String, content: JComponent, size: Dimension, project: Project?, ideModalityType: IdeModalityType = IdeModalityType.IDE) {
+      object : DialogWrapper(project, true, ideModalityType) {
         init {
           this.title = title
           setSize(size.width, size.height)
@@ -189,4 +198,16 @@ fun GridBag.overrideTopInset(topInset: Int): GridBag {
 fun JBLabel.copyable(): JBLabel {
   setCopyable(true)
   return this
+}
+
+fun JTable.getMaxRowWith(column: Int): Int {
+  var width = 0
+
+  for (row in 0 until rowCount) {
+    val renderer: TableCellRenderer = getCellRenderer(row, column)
+    val comp = prepareRenderer(renderer, row, column)
+    width = (comp.preferredSize.width + 1).coerceAtLeast(width)
+  }
+
+  return width
 }

@@ -4,7 +4,7 @@
   <vendor email="dev@marcelkliemannel.com" url="https://marcelkliemannel.com/projects/intellij-byte-code-plugin">Marcel Kliemannel</vendor>
 
   <description><![CDATA[
-<p>This IntelliJ plugin provides a modern and powerful tool window to analyze byte code. Its supports Java, Kotlin, Groovy, and other JVM language class files. Based on ASM 9.2, it currently supports class files up to Java 18.</p>
+<p>This IntelliJ plugin provides a modern and powerful tool window to analyze byte code. Its supports Java, Kotlin, Groovy, and other JVM language class files. Based on ASM 9.3, it currently supports class files up to Java 19.</p>
 
 <h2>Features</h2>
 
@@ -23,6 +23,7 @@
 <ul>
   <li>An <b>access Converter</b> to split the compressed access value into single readable values or calculate a compressed one.</li>
   <li>A <b>signature parser</b> to split a signature down into its components.</li>
+  <li>A built-in <b>overview of all byte code instructions</b>.</li>
 </ul>
 
 <h3>Other</h3>
@@ -72,6 +73,7 @@
 
     <byteCodeTool implementation="dev.turingcomplete.intellijbytecodeplugin.tool._internal.AccessConverterTool"/>
     <byteCodeTool implementation="dev.turingcomplete.intellijbytecodeplugin.tool._internal.SignatureParserTool"/>
+    <byteCodeTool implementation="dev.turingcomplete.intellijbytecodeplugin.tool._internal.InstructionsOverviewTool"/>
 
     <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureView$MyCreator"/>

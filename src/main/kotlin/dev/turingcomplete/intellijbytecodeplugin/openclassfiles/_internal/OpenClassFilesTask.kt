@@ -87,7 +87,7 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
   // -- Initialization ---------------------------------------------------------------------------------------------- //
 
   private val compilerManager by lazy { CompilerManager.getInstance(project) }
-  private val projectFileIndex by lazy { ProjectFileIndex.SERVICE.getInstance(project) }
+  private val projectFileIndex by lazy { ProjectFileIndex.getInstance(project) }
 
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 

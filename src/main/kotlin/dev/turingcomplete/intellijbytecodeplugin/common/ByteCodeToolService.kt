@@ -15,8 +15,8 @@ class ByteCodeToolService(val project: Project) {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   private val openClassFile: (VirtualFile) -> Unit = {
-    val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(ByteCodeToolWindowFactory.ID)
-                     ?: throw IllegalStateException("Could not find tool window '${ByteCodeToolWindowFactory.ID}'")
+    val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(ByteCodeToolWindowFactory.TOOL_WINDOW_ID)
+                     ?: throw IllegalStateException("Could not find tool window '${ByteCodeToolWindowFactory.TOOL_WINDOW_ID}'")
     ByteCodeToolWindowFactory.openClassFile(it, toolWindow, project)
   }
 

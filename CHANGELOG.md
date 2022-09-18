@@ -9,6 +9,14 @@
 
 ### Fixed
 
+## [2.4.0] - 2022-09-18
+### Added
+- Add a built-in overview of all byte code instructions
+- Add class file version mapping for Java 19
+
+### Fixed
+- Prevent potential NPE in the drag and drop mechanism
+
 ## [2.3.0] - 2022-05-21
 ### Changed
 - Update bundled ASM to 9.3
