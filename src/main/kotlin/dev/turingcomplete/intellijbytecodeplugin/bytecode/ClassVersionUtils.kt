@@ -1,27 +1,30 @@
 package dev.turingcomplete.intellijbytecodeplugin.bytecode
 
+import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
+
 object ClassVersionUtils {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
-  val CLASS_VERSIONS = arrayOf(ClassVersion(63, "Java SE 19"),
-                               ClassVersion(62, "Java SE 18"),
-                               ClassVersion(61, "Java SE 17"),
-                               ClassVersion(60, "Java SE 16"),
-                               ClassVersion(59, "Java SE 15"),
-                               ClassVersion(58, "Java SE 14"),
-                               ClassVersion(57, "Java SE 13"),
-                               ClassVersion(56, "Java SE 12"),
-                               ClassVersion(55, "Java SE 11"),
-                               ClassVersion(54, "Java SE 10"),
-                               ClassVersion(53, "Java SE 9"),
-                               ClassVersion(52, "Java SE 8"),
-                               ClassVersion(51, "Java SE 7"),
-                               ClassVersion(50, "Java SE 6.0"),
-                               ClassVersion(49, "Java SE 5.0"),
-                               ClassVersion(48, "JDK 1.4"),
-                               ClassVersion(47, "JDK 1.3"),
-                               ClassVersion(46, "JDK 1.2"),
-                               ClassVersion(45, "JDK 1.1"))
+  val CLASS_VERSIONS = arrayOf(ClassVersion(Opcodes.V20.toByte(), "Java SE 20"),
+                               ClassVersion(Opcodes.V19.toByte(), "Java SE 19"),
+                               ClassVersion(Opcodes.V18.toByte(), "Java SE 18"),
+                               ClassVersion(Opcodes.V17.toByte(), "Java SE 17"),
+                               ClassVersion(Opcodes.V16.toByte(), "Java SE 16"),
+                               ClassVersion(Opcodes.V15.toByte(), "Java SE 15"),
+                               ClassVersion(Opcodes.V14.toByte(), "Java SE 14"),
+                               ClassVersion(Opcodes.V13.toByte(), "Java SE 13"),
+                               ClassVersion(Opcodes.V12.toByte(), "Java SE 12"),
+                               ClassVersion(Opcodes.V11.toByte(), "Java SE 11"),
+                               ClassVersion(Opcodes.V10.toByte(), "Java SE 10"),
+                               ClassVersion(Opcodes.V9.toByte(), "Java SE 9"),
+                               ClassVersion(Opcodes.V1_8.toByte(), "Java SE 8"),
+                               ClassVersion(Opcodes.V1_7.toByte(), "Java SE 7"),
+                               ClassVersion(Opcodes.V1_6.toByte(), "Java SE 6.0"),
+                               ClassVersion(Opcodes.V1_5.toByte(), "Java SE 5.0"),
+                               ClassVersion(Opcodes.V1_4.toByte(), "JDK 1.4"),
+                               ClassVersion(Opcodes.V1_3.toByte(), "JDK 1.3"),
+                               ClassVersion(Opcodes.V1_2.toByte(), "JDK 1.2"),
+                               ClassVersion(Opcodes.V1_1.toByte(), "JDK 1.1"))
 
   val MAJOR_TO_CLASS_VERSION: Map<Byte, ClassVersion> = CLASS_VERSIONS.associateBy { it.major }
 

@@ -14,7 +14,7 @@ Class files can be opened directly from the tool window or the "Analyze Byte Cod
 
 If the editor is the origin of the action execution, the analyzer will pick the class relative to the current cursor position. With this, it is easy to analyze inner, locale, or anonymous classes.
 
-The plugin currently uses [ASM 9.3](https://asm.ow2.io) under the hood, supporting JVM class files up to version 19.
+The plugin currently uses [ASM 9.4](https://asm.ow2.io) under the hood, supporting JVM class files up to version 19.
 
 ## Features
 

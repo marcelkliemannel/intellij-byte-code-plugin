@@ -4,7 +4,7 @@
   <vendor email="dev@marcelkliemannel.com" url="https://marcelkliemannel.com/projects/intellij-byte-code-plugin">Marcel Kliemannel</vendor>
 
   <description><![CDATA[
-<p>This IntelliJ plugin provides a modern and powerful tool window to analyze byte code. Its supports Java, Kotlin, Groovy, and other JVM language class files. Based on ASM 9.3, it currently supports class files up to Java 19.</p>
+<p>This IntelliJ plugin provides a modern and powerful tool window to analyze byte code. Its supports Java, Kotlin, Groovy, and other JVM language class files. Based on ASM 9.4, it currently supports class files up to Java 20.</p>
 
 <h2>Features</h2>
 
