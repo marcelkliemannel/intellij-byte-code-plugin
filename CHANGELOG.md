@@ -9,6 +9,10 @@
 
 ### Fixed
 
+## [2.5.0] - 2022-10-13
+### Added
+- Update to ASM 9.4 to support Java 20
+
 ## [2.4.0] - 2022-09-18
 ### Added
 - Add a built-in overview of all byte code instructions
