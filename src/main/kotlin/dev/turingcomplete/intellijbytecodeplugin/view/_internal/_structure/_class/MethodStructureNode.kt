@@ -11,16 +11,33 @@ import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.GoToP
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureTreeContext
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.*
 import java.util.*
+import javax.swing.Icon
 
 internal class MethodStructureNode(private val methodNode: MethodNode, private val classNode: ClassNode)
-  : ValueNode(displayValue = { ctx -> MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, true) },
-              rawValue = { ctx -> MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, false) },
-              icon = AllIcons.Nodes.Method) {
+  : ValueNode(displayValue = createDisplayValueProvider(methodNode, classNode),
+              rawValue = createRawValueProvider(methodNode, classNode),
+              icon = createIcon(methodNode)) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
+
+  companion object {
+
+    private fun createDisplayValueProvider(methodNode: MethodNode, classNode: ClassNode): (StructureTreeContext) -> String = { ctx ->
+      MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, true)
+    }
+
+    private fun createRawValueProvider(methodNode: MethodNode, classNode: ClassNode): (StructureTreeContext) -> String = { ctx ->
+      MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, false)
+    }
+
+    private fun createIcon(methodNode: MethodNode): Icon {
+      return if (Access.ABSTRACT.check(methodNode.access)) AllIcons.Nodes.AbstractMethod else AllIcons.Nodes.Method
+    }
+  }
+
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
-  private val sortedLocalVariables = methodNode.localVariables?.sortedBy { it.index }
+  private val sortedLocalVariables : List<LocalVariableNode>? = methodNode.localVariables?.sortedBy { it.index }
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
 
