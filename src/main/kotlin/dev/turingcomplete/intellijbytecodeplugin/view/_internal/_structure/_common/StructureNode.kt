@@ -162,9 +162,7 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
                          visibleAnnotations: List<AnnotationNode>?,
                          invisibleAnnotations: List<AnnotationNode>?) {
 
-    if ((visibleAnnotations == null || visibleAnnotations.isEmpty())
-        && (invisibleAnnotations == null || invisibleAnnotations.isEmpty())) {
-
+    if (visibleAnnotations.isNullOrEmpty() && invisibleAnnotations.isNullOrEmpty()) {
       return
     }
 

@@ -8,6 +8,8 @@
 ### Removed
 
 ### Fixed
+- Fix parameters are not showing for abstract methods in the tree structure 
+- Fix misleading icon for abstract methods in the tree structure
 
 ## [2.5.0] - 2022-10-13
 ### Added
