@@ -16,6 +16,7 @@
 ### Fixed
 - Fix parameters are not showing for abstract methods in the tree structure 
 - Fix misleading icon for abstract methods in the tree structure
+- Fix display of class version in the structure view if the ASM ClassNode version is represented as a negative
 
 ## [2.5.0] - 2022-10-13
 ### Added

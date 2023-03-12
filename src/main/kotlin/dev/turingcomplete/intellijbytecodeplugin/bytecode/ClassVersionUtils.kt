@@ -32,17 +32,27 @@ object ClassVersionUtils {
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
   fun toClassVersion(asmClassVersion: Int): ClassVersion? {
-    val major = (asmClassVersion and 0xFF).toByte()
-    val minor = (asmClassVersion shr 8 and 0xFF).toByte()
+    val (major, minor) = parseMajorMinor(asmClassVersion)
     return if (minor == 0.toByte()) MAJOR_TO_CLASS_VERSION[major] else null
   }
 
+  fun toMajorMinorString(asmClassVersion: Int): String {
+    val (major, minor) = parseMajorMinor(asmClassVersion)
+    return major.toString() + (if (minor != 0.toByte()) ".$minor" else "")
+  }
+
   // -- Private Methods --------------------------------------------------------------------------------------------- //
+
+  private fun parseMajorMinor(asmClassVersion: Int): Pair<Byte, Byte> {
+    val major = (asmClassVersion and 0xFF).toByte()
+    val minor = (asmClassVersion shr 8 and 0xFF).toByte()
+    return Pair(major, minor)
+  }
+
+  // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
   data class ClassVersion(val major: Byte, val specification: String) {
 
     override fun toString() = "$major ($specification)"
   }
-
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
 }
