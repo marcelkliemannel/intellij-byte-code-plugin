@@ -5,7 +5,12 @@ import com.intellij.ide.DefaultTreeExpander
 import com.intellij.ide.actions.CollapseAllAction
 import com.intellij.ide.actions.ExpandAllAction
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.DataProvider
+import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.PlatformDataKeys
+import com.intellij.openapi.actionSystem.Toggleable
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.LoadingNode
@@ -14,6 +19,8 @@ import com.intellij.ui.scale.JBUIScale
 import com.intellij.ui.tree.AsyncTreeModel
 import com.intellij.ui.tree.BaseTreeModel
 import com.intellij.ui.treeStructure.Tree
+import com.intellij.util.concurrency.Invoker
+import com.intellij.util.concurrency.InvokerSupplier
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.tree.TreeUtil
@@ -31,7 +38,11 @@ import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._comm
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.ValueNode
 import org.jetbrains.annotations.TestOnly
 import java.awt.Component
-import java.awt.event.*
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
+import java.awt.event.InputEvent
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import java.util.*
 import javax.swing.AbstractCellEditor
 import javax.swing.JLabel
@@ -40,8 +51,8 @@ import javax.swing.tree.TreeCellEditor
 import javax.swing.tree.TreeCellRenderer
 import javax.swing.tree.TreeNode
 
-internal class StructureTree(classFileContext: ClassFileContext, parent: Disposable)
-  : Tree(AsyncTreeModel(StructureTreeModel(classFileContext), true, parent)), DataProvider {
+internal class StructureTree(classFileContext: ClassFileContext, parent: Disposable) :
+  Tree(AsyncTreeModel(StructureTreeModel(classFileContext), true, parent)), DataProvider {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
@@ -124,9 +135,11 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  private class StructureTreeModel(private val classFileContext: ClassFileContext) : BaseTreeModel<TreeNode>() {
+  private class StructureTreeModel(private val classFileContext: ClassFileContext) :
+    BaseTreeModel<TreeNode>(), InvokerSupplier {
 
     var rootNode: ClassStructureNode? = null
+    private val myInvoker = Invoker.forBackgroundThreadWithoutReadAction(this)
 
     override fun getRoot(): ClassStructureNode {
       if (rootNode == null) {
@@ -149,6 +162,8 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
       rootNode = createRootNode()
       treeStructureChanged(null, null, null)
     }
+
+    override fun getInvoker(): Invoker = myInvoker
 
     private fun createRootNode(): ClassStructureNode {
       return ClassStructureNode(classFileContext.classNode(), classFileContext.classFile())
