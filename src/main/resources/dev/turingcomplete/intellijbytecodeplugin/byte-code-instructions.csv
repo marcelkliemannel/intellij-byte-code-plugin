@@ -185,8 +185,8 @@ lstore_3|66||value →|Store a long value in a local variable 3
 lsub|101||value1, value2 → result|Subtract two longs
 lushr|125||value1, value2 → result|Bitwise shift right of a long value1 by int value2 positions, unsigned
 lxor|131||value1, value2 → result|Bitwise XOR of two longs
-monitorenter|194||objectref →|Enter monitor for object ("grab the lock" – start of synchronized() section)
-monitorexit|195||objectref →|Exit monitor for object exit monitor for object ("release the lock" – end of synchronized() section)
+monitorenter|194||objectref →|"Enter monitor for object (\""grab the lock\"" – start of synchronized() section)"""
+monitorexit|195||objectref →|"Exit monitor for object exit monitor for object (\""release the lock\"" – end of synchronized() section)"
 multianewarray|197|3: indexbyte1, indexbyte2, dimensions|count1, [count2, ...] → arrayref|Create a new array of dimensions dimensions of type identified by class reference in constant pool index (indexbyte1 << 8 | indexbyte2); the sizes of each dimension is identified by count1, [count2, etc.]
 new|187|2: indexbyte1, indexbyte2|→ objectref|Create new object of type identified by class reference in constant pool index (indexbyte1 << 8 | indexbyte2)
 newarray|188|1: atype|count → arrayref|Create new array with count elements of primitive type identified by atype

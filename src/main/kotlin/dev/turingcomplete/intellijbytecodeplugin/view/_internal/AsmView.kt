@@ -5,6 +5,7 @@ import com.intellij.codeInsight.actions.ReformatCodeProcessor
 import com.intellij.icons.AllIcons
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.application.ApplicationManager
@@ -67,6 +68,8 @@ class AsmView(classFileContext: ClassFileContext)
         }
       }
     }
+
+    override fun getActionUpdateThread() = ActionUpdateThread.EDT
 
     private fun createPsiFile(asmifiedText: String): PsiFile? {
       return ApplicationManager.getApplication().runReadAction(Computable<PsiFile?> {

@@ -3,10 +3,7 @@ package dev.turingcomplete.intellijbytecodeplugin.view
 import com.intellij.icons.AllIcons
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.ide.ui.LafManagerListener
-import com.intellij.openapi.actionSystem.ActionGroup
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.LogicalPosition
@@ -28,11 +25,12 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.util.DocumentUtil
 import com.intellij.util.PlatformIcons
 import com.intellij.util.ui.EmptyIcon
+import com.intellij.util.ui.GridBag
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory.Companion.TOOLBAR_PLACE_PREFIX
-import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideLeftInset
+import dev.turingcomplete.intellijbytecodeplugin._ui.withCommonsDefaults
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
@@ -83,7 +81,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
   override fun createCenterComponent(): JComponent {
     return SimpleToolWindowPanel(true, false).apply {
       toolbar = JPanel(GridBagLayout()).apply {
-        val bag = UiUtils.createDefaultGridBag().setDefaultAnchor(GridBagConstraints.WEST)
+        val bag = GridBag().withCommonsDefaults().setDefaultAnchor(GridBagConstraints.WEST)
         add(createToolbarActionsComponent(this), bag.nextLine().next().fillCellHorizontally().weightx(1.0))
         add(parsingIndicatorLabel.apply { border = JBUI.Borders.empty(2) }, bag.next().fillCellVertically())
         add(goToMethodsLink, bag.next().fillCellHorizontally().overrideLeftInset(2).overrideLeftInset(2))
@@ -181,6 +179,8 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
           val enabled = isByteCodeParsingResultAvailable()
           e.presentation.isEnabled = enabled
         }
+
+        override fun getActionUpdateThread() = ActionUpdateThread.BGT
       })
 
       addSeparator()
@@ -312,6 +312,8 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
     override fun updateButton(e: AnActionEvent) {
       e.presentation.icon = if (isSelected()) PlatformIcons.CHECK_ICON else EmptyIcon.create(PlatformIcons.CHECK_ICON)
     }
+
+    override fun getActionUpdateThread() = ActionUpdateThread.EDT
   }
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //

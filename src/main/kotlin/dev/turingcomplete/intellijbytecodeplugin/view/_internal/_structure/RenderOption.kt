@@ -1,5 +1,6 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.ui.DumbAwareActionButton
 import com.intellij.util.PlatformIcons
@@ -26,6 +27,8 @@ internal class RenderOption(renderModeName: String,
       EmptyIcon.create(PlatformIcons.CHECK_ICON)
     }
   }
+
+  override fun getActionUpdateThread() = ActionUpdateThread.EDT
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
   // -- Inner Type -------------------------------------------------------------------------------------------------- //

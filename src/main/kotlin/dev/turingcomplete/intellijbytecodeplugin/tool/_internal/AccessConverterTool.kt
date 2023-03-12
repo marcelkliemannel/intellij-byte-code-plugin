@@ -7,13 +7,11 @@ import com.intellij.ui.EnumComboBoxModel
 import com.intellij.ui.IdeBorderFactory
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.components.JBLabel
+import com.intellij.util.ui.GridBag
 import com.intellij.util.ui.UIUtil
+import dev.turingcomplete.intellijbytecodeplugin._ui.*
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.AccessGroup
 import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
-import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
-import dev.turingcomplete.intellijbytecodeplugin._ui.copyable
-import dev.turingcomplete.intellijbytecodeplugin._ui.overrideLeftInset
-import dev.turingcomplete.intellijbytecodeplugin._ui.overrideTopInset
 import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
@@ -53,7 +51,7 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
     accessField.document.addDocumentListener(this)
 
     UiUtils.Dialog.show("Access Converter", ScrollPaneFactory.createScrollPane(JPanel(GridBagLayout()).apply {
-      val bag = UiUtils.createDefaultGridBag().setDefaultAnchor(GridBagConstraints.WEST)
+      val bag = GridBag().withCommonsDefaults().setDefaultAnchor(GridBagConstraints.WEST)
 
       add(JLabel("Access:"), bag.nextLine().next())
       add(accessField, bag.next().overrideLeftInset(UIUtil.DEFAULT_HGAP / 2).weightx(1.0).fillCellHorizontally())
@@ -100,14 +98,14 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
 
       val accessGroups = AccessGroup.values()
 
-      val bag = UiUtils.createDefaultGridBag()
+      val bag = GridBag().withCommonsDefaults()
               .setDefaultFill(GridBagConstraints.BOTH)
               .setDefaultWeightX(0.25)
               .setDefaultWeightY(accessGroups.size.toDouble() / ACCESS_CALCULATORS_IN_ONE_ROW)
 
       var x = 0
       var y = 0
-      for (i in 1..accessGroups.size) {
+      for (i in 0 until accessGroups.size) {
         val cellBag = (if (x == 0) bag.nextLine().next() else bag.next())
         if (y > 0) {
           cellBag.overrideTopInset(UIUtil.LARGE_VGAP)
@@ -115,9 +113,9 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
         if (x > 0) {
           cellBag.overrideLeftInset(UIUtil.DEFAULT_HGAP)
         }
-        add(AccessCalculatorPanel(accessGroups[i - 1]), cellBag)
+        add(AccessCalculatorPanel(accessGroups[i]), cellBag)
 
-        if (i > 0 && i % ACCESS_CALCULATORS_IN_ONE_ROW == 0) {
+        if ((i + 1) % ACCESS_CALCULATORS_IN_ONE_ROW == 0) {
           x = 0
           y++
         }

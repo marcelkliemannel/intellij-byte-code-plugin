@@ -8,11 +8,13 @@ import com.intellij.ui.JBColor
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextArea
+import com.intellij.util.ui.GridBag
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodePluginIcons
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideTopInset
+import dev.turingcomplete.intellijbytecodeplugin._ui.withCommonsDefaults
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
@@ -30,6 +32,7 @@ import javax.swing.BorderFactory
 import javax.swing.JPanel
 import javax.swing.SwingConstants
 
+@Suppress("ComponentNotRegistered")
 internal class VerifyByteCodeAction : ByteCodeAction("Verify Byte Code", null, ByteCodePluginIcons.VERIFY_ICON) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
@@ -64,7 +67,7 @@ internal class VerifyByteCodeAction : ByteCodeAction("Verify Byte Code", null, B
 
   private class VerifyByteCodeResultPanel(result: ClassFileContext.VerificationResult) : JPanel(GridBagLayout()) {
     init {
-      val bag = UiUtils.createDefaultGridBag().setDefaultFill(GridBagConstraints.HORIZONTAL)
+      val bag = GridBag().withCommonsDefaults().setDefaultFill(GridBagConstraints.HORIZONTAL)
 
       val stateLabel = if (result.success) {
         JBLabel("Byte code verified.", AllIcons.General.InspectionsOK, SwingConstants.LEFT)

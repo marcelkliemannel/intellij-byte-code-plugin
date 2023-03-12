@@ -7,11 +7,12 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextField
+import com.intellij.util.ui.GridBag
 import com.intellij.util.ui.UIUtil
-import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.copyable
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideLeftInset
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideTopInset
+import dev.turingcomplete.intellijbytecodeplugin._ui.withCommonsDefaults
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.Access
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.signature.SignatureReader
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.TraceSignatureVisitor
@@ -92,7 +93,7 @@ internal class SignatureParserTool : ByteCodeTool("Signature Parser") {
     }
 
     override fun createCenterPanel() = JPanel(GridBagLayout()).apply {
-      val bag = UiUtils.createDefaultGridBag().setDefaultAnchor(GridBagConstraints.WEST)
+      val bag = GridBag().withCommonsDefaults().setDefaultAnchor(GridBagConstraints.WEST)
 
       add(JLabel("Signature:"), bag.nextLine().next())
       add(signatureField, bag.next().overrideLeftInset(UIUtil.DEFAULT_HGAP / 2).weightx(1.0).fillCellHorizontally())
@@ -130,7 +131,7 @@ internal class SignatureParserTool : ByteCodeTool("Signature Parser") {
     private fun parseSignature() {
       resultContainer.removeAll()
 
-      val bag = UiUtils.createDefaultGridBag().setDefaultAnchor(GridBagConstraints.WEST)
+      val bag = GridBag().withCommonsDefaults().setDefaultAnchor(GridBagConstraints.WEST)
 
       val parsingResult = parseSignature(signatureField.text)
       if (parsingResult.error != null) {

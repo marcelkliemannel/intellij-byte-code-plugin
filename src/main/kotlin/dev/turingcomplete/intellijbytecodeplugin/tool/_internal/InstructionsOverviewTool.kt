@@ -5,11 +5,9 @@ import com.intellij.openapi.ui.DialogWrapper.IdeModalityType
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.TableSpeedSearch
 import com.intellij.ui.table.JBTable
+import com.intellij.util.ui.GridBag
 import com.intellij.util.ui.UIUtil
-import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
-import dev.turingcomplete.intellijbytecodeplugin._ui.getMaxRowWith
-import dev.turingcomplete.intellijbytecodeplugin._ui.overrideLeftInset
-import dev.turingcomplete.intellijbytecodeplugin._ui.overrideTopInset
+import dev.turingcomplete.intellijbytecodeplugin._ui.*
 import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
 import java.awt.Component
 import java.awt.Dimension
@@ -45,7 +43,7 @@ class InstructionsOverviewTool : ByteCodeTool("Instructions Overview") {
     }
 
     UiUtils.Dialog.show("Instructions Overview", JPanel(GridBagLayout()).apply {
-      val bag = UiUtils.createDefaultGridBag().setDefaultAnchor(GridBagConstraints.WEST)
+      val bag = GridBag().withCommonsDefaults().setDefaultAnchor(GridBagConstraints.WEST)
 
       val table = ScrollPaneFactory.createScrollPane(InstructionsTable())
       add(table, bag.nextLine().next().coverLine().fillCell().weightx(1.0).weighty(1.0))

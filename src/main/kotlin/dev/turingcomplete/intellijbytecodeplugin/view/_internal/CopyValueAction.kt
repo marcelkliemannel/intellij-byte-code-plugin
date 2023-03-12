@@ -1,5 +1,6 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.DumbAwareAction
@@ -22,6 +23,8 @@ class CopyValueAction : DumbAwareAction("Copy Value", null, PlatformIcons.COPY_I
     val value = DataProviderUtils.getData(CommonDataKeys.VALUE, e.dataContext)
     CopyPasteManager.getInstance().setContents(StringSelection(value))
   }
+
+  override fun getActionUpdateThread() = ActionUpdateThread.EDT
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
   // -- Inner Type -------------------------------------------------------------------------------------------------- //

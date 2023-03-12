@@ -6,6 +6,7 @@ import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.DataProviderUtils
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction
 
+@Suppress("ComponentNotRegistered")
 internal class ReParseByteCodeAction : ByteCodeAction("Re-Parse Class File", null, AllIcons.Actions.Refresh) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //

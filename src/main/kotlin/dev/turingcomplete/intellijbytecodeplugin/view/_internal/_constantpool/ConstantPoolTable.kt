@@ -1,6 +1,9 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._constantpool
 
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DataProvider
+import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.ui.TableSpeedSearch
 import com.intellij.ui.components.JBLabel
@@ -167,7 +170,7 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
           add(ViewValueAction())
         }
         ActionManager.getInstance()
-                .createActionPopupMenu(ActionPlaces.UNKNOWN, actions)
+                .createActionPopupMenu(ConstantPoolTable::class.java.simpleName, actions)
                 .component
                 .show(event.getComponent(), event.x, event.y)
       }

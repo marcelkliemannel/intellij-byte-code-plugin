@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package dev.turingcomplete.intellijbytecodeplugin.view
 
 import com.intellij.openapi.actionSystem.DefaultActionGroup

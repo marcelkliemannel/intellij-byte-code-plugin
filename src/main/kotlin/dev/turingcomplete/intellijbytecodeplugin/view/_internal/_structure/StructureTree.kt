@@ -14,7 +14,6 @@ import com.intellij.ui.scale.JBUIScale
 import com.intellij.ui.tree.AsyncTreeModel
 import com.intellij.ui.tree.BaseTreeModel
 import com.intellij.ui.treeStructure.Tree
-import com.intellij.util.castSafelyTo
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.tree.TreeUtil
@@ -40,7 +39,6 @@ import javax.swing.JTree
 import javax.swing.tree.TreeCellEditor
 import javax.swing.tree.TreeCellRenderer
 import javax.swing.tree.TreeNode
-import javax.swing.tree.TreePath
 
 internal class StructureTree(classFileContext: ClassFileContext, parent: Disposable)
   : Tree(AsyncTreeModel(StructureTreeModel(classFileContext), true, parent)), DataProvider {
@@ -93,7 +91,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
   }
 
   override fun getData(dataId: String): Any? {
-    val selectedStructureNode = selectionModel.selectionPath?.lastPathComponent.castSafelyTo<StructureNode>() ?: return null
+    val selectedStructureNode = selectionModel.selectionPath?.lastPathComponent as? StructureNode ?: return null
 
     return when {
       PlatformDataKeys.PREDEFINED_TEXT.`is`(dataId) -> selectedStructureNode.goToProvider?.value
@@ -107,11 +105,10 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
   private fun installSearchHandler() {
-    val treePathToSearchString: (TreePath) -> String? = { treePath ->
+    TreeSpeedSearch(this, true) { treePath ->
       val lastPathComponent = treePath.lastPathComponent
       if (lastPathComponent is StructureNode) lastPathComponent.searchText(context) else null
     }
-    TreeSpeedSearch(this, treePathToSearchString, true)
   }
 
   private fun syncTree(): () -> Unit = {
@@ -241,7 +238,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
       }
 
       ActionManager.getInstance()
-              .createActionPopupMenu(ActionPlaces.UNKNOWN, actions)
+              .createActionPopupMenu(StructureTree::class.java.simpleName, actions)
               .component
               .show(event.getComponent(), event.x, event.y)
     }

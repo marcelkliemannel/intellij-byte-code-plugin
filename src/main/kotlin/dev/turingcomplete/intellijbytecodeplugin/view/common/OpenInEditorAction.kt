@@ -1,6 +1,7 @@
 package dev.turingcomplete.intellijbytecodeplugin.view.common
 
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
@@ -21,6 +22,8 @@ class OpenInEditorAction(@Nullable @NlsActions.ActionText text: String = "Open i
   override fun update(e: AnActionEvent) {
     e.presentation.isEnabled = CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.getData(e.dataContext) != null
   }
+
+  override fun getActionUpdateThread() = ActionUpdateThread.BGT
 
   override fun actionPerformed(e: AnActionEvent) {
     val openInEditorFile = CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.getData(e.dataContext) ?: return

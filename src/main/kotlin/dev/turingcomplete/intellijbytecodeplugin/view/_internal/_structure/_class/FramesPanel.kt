@@ -88,6 +88,8 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
           fireTableDataChanged()
         }
       }
+
+      override fun getActionUpdateThread() = ActionUpdateThread.EDT
     }
   }
 
@@ -209,7 +211,7 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
           add(ViewValueAction())
         }
         ActionManager.getInstance()
-                .createActionPopupMenu(ActionPlaces.UNKNOWN, actions)
+                .createActionPopupMenu("${ByteCodeToolWindowFactory.POPUPMENU_PLACE_PREFIX}.framestable", actions)
                 .component
                 .show(event.getComponent(), event.x, event.y)
       }

@@ -8,6 +8,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.DataProviderUtils
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction
 
+@Suppress("ComponentNotRegistered")
 internal class DecompileByteCodeAction : ByteCodeAction("Decompile Class File", null, AllIcons.Toolwindows.ToolWindowBuild) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //

@@ -1,5 +1,6 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAwareAction
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
@@ -20,6 +21,8 @@ class ViewValueAction : DumbAwareAction("View Value") {
     val value = DataProviderUtils.getData(CommonDataKeys.VALUE, e.dataContext)
     UiUtils.PopUp.showTextAreaPopup(value, e.dataContext)
   }
+
+  override fun getActionUpdateThread() = ActionUpdateThread.EDT
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
   // -- Inner Type -------------------------------------------------------------------------------------------------- //

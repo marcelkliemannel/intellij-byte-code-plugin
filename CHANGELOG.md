@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- Compatibility improvements for IntelliJ 2023.1
 
 ### Removed
 

@@ -106,7 +106,7 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
                                          addElementsAsync: Boolean = false,
                                          mapElement: (Int, T) -> StructureNode) {
 
-    if (elements != null && elements.isNotEmpty()) {
+    if (!elements.isNullOrEmpty()) {
       val addElements: TextNode.() -> Unit = {
         elements.mapIndexed(mapElement).forEach { elementNode ->
           add(elementNode)
