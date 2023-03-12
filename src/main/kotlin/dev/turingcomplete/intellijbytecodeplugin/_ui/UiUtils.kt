@@ -38,7 +38,7 @@ internal object UiUtils {
 
     private var NUMBER_FIELD_REG_EX: Pattern = Pattern.compile("^\\d+$")
 
-    fun createNumberField(value: Int? = null, columns: Int = 0) = JFormattedTextField(DecimalFormat("0")).apply {
+    fun createNumberField(value: Int? = null, columns: Int = 20) = JFormattedTextField(DecimalFormat("0")).apply {
       this.value = value
       this.columns = columns
       this.background = UIUtil.getTextFieldBackground()

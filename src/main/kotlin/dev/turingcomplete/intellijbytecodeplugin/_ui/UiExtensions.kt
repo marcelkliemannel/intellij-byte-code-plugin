@@ -3,8 +3,10 @@ package dev.turingcomplete.intellijbytecodeplugin._ui
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.render.RenderingUtil
 import com.intellij.util.ui.GridBag
+import com.intellij.util.ui.JBFont
 import com.intellij.util.ui.JBUI
 import java.awt.Color
+import java.awt.Font
 import java.awt.GridBagConstraints
 import javax.swing.JComponent
 import javax.swing.JTable
@@ -13,6 +15,8 @@ import javax.swing.table.TableCellRenderer
 
 // -- Properties ---------------------------------------------------------------------------------------------------- //
 // -- Exposed Methods ----------------------------------------------------------------------------------------------- //
+
+fun JBFont.toMonospace(): JBFont = JBFont.create(Font(Font.MONOSPACED, this.style, this.size))
 
 fun GridBag.withCommonsDefaults() = this
         .setDefaultAnchor(GridBagConstraints.NORTHWEST)

@@ -7,6 +7,7 @@
 ### Changed
 - Compatibility improvements for IntelliJ 2023.1
 - Compatibility improvements for IntelliJ's "new UI"
+- UI improvements in the access converter
 
 ### Removed
 
