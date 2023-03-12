@@ -2,12 +2,14 @@
 
 ## [Unreleased]
 ### Added
-- Automatically run code style format in the ASM view
+- Automatically run code style formatting in the ASM view
+- Add Java class versions overview
 
 ### Changed
 - Compatibility improvements for IntelliJ 2023.1
 - Compatibility improvements for IntelliJ's "new UI"
 - UI improvements in the access converter
+- Change order of tabs, for better accessibility
 
 ### Removed
 
