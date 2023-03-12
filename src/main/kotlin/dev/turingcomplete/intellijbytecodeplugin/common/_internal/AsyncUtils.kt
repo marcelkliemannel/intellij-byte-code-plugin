@@ -9,6 +9,9 @@ internal object AsyncUtils {
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
+  fun runAsync(project: Project, execute: Runnable, onError: (Throwable) -> Unit) =
+    runAsync(project, { execute.run(); null }, {}, onError)
+
   fun <V> runAsync(project: Project, execute: Callable<V>, onSuccess: (V) -> Unit, onError: (Throwable) -> Unit) {
     ApplicationManager.getApplication().executeOnPooledThread {
       try {
