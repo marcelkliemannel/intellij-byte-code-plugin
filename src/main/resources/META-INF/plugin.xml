@@ -74,15 +74,16 @@
     <byteCodeTool implementation="dev.turingcomplete.intellijbytecodeplugin.tool._internal.AccessConverterTool"/>
     <byteCodeTool implementation="dev.turingcomplete.intellijbytecodeplugin.tool._internal.SignatureParserTool"/>
     <byteCodeTool implementation="dev.turingcomplete.intellijbytecodeplugin.tool._internal.InstructionsOverviewTool"/>
+    <byteCodeTool implementation="dev.turingcomplete.intellijbytecodeplugin.tool._internal.ClassVersionsOverviewTool"/>
 
     <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureView$MyCreator"/>
     <byteCodeView
-            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._constantpool.ConstantPoolView$MyCreator"/>
-    <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.PlainView$MyCreator"/>
     <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.AsmView$MyCreator"/>
+    <byteCodeView
+            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._constantpool.ConstantPoolView$MyCreator"/>
 
     <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.ReParseByteCodeAction"/>
     <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.DecompileByteCodeAction"/>

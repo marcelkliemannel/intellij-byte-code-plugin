@@ -9,7 +9,8 @@ import com.intellij.openapi.vfs.jrt.JrtFileSystem
 import com.intellij.openapi.vfs.newvfs.ArchiveFileSystem
 import com.intellij.util.text.DateFormatUtil
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.AccessGroup
-import dev.turingcomplete.intellijbytecodeplugin.bytecode.ClassVersionUtils
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.ClassVersionUtils.toClassVersion
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.ClassVersionUtils.toMajorMinorString
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
@@ -78,8 +79,8 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
   private fun addClassVersionNode() {
-    add(HtmlTextNode("Class version:", classNode.version.toString(),
-                     postFix = ClassVersionUtils.toClassVersion(classNode.version)?.let {
+    add(HtmlTextNode("Class version:", toMajorMinorString(classNode.version),
+                     postFix = toClassVersion(classNode.version)?.let {
                        "<span class=\"contextHelp\">${it.specification}</span>"
                      },
                      icon = AllIcons.FileTypes.Java))

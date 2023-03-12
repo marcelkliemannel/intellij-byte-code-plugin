@@ -1,7 +1,13 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._class
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionUpdateThread
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DataProvider
+import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.ToggleAction
+import com.intellij.openapi.actionSystem.Toggleable
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.DumbAwareToggleAction
 import com.intellij.openapi.ui.SimpleToolWindowPanel
@@ -10,17 +16,16 @@ import com.intellij.ui.TableSpeedSearch
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.table.JBTable
 import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory
+import dev.turingcomplete.intellijbytecodeplugin._ui.CopyValueAction
+import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
+import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils.Table.getSingleSelectedValue
+import dev.turingcomplete.intellijbytecodeplugin._ui.ViewValueAction
 import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodFramesUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
-import dev.turingcomplete.intellijbytecodeplugin.view._internal.CopyValueAction
-import dev.turingcomplete.intellijbytecodeplugin.view._internal.ViewValueAction
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.RenderOption
 import java.awt.Component
-import java.awt.event.InputEvent
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
 import javax.swing.JComponent
 import javax.swing.JTable
 import javax.swing.table.AbstractTableModel
@@ -35,7 +40,7 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   private val stacksAndLocalsModel = FramesModel(initialTypeNameRenderMode, methodFrames)
-  private val table : JBTable = createFramesTable()
+  private val table: JBTable = createFramesTable()
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
 
@@ -48,7 +53,7 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
 
   override fun getData(dataId: String): Any? {
     return when {
-      CommonDataKeys.VALUE.`is`(dataId) -> getSingleSelectedValue()?.takeIf { it.isNotBlank() }
+      CommonDataKeys.VALUE.`is`(dataId) -> getSingleSelectedValue(table)?.takeIf { it.isNotBlank() }
       else -> null
     }
   }
@@ -56,8 +61,10 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
   private fun createToolbar(targetComponent: JComponent): JComponent {
-    val toolbarGroup = DefaultActionGroup(createRenderOptionsActionGroup(),
-                                          createShowMultipleValuesVerticallyToggleAction())
+    val toolbarGroup = DefaultActionGroup(
+      createRenderOptionsActionGroup(),
+      createShowMultipleValuesVerticallyToggleAction()
+    )
     return ActionManager.getInstance().createActionToolbar("${ByteCodeToolWindowFactory.TOOLBAR_PLACE_PREFIX}.methodFrames", toolbarGroup, false).run {
       setTargetComponent(targetComponent)
       component
@@ -88,19 +95,22 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
           fireTableDataChanged()
         }
       }
+
+      override fun getActionUpdateThread() = ActionUpdateThread.EDT
     }
   }
 
-  private fun getSingleSelectedValue(): String? {
-    val row = table.selectedRow
-    val column = table.selectedColumn
-    return if (row >= 0 && column >= 0) table.model.getValueAt(row, column) as String else null
-  }
-
-  private fun createFramesTable() : JBTable {
+  private fun createFramesTable(): JBTable {
     return JBTable(stacksAndLocalsModel).apply {
       setDefaultRenderer(String::class.java, FramesCellRenderer())
-      addMouseListener(FramesTableMouseAdapter())
+      addMouseListener(UiUtils.Table.createContextMenuMouseListener(
+        FramesPanel::class.java.simpleName
+      ) {
+        DefaultActionGroup().apply {
+          add(CopyValueAction())
+          add(ViewValueAction())
+        }
+      })
       TableSpeedSearch(this)
     }
   }
@@ -182,37 +192,6 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
     override fun getTableCellRendererComponent(table: JTable, value: Any, selected: Boolean, hasFocus: Boolean, row: Int, column: Int): Component {
       text = value as String
       return this.configureForCell(table, selected, hasFocus)
-    }
-  }
-
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
-
-  private inner class FramesTableMouseAdapter : MouseAdapter() {
-
-    override fun mousePressed(e: MouseEvent) {
-      handleTreeMouseEvent(e)
-    }
-
-    override fun mouseReleased(e: MouseEvent) {
-      handleTreeMouseEvent(e)
-    }
-
-    private fun handleTreeMouseEvent(event: InputEvent) {
-      if (event !is MouseEvent || !event.isPopupTrigger) {
-        return
-      }
-
-      if (getSingleSelectedValue() != null) {
-        val actions = DefaultActionGroup().apply {
-          // Copy & view action
-          add(CopyValueAction())
-          add(ViewValueAction())
-        }
-        ActionManager.getInstance()
-                .createActionPopupMenu(ActionPlaces.UNKNOWN, actions)
-                .component
-                .show(event.getComponent(), event.x, event.y)
-      }
     }
   }
 }

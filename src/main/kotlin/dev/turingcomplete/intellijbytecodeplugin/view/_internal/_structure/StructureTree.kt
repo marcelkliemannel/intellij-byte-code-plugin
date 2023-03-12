@@ -5,7 +5,11 @@ import com.intellij.ide.DefaultTreeExpander
 import com.intellij.ide.actions.CollapseAllAction
 import com.intellij.ide.actions.ExpandAllAction
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.DataProvider
+import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.PlatformDataKeys
+import com.intellij.openapi.actionSystem.Toggleable
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.LoadingNode
@@ -14,25 +18,29 @@ import com.intellij.ui.scale.JBUIScale
 import com.intellij.ui.tree.AsyncTreeModel
 import com.intellij.ui.tree.BaseTreeModel
 import com.intellij.ui.treeStructure.Tree
-import com.intellij.util.castSafelyTo
+import com.intellij.util.concurrency.Invoker
+import com.intellij.util.concurrency.InvokerSupplier
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.tree.TreeUtil
+import dev.turingcomplete.intellijbytecodeplugin._ui.CopyValueAction
+import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils.Table.createContextMenuMouseListener
+import dev.turingcomplete.intellijbytecodeplugin._ui.ViewValueAction
 import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
-import dev.turingcomplete.intellijbytecodeplugin.view._internal.CopyValueAction
-import dev.turingcomplete.intellijbytecodeplugin.view._internal.ViewValueAction
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._class.ClassStructureNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.InteractiveNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.StructureNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.ValueNode
 import org.jetbrains.annotations.TestOnly
 import java.awt.Component
-import java.awt.event.*
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
+import java.awt.event.MouseEvent
 import java.util.*
 import javax.swing.AbstractCellEditor
 import javax.swing.JLabel
@@ -40,10 +48,9 @@ import javax.swing.JTree
 import javax.swing.tree.TreeCellEditor
 import javax.swing.tree.TreeCellRenderer
 import javax.swing.tree.TreeNode
-import javax.swing.tree.TreePath
 
-internal class StructureTree(classFileContext: ClassFileContext, parent: Disposable)
-  : Tree(AsyncTreeModel(StructureTreeModel(classFileContext), true, parent)), DataProvider {
+internal class StructureTree(classFileContext: ClassFileContext, parent: Disposable) :
+  Tree(AsyncTreeModel(StructureTreeModel(classFileContext), true, parent)), DataProvider {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
@@ -56,7 +63,26 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
     setCellEditor(StructureTreeCellEditor())
     setCellRenderer(StructureTreeCellRenderer())
     isEditable = true
-    addMouseListener(StructureTreeMouseAdapter())
+    addMouseListener(createContextMenuMouseListener(StructureTree::class.java.simpleName) { event ->
+      val valueNode = getClosestPathForLocation(event.x, event.y)
+        ?.takeIf { it.lastPathComponent is ValueNode }
+        ?.let { it.lastPathComponent as ValueNode }
+
+      if (valueNode != null) {
+        DefaultActionGroup().apply {
+          valueNode.goToProvider?.let {
+            add(it.goToAction())
+            addSeparator()
+          }
+
+          add(CopyValueAction())
+          add(ViewValueAction())
+        }
+      }
+      else {
+        null
+      }
+    })
     transferHandler = FilesDropHandler(classFileContext.project())
 
     Disposer.register(parent, structureTreeModel)
@@ -93,7 +119,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
   }
 
   override fun getData(dataId: String): Any? {
-    val selectedStructureNode = selectionModel.selectionPath?.lastPathComponent.castSafelyTo<StructureNode>() ?: return null
+    val selectedStructureNode = selectionModel.selectionPath?.lastPathComponent as? StructureNode ?: return null
 
     return when {
       PlatformDataKeys.PREDEFINED_TEXT.`is`(dataId) -> selectedStructureNode.goToProvider?.value
@@ -107,11 +133,10 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
   private fun installSearchHandler() {
-    val treePathToSearchString: (TreePath) -> String? = { treePath ->
+    TreeSpeedSearch(this, true) { treePath ->
       val lastPathComponent = treePath.lastPathComponent
       if (lastPathComponent is StructureNode) lastPathComponent.searchText(context) else null
     }
-    TreeSpeedSearch(this, treePathToSearchString, true)
   }
 
   private fun syncTree(): () -> Unit = {
@@ -127,9 +152,11 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  private class StructureTreeModel(private val classFileContext: ClassFileContext) : BaseTreeModel<TreeNode>() {
+  private class StructureTreeModel(private val classFileContext: ClassFileContext) :
+    BaseTreeModel<TreeNode>(), InvokerSupplier {
 
     var rootNode: ClassStructureNode? = null
+    private val myInvoker = Invoker.forBackgroundThreadWithoutReadAction(this)
 
     override fun getRoot(): ClassStructureNode {
       if (rootNode == null) {
@@ -152,6 +179,8 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
       rootNode = createRootNode()
       treeStructureChanged(null, null, null)
     }
+
+    override fun getInvoker(): Invoker = myInvoker
 
     private fun createRootNode(): ClassStructureNode {
       return ClassStructureNode(classFileContext.classNode(), classFileContext.classFile())
@@ -205,45 +234,6 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
 
     override fun actionPerformed(e: ActionEvent?) {
       stopCellEditing()
-    }
-  }
-
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
-
-  private inner class StructureTreeMouseAdapter : MouseAdapter() {
-
-    override fun mousePressed(e: MouseEvent) {
-      handleTreeMouseEvent(e)
-    }
-
-    override fun mouseReleased(e: MouseEvent) {
-      handleTreeMouseEvent(e)
-    }
-
-    private fun handleTreeMouseEvent(event: InputEvent) {
-      if (event !is MouseEvent || !event.isPopupTrigger) {
-        return
-      }
-
-      val valueNode = getClosestPathForLocation(event.x, event.y)
-                              ?.takeIf { it.lastPathComponent is ValueNode }
-                              ?.let { it.lastPathComponent as ValueNode }
-                      ?: return
-
-      val actions = DefaultActionGroup().apply {
-        valueNode.goToProvider?.let {
-          add(it.goToAction())
-          addSeparator()
-        }
-
-        add(CopyValueAction())
-        add(ViewValueAction())
-      }
-
-      ActionManager.getInstance()
-              .createActionPopupMenu(ActionPlaces.UNKNOWN, actions)
-              .component
-              .show(event.getComponent(), event.x, event.y)
     }
   }
 

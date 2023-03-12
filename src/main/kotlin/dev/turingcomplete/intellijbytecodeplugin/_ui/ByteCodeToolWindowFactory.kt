@@ -20,7 +20,6 @@ import com.intellij.ui.JBColor
 import com.intellij.ui.LayeredIcon
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.content.ContentManager
-import com.intellij.util.castSafelyTo
 import com.intellij.util.ui.EmptyIcon
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.AnalyzeByteCodeAction
@@ -38,9 +37,10 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
     const val TOOL_WINDOW_ID = "Byte Code"
     const val PLUGIN_NAME = "Byte Code Analyzer"
     const val TOOLBAR_PLACE_PREFIX = "dev.turingcomplete.intellijbytecodeplugin.toolbar"
+    const val POPUPMENU_PLACE_PREFIX = "dev.turingcomplete.intellijbytecodeplugin.popupmenu"
 
     fun <T> getData(dataProvider: DataProvider, dataKey: DataKey<T>): Any? {
-      val project = dataProvider.getData(PROJECT.name).castSafelyTo<Project>() ?: return null
+      val project = dataProvider.getData(PROJECT.name) as? Project ?: return null
       val byteCodeToolWindow = ToolWindowManager.getInstance(project).getToolWindow(TOOL_WINDOW_ID) ?: return null
 
       val classFileTab = byteCodeToolWindow.contentManager.selectedContent?.getUserData(ClassFileTab.CLASS_FILE_TAB_KEY)
@@ -169,17 +169,15 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
 
   private fun ToolWindow.initActions(project: Project) {
     ApplicationManager.getApplication().invokeLater {
-      val helpActionGroup = DefaultActionGroup("Help", true).apply {
-        templatePresentation.icon = AllIcons.Actions.Help
-        addAll(ByteCodeRelatedLinksActionsGroup(), ReportAnIssueAction())
-      }
-
       val byteCodeToolsActionGroup = DefaultActionGroup("Byte Code Tools", true).apply {
         templatePresentation.icon = AllIcons.General.ExternalTools
         ByteCodeTool.EP.extensions.forEach { add(it.toAction()) }
-      }
 
-      setTitleActions(listOf(byteCodeToolsActionGroup, helpActionGroup))
+        addSeparator()
+
+        addAll(ByteCodeRelatedLinksActionsGroup(), ReportAnIssueAction())
+      }
+      setTitleActions(listOf(byteCodeToolsActionGroup))
 
       if (this is ToolWindowEx) {
         val newSessionActionsGroup = DefaultActionGroup(OpenClassFilesOptionsAction(project, contentManager))
@@ -191,17 +189,18 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
   private class OpenClassFilesOptionsAction(project: Project, private val contentManager: ContentManager)
-    : DefaultActionGroup("Open Class Files", true) {
+    : DefaultActionGroup("Open Class Files",  null, AllIcons.General.Add) {
 
     init {
       OpenClassFilesToolWindowAction.EP.extensions.forEach { add(it.createAsEmbeddedAction(project)) }
-      templatePresentation.icon = AllIcons.General.Add
-      templatePresentation.isVisible = contentManager.contents.isNotEmpty()
+      isPopup = true
     }
 
     override fun update(e: AnActionEvent) {
       e.presentation.isVisible = contentManager.contents.isNotEmpty()
     }
+
+    override fun getActionUpdateThread() = ActionUpdateThread.BGT
   }
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //

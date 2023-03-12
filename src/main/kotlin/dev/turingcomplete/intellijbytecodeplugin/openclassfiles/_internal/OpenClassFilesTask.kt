@@ -26,7 +26,6 @@ import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.util.ClassUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiUtil
-import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory.Companion.PLUGIN_NAME
 import java.nio.file.Path
 
 /**
@@ -243,11 +242,10 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
   fun openFiles() {
     if (errors.isNotEmpty()) {
       val message = if (errors.size == 1) {
-        "${errors[0]}\n\nPlease create a bug for the $PLUGIN_NAME plugin if this error should not occur."
+        errors[0]
       }
       else {
-        errors.joinToString("\n", transform = { "- $it" }) +
-        "\n\nPlease create a bug for the $PLUGIN_NAME plugin if one of these errors should not occur."
+        errors.joinToString("\n", transform = { "- $it" })
       }
       Messages.showErrorDialog(project, message, MESSAGE_DIALOG_TITLE)
       return

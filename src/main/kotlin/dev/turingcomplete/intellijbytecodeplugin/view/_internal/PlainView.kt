@@ -1,7 +1,7 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal
 
 import com.intellij.icons.AllIcons
-import dev.turingcomplete.intellijbytecodeplugin.bytecode.TraceUtils
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.TraceUtils.traceVisit
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.Textifier
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeParsingResultView
@@ -22,8 +22,8 @@ internal class PlainView(classFileContext: ClassFileContext)
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
-  override fun parseByteCode(parsingOptions: Int) : String {
-    return TraceUtils.traceVisit(classFileContext.classReader(), parsingOptions, Textifier())
+  override fun asyncParseByteCode(parsingOptions: Int, onSuccess: (String) -> Unit) {
+    onSuccess(traceVisit(classFileContext.classReader(), parsingOptions, Textifier()))
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //

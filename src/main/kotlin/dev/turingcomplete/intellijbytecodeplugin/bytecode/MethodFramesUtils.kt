@@ -52,14 +52,14 @@ object MethodFramesUtils {
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
   data class MethodFrames internal constructor(val labelsNames: Map<Label, String>,
-                                               val methodFrames: List<MethodFrame>)
+                                          val methodFrames: List<MethodFrame>)
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  data class MethodFrame internal constructor(val instruction: AbstractInsnNode,
-                                              val textifiedInstruction: String,
-                                              val stack: Array<Type>,
-                                              val locals: Array<Type>)
+  class MethodFrame internal constructor(val instruction: AbstractInsnNode,
+                                         val textifiedInstruction: String,
+                                         val stack: Array<Type>,
+                                         val locals: Array<Type>)
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 

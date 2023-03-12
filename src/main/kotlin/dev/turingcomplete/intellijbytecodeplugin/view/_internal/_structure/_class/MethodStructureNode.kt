@@ -6,21 +6,39 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Label
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNode
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.LabelNode
+import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.LocalVariableNode
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.MethodNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.GoToProvider
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureTreeContext
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.*
 import java.util.*
+import javax.swing.Icon
 
 internal class MethodStructureNode(private val methodNode: MethodNode, private val classNode: ClassNode)
-  : ValueNode(displayValue = { ctx -> MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, true) },
-              rawValue = { ctx -> MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, false) },
-              icon = AllIcons.Nodes.Method) {
+  : ValueNode(displayValue = createDisplayValueProvider(methodNode, classNode),
+              rawValue = createRawValueProvider(methodNode, classNode),
+              icon = createIcon(methodNode)) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
+
+  companion object {
+
+    private fun createDisplayValueProvider(methodNode: MethodNode, classNode: ClassNode): (StructureTreeContext) -> String = { ctx ->
+      MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, true)
+    }
+
+    private fun createRawValueProvider(methodNode: MethodNode, classNode: ClassNode): (StructureTreeContext) -> String = { ctx ->
+      MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, false)
+    }
+
+    private fun createIcon(methodNode: MethodNode): Icon {
+      return if (Access.ABSTRACT.check(methodNode.access)) AllIcons.Nodes.AbstractMethod else AllIcons.Nodes.Method
+    }
+  }
+
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
-  private val sortedLocalVariables = methodNode.localVariables?.sortedBy { it.index }
+  private val sortedLocalVariables : List<LocalVariableNode>? = methodNode.localVariables?.sortedBy { it.index }
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
 
@@ -34,8 +52,10 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
       addMethodExceptionsNode()
       addAttributesNode(methodNode.attrs)
       addMethodParametersNode()
-      addMethodInstructionsNode()
-      addLocalVariablesNode()
+      if (!Access.ABSTRACT.check(methodNode.access)) {
+        addMethodInstructionsNode()
+        addLocalVariablesNode()
+      }
     }
   }
 
@@ -71,34 +91,30 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
       return
     }
 
-    val nameToAccess = collectMethodParametersNameToAccess(methodParameterTypes)
     add(TextNode("Parameters", AllIcons.Nodes.Parameter).apply {
-      nameToAccess.mapIndexed { index, nameToAccess ->
-        val valueNode = if (index < methodParameterTypes.size) {
-          ValueNode(displayValue = { ctx -> "${nameToAccess.first}: ${TypeUtils.toReadableType(methodParameterTypes[index], ctx.typeNameRenderMode)}" }, icon = AllIcons.Nodes.Parameter)
-        }
-        else {
-          ValueNode(displayValue = nameToAccess.first, icon = AllIcons.Nodes.Parameter)
-        }
-        add(valueNode.apply {
-          addAccessNode(nameToAccess.second, AccessGroup.PARAMETER)
+      val namesToAccess = collectMethodParametersNameToAccess(methodParameterTypes)
+      methodParameterTypes.mapIndexed { index, type ->
+        val nameToAccess = namesToAccess.getOrNull(index)
+        val name = nameToAccess?.first ?: "var$index"
+        add(ValueNode(displayValue = { ctx -> "$name: ${TypeUtils.toReadableType(type, ctx.typeNameRenderMode)}" }, icon = AllIcons.Nodes.Parameter).apply {
+          nameToAccess?.second?.let { access ->
+            addAccessNode(access, AccessGroup.PARAMETER)
+          }
           addAnnotationsNode("Annotations", methodNode.visibleParameterAnnotations?.get(index), methodNode.invisibleParameterAnnotations?.get(index))
         })
       }
     })
   }
 
-  private fun collectMethodParametersNameToAccess(methodParameterTypes: Array<Type>): List<Pair<String, Int>> {
+  private fun collectMethodParametersNameToAccess(methodParameterTypes: Array<Type>): List<Pair<String?, Int>> {
     return if (methodNode.parameters != null) {
-      methodNode.parameters.let { parameters ->
-        parameters.map { parameter -> parameter.name to parameter.access }
-      }
+      methodNode.parameters.map { parameter -> parameter.name to parameter.access }
     }
     else if (sortedLocalVariables != null) {
       // Get name from local variables
       val offset = if (Access.STATIC.check(methodNode.access)) 0 else 1
       IntRange(offset, (methodParameterTypes.size - 1) + offset).map { i ->
-        (sortedLocalVariables.elementAtOrNull(i)?.name ?: "<i>unknown</i>") to 0
+        sortedLocalVariables.elementAtOrNull(i)?.name to 0
       }.toList()
     }
     else {
@@ -177,7 +193,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
 
       var postFix = "from $startLabelName to $endLabelName"
       tryCatchBlock.handler?.let {
-        postFix += ", handled in ${labelNames.getOrDefault(it.label, "unknown") }"
+        postFix += ", handled in ${labelNames.getOrDefault(it.label, "unknown")}"
       }
 
       if (tryCatchBlock.type != null) {

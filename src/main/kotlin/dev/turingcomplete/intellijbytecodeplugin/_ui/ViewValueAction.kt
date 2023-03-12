@@ -1,14 +1,12 @@
-package dev.turingcomplete.intellijbytecodeplugin.view._internal
+package dev.turingcomplete.intellijbytecodeplugin._ui
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.DumbAwareAction
-import com.intellij.util.PlatformIcons
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.DataProviderUtils
-import java.awt.datatransfer.StringSelection
 
-class CopyValueAction : DumbAwareAction("Copy Value", null, PlatformIcons.COPY_ICON) {
+class ViewValueAction : DumbAwareAction("View Value") {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //
@@ -20,8 +18,10 @@ class CopyValueAction : DumbAwareAction("Copy Value", null, PlatformIcons.COPY_I
 
   override fun actionPerformed(e: AnActionEvent) {
     val value = DataProviderUtils.getData(CommonDataKeys.VALUE, e.dataContext)
-    CopyPasteManager.getInstance().setContents(StringSelection(value))
+    UiUtils.PopUp.showTextAreaPopup(value, e.dataContext)
   }
+
+  override fun getActionUpdateThread() = ActionUpdateThread.EDT
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
   // -- Inner Type -------------------------------------------------------------------------------------------------- //

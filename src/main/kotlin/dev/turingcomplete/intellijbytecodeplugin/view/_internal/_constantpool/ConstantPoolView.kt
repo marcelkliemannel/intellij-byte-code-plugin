@@ -83,6 +83,8 @@ class ConstantPoolView(classFileContext: ClassFileContext)
       override fun setSelected(e: AnActionEvent, state: Boolean) {
         constantPoolTable?.let { it.resolveIndices = state }
       }
+
+      override fun getActionUpdateThread() = ActionUpdateThread.EDT
     }
   }
 

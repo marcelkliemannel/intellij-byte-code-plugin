@@ -6,13 +6,15 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.ui.SideBorder
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
+import com.intellij.util.ui.GridBag
 import com.intellij.util.ui.JBEmptyBorder
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.rd.util.getThrowableText
-import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory
+import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory.Companion.PLUGIN_NAME
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideTopInset
+import dev.turingcomplete.intellijbytecodeplugin._ui.withCommonsDefaults
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.GridBagLayout
@@ -92,7 +94,7 @@ abstract class ErrorStateHandler {
     init {
       border = JBEmptyBorder(UIUtil.getRegularPanelInsets())
 
-      val bag = UiUtils.createDefaultGridBag()
+      val bag = GridBag().withCommonsDefaults()
 
       val box = Box(BoxLayout.Y_AXIS)
       box.add(Box.createVerticalGlue())
@@ -131,7 +133,7 @@ abstract class ErrorStateHandler {
       }, bag.nextLine().next().overrideTopInset(UIUtil.LARGE_VGAP))
 
       // Hint
-      add(JBLabel("<html>Please create a bug for the ${ByteCodeToolWindowFactory.PLUGIN_NAME} plugin if this error should not occur.</html>",
+      add(JBLabel("<html>Please create a bug for the $PLUGIN_NAME plugin if this error should not occur.</html>",
                   AllIcons.General.BalloonInformation, SwingConstants.LEFT),
           bag.nextLine().next().weightx(1.0).fillCellHorizontally().overrideTopInset(UIUtil.DEFAULT_VGAP))
     }

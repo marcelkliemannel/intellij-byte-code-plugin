@@ -3,10 +3,7 @@ package dev.turingcomplete.intellijbytecodeplugin.view
 import com.intellij.icons.AllIcons
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.ide.ui.LafManagerListener
-import com.intellij.openapi.actionSystem.ActionGroup
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.LogicalPosition
@@ -28,14 +25,15 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.util.DocumentUtil
 import com.intellij.util.PlatformIcons
 import com.intellij.util.ui.EmptyIcon
+import com.intellij.util.ui.GridBag
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory.Companion.TOOLBAR_PLACE_PREFIX
-import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideLeftInset
+import dev.turingcomplete.intellijbytecodeplugin._ui.withCommonsDefaults
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
-import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
+import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils.runAsync
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.ClassReader
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction.Companion.addAllByteCodeActions
@@ -45,11 +43,12 @@ import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import javax.swing.*
 
-abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
-                                         title: String,
-                                         icon: Icon,
-                                         private val goToMethodsRegex: Regex? = null)
-  : ByteCodeView(classFileContext, title, icon) {
+abstract class ByteCodeParsingResultView(
+  classFileContext: ClassFileContext,
+  title: String,
+  icon: Icon,
+  private val goToMethodsRegex: Regex? = null
+) : ByteCodeView(classFileContext, title, icon) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
@@ -71,7 +70,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
   init {
     // Sync editor colors after IntelliJ appearance changed
     ApplicationManager.getApplication().messageBus.connect(this)
-            .subscribe(LafManagerListener.TOPIC, LafManagerListener { editor.syncEditorColors() })
+      .subscribe(LafManagerListener.TOPIC, LafManagerListener { editor.syncEditorColors() })
   }
 
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
@@ -83,7 +82,7 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
   override fun createCenterComponent(): JComponent {
     return SimpleToolWindowPanel(true, false).apply {
       toolbar = JPanel(GridBagLayout()).apply {
-        val bag = UiUtils.createDefaultGridBag().setDefaultAnchor(GridBagConstraints.WEST)
+        val bag = GridBag().withCommonsDefaults().setDefaultAnchor(GridBagConstraints.WEST)
         add(createToolbarActionsComponent(this), bag.nextLine().next().fillCellHorizontally().weightx(1.0))
         add(parsingIndicatorLabel.apply { border = JBUI.Borders.empty(2) }, bag.next().fillCellVertically())
         add(goToMethodsLink, bag.next().fillCellHorizontally().overrideLeftInset(2).overrideLeftInset(2))
@@ -94,8 +93,6 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
       asyncParseByteCode()
     }
   }
-
-  protected abstract fun parseByteCode(parsingOptions: Int): String
 
   protected open fun openInEditorFileName(): String = "${classFileContext.classFile().nameWithoutExtension}.txt"
 
@@ -113,28 +110,14 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
     asyncParseByteCode()
   }
 
-  protected fun getText(): String? = if (isByteCodeParsingResultAvailable()) editor.document.text else null
-
-  protected fun setText(text: String) {
-    val gotToMethods = parseGoToMethods(text).toList().sortedBy { it.second }
-    goToMethods.clear()
-    goToMethods.addAll(gotToMethods)
-
-    DocumentUtil.writeInRunUndoTransparentAction {
-      editor.document.apply {
-        setReadOnly(false)
-        setText(text)
-        setReadOnly(true)
-      }
-      editor.component.requestFocusInWindow()
-    }
-  }
+  protected abstract fun asyncParseByteCode(parsingOptions: Int, onSuccess: (String) -> Unit)
 
   override fun getData(dataId: String): Any? {
     return when {
       CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.`is`(dataId) && isByteCodeParsingResultAvailable() -> {
         return LightVirtualFile(openInEditorFileName(), editor.document.text)
       }
+
       else -> super.getData(dataId)
     }
   }
@@ -144,10 +127,10 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
   private fun createGoToMethodsLink(): DropDownLink<Pair<Int, String>> {
     val createPopUp: (DropDownLink<Pair<Int, String>>) -> JBPopup = {
       JBPopupFactory.getInstance()
-              .createPopupChooserBuilder(goToMethods)
-              .setRenderer(GoToMethodsCellRenderer())
-              .setItemChosenCallback { goToMethod(it.first) }
-              .createPopup()
+        .createPopupChooserBuilder(goToMethods)
+        .setRenderer(GoToMethodsCellRenderer())
+        .setItemChosenCallback { goToMethod(it.first) }
+        .createPopup()
     }
     return object : DropDownLink<Pair<Int, String>>(Pair(-1, "Go to method"), createPopUp) {
       override fun itemToString(item: Pair<Int, String>) = item.second
@@ -181,6 +164,8 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
           val enabled = isByteCodeParsingResultAvailable()
           e.presentation.isEnabled = enabled
         }
+
+        override fun getActionUpdateThread() = ActionUpdateThread.BGT
       })
 
       addSeparator()
@@ -219,40 +204,48 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
   }
 
   private fun asyncParseByteCode() {
-    parsingIndicatorLabel.isVisible = true
+    ApplicationManager.getApplication().assertIsDispatchThread()
 
-    AsyncUtils.runAsync(classFileContext.project(), doParseByteCode(), { result ->
-      goToMethods.clear()
-      goToMethods.addAll(result.goToMethods.toList().sortedBy { it.second })
-
-      ApplicationManager.getApplication().invokeLater {
-        // Text
-        DocumentUtil.writeInRunUndoTransparentAction {
-          editor.document.apply {
-            setReadOnly(false)
-            setText(result.text)
-            setReadOnly(true)
-          }
-          editor.component.requestFocusInWindow()
-        }
-
-        // Go to
-        goToMethodsLink.isEnabled = goToMethods.isNotEmpty()
-
-        parsingIndicatorLabel.isVisible = false
+    val parsingOptions = calculateParsingOptions()
+    if (parsingResultCache.containsKey(parsingOptions)) {
+      parsingResultCache[parsingOptions]?.let {
+        setByteCodeParsingResult(it.text, it.goToMethods)
       }
-    }, { cause -> onError("Failed to parse byte code", cause) })
+    }
+    else {
+      parsingIndicatorLabel.isVisible = true
+
+      val setParsingResult: (String) -> Unit = { newText ->
+        val newGoToMethods = parseGoToMethods(newText)
+        parsingResultCache.computeIfAbsent(parsingOptions) { ByteCodeParsingResult(newText, newGoToMethods) }
+        setByteCodeParsingResult(newText, newGoToMethods)
+        ApplicationManager.getApplication().invokeLater { parsingIndicatorLabel.isVisible = false }
+      }
+      runAsync(classFileContext.project(),
+               { asyncParseByteCode(parsingOptions, setParsingResult) },
+               { cause -> onError("Failed to parse byte code", cause) })
+    }
+  }
+
+  private fun setByteCodeParsingResult(newText: String, newGoToMethods: Map<Int, String>) {
+    goToMethods.clear()
+    goToMethods.addAll(newGoToMethods.toList().sortedBy { it.second })
+
+    ApplicationManager.getApplication().invokeLater {
+      goToMethodsLink.isEnabled = newGoToMethods.isNotEmpty()
+
+      DocumentUtil.writeInRunUndoTransparentAction {
+        editor.document.apply {
+          setReadOnly(false)
+          setText(newText)
+          setReadOnly(true)
+        }
+        editor.component.requestFocusInWindow()
+      }
+    }
   }
 
   private fun isByteCodeParsingResultAvailable() = !parsingIndicatorLabel.isVisible
-
-  private fun doParseByteCode(): () -> ByteCodeParsingResult = {
-    parsingResultCache.computeIfAbsent(calculateParsingOptions()) { parsingOptions ->
-      val text = parseByteCode(parsingOptions)
-      val lineOfMethod = parseGoToMethods(text)
-      ByteCodeParsingResult(text, lineOfMethod)
-    }
-  }
 
   private fun parseGoToMethods(text: String): Map<Int, String> {
     val lineOfMethod = mutableMapOf<Int, String>()
@@ -312,6 +305,8 @@ abstract class ByteCodeParsingResultView(classFileContext: ClassFileContext,
     override fun updateButton(e: AnActionEvent) {
       e.presentation.icon = if (isSelected()) PlatformIcons.CHECK_ICON else EmptyIcon.create(PlatformIcons.CHECK_ICON)
     }
+
+    override fun getActionUpdateThread() = ActionUpdateThread.EDT
   }
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //

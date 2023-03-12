@@ -11,7 +11,7 @@ import java.io.File
 import java.nio.file.Path
 import java.util.zip.ZipFile
 
-abstract class ClassFileConsumerTestCase(val classFilePath: String) : LightPlatform4TestCase() {
+abstract class ClassFileConsumerTestCase(private val classFilePath: String) : LightPlatform4TestCase() {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
