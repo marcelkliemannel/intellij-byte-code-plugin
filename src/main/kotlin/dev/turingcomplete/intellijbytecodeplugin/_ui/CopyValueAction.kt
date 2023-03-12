@@ -1,4 +1,4 @@
-package dev.turingcomplete.intellijbytecodeplugin.view._internal
+package dev.turingcomplete.intellijbytecodeplugin._ui
 
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent

@@ -1,6 +1,5 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._constantpool
 
-import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.actionSystem.DefaultActionGroup
@@ -8,17 +7,15 @@ import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.ui.TableSpeedSearch
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.table.JBTable
+import dev.turingcomplete.intellijbytecodeplugin._ui.CopyValueAction
+import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
+import dev.turingcomplete.intellijbytecodeplugin._ui.ViewValueAction
 import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
 import dev.turingcomplete.intellijbytecodeplugin.bytecode._internal.constantpool.ConstantPool
 import dev.turingcomplete.intellijbytecodeplugin.bytecode._internal.constantpool.ConstantPoolInfo
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
-import dev.turingcomplete.intellijbytecodeplugin.view._internal.CopyValueAction
-import dev.turingcomplete.intellijbytecodeplugin.view._internal.ViewValueAction
 import java.awt.Component
 import java.awt.Rectangle
-import java.awt.event.InputEvent
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
 import javax.swing.JTable
 import javax.swing.table.DefaultTableModel
 import javax.swing.table.TableCellRenderer
@@ -57,7 +54,26 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
       }
     }
 
-    addMouseListener(MyMouseAdapter())
+    addMouseListener(UiUtils.Table.createContextMenuMouseListener(
+      ConstantPoolTable::class.java.simpleName
+    ) {
+      DefaultActionGroup().apply {
+        // Go to indices
+        getSingleSelectedConstantPoolInfo()?.let { constantPoolInfo ->
+          val selectTableRow: (Int) -> Unit = { row ->
+            this@ConstantPoolTable.setRowSelectionInterval(row, row)
+            scrollRectToVisible(Rectangle(this@ConstantPoolTable.getCellRect(row, 0, true)))
+          }
+          constantPoolInfo.goToIndices.forEach { goToIndex -> add(GoToIndexAction(goToIndex, selectTableRow)) }
+
+          addSeparator()
+
+          // Copy & view action
+          add(CopyValueAction())
+          add(ViewValueAction())
+        }
+      }
+    })
 
     installSearchHandler()
   }
@@ -134,46 +150,6 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
       text = toDisplayText(value)
       configureForCell(table, isSelected, hasFocus)
       return this
-    }
-  }
-
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
-
-  private inner class MyMouseAdapter : MouseAdapter() {
-
-    override fun mousePressed(e: MouseEvent) {
-      handleTreeMouseEvent(e)
-    }
-
-    override fun mouseReleased(e: MouseEvent) {
-      handleTreeMouseEvent(e)
-    }
-
-    private fun handleTreeMouseEvent(event: InputEvent) {
-      if (event !is MouseEvent || !event.isPopupTrigger) {
-        return
-      }
-
-      getSingleSelectedConstantPoolInfo()?.let { constantPoolInfo ->
-        val actions = DefaultActionGroup().apply {
-          // Go to indices
-          val selectTableRow: (Int) -> Unit = { row ->
-            this@ConstantPoolTable.setRowSelectionInterval(row, row)
-            scrollRectToVisible(Rectangle(this@ConstantPoolTable.getCellRect(row, 0, true)))
-          }
-          constantPoolInfo.goToIndices.forEach { goToIndex -> add(GoToIndexAction(goToIndex, selectTableRow)) }
-
-          addSeparator()
-
-          // Copy & view action
-          add(CopyValueAction())
-          add(ViewValueAction())
-        }
-        ActionManager.getInstance()
-                .createActionPopupMenu(ConstantPoolTable::class.java.simpleName, actions)
-                .component
-                .show(event.getComponent(), event.x, event.y)
-      }
     }
   }
 

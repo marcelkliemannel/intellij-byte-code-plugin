@@ -169,17 +169,15 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
 
   private fun ToolWindow.initActions(project: Project) {
     ApplicationManager.getApplication().invokeLater {
-      val helpActionGroup = DefaultActionGroup("Help", true).apply {
-        templatePresentation.icon = AllIcons.Actions.Help
-        addAll(ByteCodeRelatedLinksActionsGroup(), ReportAnIssueAction())
-      }
-
       val byteCodeToolsActionGroup = DefaultActionGroup("Byte Code Tools", true).apply {
         templatePresentation.icon = AllIcons.General.ExternalTools
         ByteCodeTool.EP.extensions.forEach { add(it.toAction()) }
-      }
 
-      setTitleActions(listOf(byteCodeToolsActionGroup, helpActionGroup))
+        addSeparator()
+
+        addAll(ByteCodeRelatedLinksActionsGroup(), ReportAnIssueAction())
+      }
+      setTitleActions(listOf(byteCodeToolsActionGroup))
 
       if (this is ToolWindowEx) {
         val newSessionActionsGroup = DefaultActionGroup(OpenClassFilesOptionsAction(project, contentManager))

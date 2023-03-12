@@ -1,9 +1,8 @@
-package dev.turingcomplete.intellijbytecodeplugin.view._internal
+package dev.turingcomplete.intellijbytecodeplugin._ui
 
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAwareAction
-import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.DataProviderUtils
 

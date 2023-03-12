@@ -2,7 +2,6 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode
 
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
 
-@Suppress("MemberVisibilityCanBePrivate")
 object ClassVersionUtils {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 

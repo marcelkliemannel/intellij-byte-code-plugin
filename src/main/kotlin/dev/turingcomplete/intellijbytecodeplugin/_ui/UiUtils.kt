@@ -1,5 +1,7 @@
 package dev.turingcomplete.intellijbytecodeplugin._ui
 
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
@@ -8,9 +10,13 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.HyperlinkLabel
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.components.JBTextArea
+import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import java.awt.Dimension
+import java.awt.event.InputEvent
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import java.text.DecimalFormat
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -100,6 +106,43 @@ internal object UiUtils {
               .setCancelOnOtherWindowOpen(true)
               .createPopup()
               .showInBestPositionFor(dataContext)
+    }
+  }
+
+  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+
+  object Table {
+
+    fun createContextMenuMouseListener(place: String, actionGroup: (MouseEvent) -> ActionGroup?): MouseAdapter {
+      return object : MouseAdapter() {
+        override fun mousePressed(e: MouseEvent) {
+          handleMouseEvent(e)
+        }
+
+        override fun mouseReleased(e: MouseEvent) {
+          handleMouseEvent(e)
+        }
+
+        private fun handleMouseEvent(e: InputEvent) {
+          if (e is MouseEvent && e.isPopupTrigger) {
+            actionGroup(e)?.let {
+              ActionManager.getInstance()
+                .createActionPopupMenu(place, it).component
+                .show(e.getComponent(), e.x, e.y)
+            }
+          }
+        }
+      }
+    }
+
+    fun getSingleSelectedValue(table: JBTable): String? {
+      if (table.selectedRowCount != 1) {
+        return null
+      }
+
+      val row = table.selectedRow
+      val column = table.selectedColumn
+      return if (row >= 0 && column >= 0) table.model.getValueAt(row, column).toString() else null
     }
   }
 

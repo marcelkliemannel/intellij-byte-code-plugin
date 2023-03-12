@@ -74,6 +74,7 @@
     <byteCodeTool implementation="dev.turingcomplete.intellijbytecodeplugin.tool._internal.AccessConverterTool"/>
     <byteCodeTool implementation="dev.turingcomplete.intellijbytecodeplugin.tool._internal.SignatureParserTool"/>
     <byteCodeTool implementation="dev.turingcomplete.intellijbytecodeplugin.tool._internal.InstructionsOverviewTool"/>
+    <byteCodeTool implementation="dev.turingcomplete.intellijbytecodeplugin.tool._internal.ClassVersionsOverviewTool"/>
 
     <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureView$MyCreator"/>

@@ -6,7 +6,6 @@ import com.intellij.ide.actions.CollapseAllAction
 import com.intellij.ide.actions.ExpandAllAction
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionGroup
-import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.PlatformDataKeys
@@ -24,14 +23,15 @@ import com.intellij.util.concurrency.InvokerSupplier
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.tree.TreeUtil
+import dev.turingcomplete.intellijbytecodeplugin._ui.CopyValueAction
+import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils.Table.createContextMenuMouseListener
+import dev.turingcomplete.intellijbytecodeplugin._ui.ViewValueAction
 import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
-import dev.turingcomplete.intellijbytecodeplugin.view._internal.CopyValueAction
-import dev.turingcomplete.intellijbytecodeplugin.view._internal.ViewValueAction
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._class.ClassStructureNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.InteractiveNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.StructureNode
@@ -40,8 +40,6 @@ import org.jetbrains.annotations.TestOnly
 import java.awt.Component
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
-import java.awt.event.InputEvent
-import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.util.*
 import javax.swing.AbstractCellEditor
@@ -65,7 +63,26 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
     setCellEditor(StructureTreeCellEditor())
     setCellRenderer(StructureTreeCellRenderer())
     isEditable = true
-    addMouseListener(StructureTreeMouseAdapter())
+    addMouseListener(createContextMenuMouseListener(StructureTree::class.java.simpleName) { event ->
+      val valueNode = getClosestPathForLocation(event.x, event.y)
+        ?.takeIf { it.lastPathComponent is ValueNode }
+        ?.let { it.lastPathComponent as ValueNode }
+
+      if (valueNode != null) {
+        DefaultActionGroup().apply {
+          valueNode.goToProvider?.let {
+            add(it.goToAction())
+            addSeparator()
+          }
+
+          add(CopyValueAction())
+          add(ViewValueAction())
+        }
+      }
+      else {
+        null
+      }
+    })
     transferHandler = FilesDropHandler(classFileContext.project())
 
     Disposer.register(parent, structureTreeModel)
@@ -217,45 +234,6 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
 
     override fun actionPerformed(e: ActionEvent?) {
       stopCellEditing()
-    }
-  }
-
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
-
-  private inner class StructureTreeMouseAdapter : MouseAdapter() {
-
-    override fun mousePressed(e: MouseEvent) {
-      handleTreeMouseEvent(e)
-    }
-
-    override fun mouseReleased(e: MouseEvent) {
-      handleTreeMouseEvent(e)
-    }
-
-    private fun handleTreeMouseEvent(event: InputEvent) {
-      if (event !is MouseEvent || !event.isPopupTrigger) {
-        return
-      }
-
-      val valueNode = getClosestPathForLocation(event.x, event.y)
-                              ?.takeIf { it.lastPathComponent is ValueNode }
-                              ?.let { it.lastPathComponent as ValueNode }
-                      ?: return
-
-      val actions = DefaultActionGroup().apply {
-        valueNode.goToProvider?.let {
-          add(it.goToAction())
-          addSeparator()
-        }
-
-        add(CopyValueAction())
-        add(ViewValueAction())
-      }
-
-      ActionManager.getInstance()
-              .createActionPopupMenu(StructureTree::class.java.simpleName, actions)
-              .component
-              .show(event.getComponent(), event.x, event.y)
     }
   }
 
