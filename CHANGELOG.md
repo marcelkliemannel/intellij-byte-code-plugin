@@ -2,9 +2,11 @@
 
 ## [Unreleased]
 ### Added
+- Automatically run code style format in the ASM view
 
 ### Changed
 - Compatibility improvements for IntelliJ 2023.1
+- Compatibility improvements for IntelliJ's "new UI"
 
 ### Removed
 
