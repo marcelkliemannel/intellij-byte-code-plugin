@@ -27,7 +27,7 @@ internal class FilesDropHandler(private val project: Project) : TransferHandler(
     return canHandleDrop0(transferFlavors)
   }
 
-  override fun canHandleDrop(transferFlavors: Array<out DataFlavor>?): Boolean {
+  override fun canHandleDrop(transferFlavors: Array<out DataFlavor>): Boolean {
     return canHandleDrop0(transferFlavors)
   }
 

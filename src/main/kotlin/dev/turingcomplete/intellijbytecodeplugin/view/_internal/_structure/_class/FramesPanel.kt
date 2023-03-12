@@ -53,7 +53,7 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
 
   override fun getData(dataId: String): Any? {
     return when {
-      CommonDataKeys.VALUE.`is`(dataId) -> getSingleSelectedValue(table)?.takeIf { (it as String).isNotBlank() }
+      CommonDataKeys.VALUE.`is`(dataId) -> getSingleSelectedValue(table)?.takeIf { it.isNotBlank() }
       else -> null
     }
   }

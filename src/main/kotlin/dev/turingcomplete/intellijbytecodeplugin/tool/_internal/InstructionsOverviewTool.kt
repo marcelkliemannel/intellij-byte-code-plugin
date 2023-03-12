@@ -89,7 +89,7 @@ class InstructionsOverviewTool : ByteCodeTool("Instructions Overview") {
         setComparator(1, OPCODE_COMPARATOR)
       }
 
-      addMouseListener(UiUtils.Table.createContextMenuMouseListener(InstructionsOverviewTool::class.java.simpleName) { event ->
+      addMouseListener(UiUtils.Table.createContextMenuMouseListener(InstructionsOverviewTool::class.java.simpleName) {
         DefaultActionGroup().apply {
           add(CopyValueAction())
           add(ViewValueAction())
