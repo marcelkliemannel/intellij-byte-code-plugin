@@ -2,9 +2,13 @@ package dev.turingcomplete.intellijbytecodeplugin._ui
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionUpdateThread
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT
+import com.intellij.openapi.actionSystem.DataKey
+import com.intellij.openapi.actionSystem.DataProvider
+import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
@@ -28,7 +32,7 @@ import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
 import java.awt.dnd.DropTarget
 import javax.swing.Icon
 
-internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposable {
+internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
@@ -78,16 +82,11 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware, Disposa
   override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
     assert(toolWindow.id == TOOL_WINDOW_ID)
 
-    Disposer.register(toolWindow.disposable, this)
-
     toolWindow.apply {
       initDropTarget(project)
       setupEmptyText(project)
       initActions(project)
     }
-  }
-
-  override fun dispose() {
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
