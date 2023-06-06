@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- ASM 9.5 with Java 21 support
 
 ### Changed
 - Adapt tool window icon to the new IntelliJ UI design philosophy
