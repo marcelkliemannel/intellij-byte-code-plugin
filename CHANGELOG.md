@@ -5,6 +5,7 @@
 ### Added
 
 ### Changed
+- Adapt tool window icon to the new IntelliJ UI design philosophy
 
 ### Removed
 
