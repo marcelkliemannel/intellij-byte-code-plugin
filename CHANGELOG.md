@@ -3,16 +3,22 @@
 ## Unreleased
 
 ### Added
-- ASM 9.5 with Java 21 support
 
 ### Changed
-- Adapt tool window icon to the new IntelliJ UI design philosophy
 
 ### Removed
 
 ### Fixed
 
-## [3.0.0] - 2023-03-12
+## 3.1.0 - 2023-06-06
+
+### Added
+- ASM 9.5 with Java 21 support
+
+### Changed
+- Adapt tool window icon to the new IntelliJ UI design philosophy
+
+## 3.0.0 - 2023-03-12
 
 ### Added
 - Automatically run code style formatting in the ASM view
