@@ -3,6 +3,16 @@
 ## Unreleased
 
 ### Added
+
+### Changed
+
+### Removed
+
+### Fixed
+
+## 3.1.0 - 2023-06-24
+
+### Added
 - ASM 9.5 with Java 21 support
 
 ### Changed
