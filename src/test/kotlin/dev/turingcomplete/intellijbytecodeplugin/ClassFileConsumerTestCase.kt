@@ -22,7 +22,6 @@ abstract class ClassFileConsumerTestCase(private val classFilePath: String) : Li
     fun testData(): List<Array<String>> = mutableListOf<Array<String>>().apply {
       addLibraryClasses("kotlin-stdlib")
       addLibraryClasses("groovy-")
-      addLibraryClasses("scala-library-")
       addLibraryClasses("commons-lang3")
     }
 

@@ -15,7 +15,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(org.junit.runners.Parameterized::class)
-class OpenClassFilesTaskTest(testName: String, classFilePath: String) : ClassFileConsumerTestCase(classFilePath) {
+class OpenClassFilesTaskTest(
+  @Suppress("UNUSED_PARAMETER") testName: String,
+  classFilePath: String
+) : ClassFileConsumerTestCase(classFilePath) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
