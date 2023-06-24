@@ -9,6 +9,7 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiTreeUtil
 import dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.OpenClassFilesTask
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,8 +43,8 @@ class OpenClassFilesTaskTest(testName: String, classFilePath: String) : ClassFil
   fun testOpenFile() {
     val actualClassFilesReadyToOpen = mutableListOf<VirtualFile>()
     OpenClassFilesTask({ actualClassFilesReadyToOpen.add(it) }, project)
-            .consumeFiles(listOf(classFileAsVirtualFile))
-            .openFiles()
+      .consumeFiles(listOf(classFileAsVirtualFile))
+      .openFiles()
     Assert.assertEquals(1, actualClassFilesReadyToOpen.size)
     Assert.assertEquals(classFileAsVirtualFile, actualClassFilesReadyToOpen[0])
   }
@@ -56,8 +57,8 @@ class OpenClassFilesTaskTest(testName: String, classFilePath: String) : ClassFil
 
     val actualClassFilesReadyToOpen = mutableListOf<VirtualFile>()
     OpenClassFilesTask({ actualClassFilesReadyToOpen.add(it) }, project)
-            .consumePsiFiles(listOf(psiJavaFile!!))
-            .openFiles()
+      .consumePsiFiles(listOf(psiJavaFile!!))
+      .openFiles()
     Assert.assertEquals(1, actualClassFilesReadyToOpen.size)
     Assert.assertEquals(classFileAsVirtualFile, actualClassFilesReadyToOpen[0])
   }
@@ -92,8 +93,10 @@ class OpenClassFilesTaskTest(testName: String, classFilePath: String) : ClassFil
     }
 
     psiJavaFile!!.classes.forEach { psiClass ->
-      doTestConsumePsiElements(getPsiElementsOfPsiClass(psiClass),
-                               "${collectJvmName(psiClass)}.class")
+      doTestConsumePsiElements(
+        getPsiElementsOfPsiClass(psiClass),
+        "${collectJvmName(psiClass)}.class"
+      )
     }
   }
 
@@ -123,9 +126,14 @@ class OpenClassFilesTaskTest(testName: String, classFilePath: String) : ClassFil
     Assert.assertTrue("Expected at least 1 PSI element.", psiElements.isNotEmpty())
 
     var filesOpened = 0
-    OpenClassFilesTask({ filesOpened++; Assert.assertEquals(expectedClassFileName, it.name) }, project)
-            .consumePsiElements(psiElements)
-            .openFiles()
+    OpenClassFilesTask({
+                         filesOpened++;
+                         assertThat(expectedClassFileName)
+                           .describedAs("File ${it.path} should have expected class file name")
+                           .isEqualTo(it.name)
+                       }, project)
+      .consumePsiElements(psiElements)
+      .openFiles()
     Assert.assertEquals(psiElements.size, filesOpened)
   }
 
