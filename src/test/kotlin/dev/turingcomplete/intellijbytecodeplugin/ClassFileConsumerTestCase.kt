@@ -6,10 +6,12 @@ import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.testFramework.LightPlatform4TestCase
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert
 import java.io.File
 import java.nio.file.Path
 import java.util.zip.ZipFile
+
 
 abstract class ClassFileConsumerTestCase(private val classFilePath: String) : LightPlatform4TestCase() {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
@@ -17,45 +19,28 @@ abstract class ClassFileConsumerTestCase(private val classFilePath: String) : Li
   companion object {
     private const val LIMIT_CLASSES = 800
 
-    fun testData(): List<Array<String>> {
-      val testParameters = mutableListOf<Array<String>>()
-
-      // Test parsing of Kotlin classes
-      findKotlinSdtLibInClassPath()
-              .forEach { kotlinStdLib -> testParameters.addAll(readArchiveEntriesPaths(kotlinStdLib.toFile()).shuffled().take(LIMIT_CLASSES)) }
-      Assert.assertTrue(testParameters.size > 100)
-
-      // Test parsing of Groovy classes
-      findGroovyAllInClassPath()
-              .forEach { groovyAll -> testParameters.addAll(readArchiveEntriesPaths(groovyAll.toFile()).shuffled().take(LIMIT_CLASSES)) }
-      Assert.assertTrue(testParameters.size > 200)
-
-      // Test parsing of java.base classes
-      val javaBaseJmodPath = Path.of(System.getProperty("java.home")).resolve(Path.of("jmods", "java.base.jmod"))
-      testParameters.addAll(readArchiveEntriesPaths(javaBaseJmodPath.toFile()).shuffled().take(LIMIT_CLASSES))
-      Assert.assertTrue(testParameters.size > 300)
-
-      return testParameters
+    fun testData(): List<Array<String>> = mutableListOf<Array<String>>().apply {
+      addLibraryClasses("kotlin-stdlib")
+      addLibraryClasses("groovy-")
+      addLibraryClasses("scala-library-")
+      addLibraryClasses("commons-lang3")
     }
 
-    private fun findKotlinSdtLibInClassPath(): List<Path> {
-      return getClassPath()
-              .filter { it.fileName.toString().startsWith("kotlin-stdlib") }
-              .toList()
+    private fun MutableList<Array<String>>.addLibraryClasses(libraryFileNamePrefix: String) {
+      val oldSize = this.size
+      findInClassPath(libraryFileNamePrefix)
+        .forEach { kotlinStdLib -> this.addAll(readArchiveEntriesPaths(kotlinStdLib.toFile()).shuffled().take(LIMIT_CLASSES)) }
+      assertThat(this.size - oldSize)
+        .describedAs("Library with filename prefix '$libraryFileNamePrefix' should add at least 100 files")
+        .isGreaterThanOrEqualTo(100)
     }
 
-    private fun findGroovyAllInClassPath(): List<Path> {
-      return getClassPath()
-              .filter { it.fileName.toString().startsWith("groovy-all-") }
-              .toList()
-    }
-
-    private fun getClassPath(): List<Path> {
-      return System.getProperty("java.class.path").split(System.getProperty("path.separator"))
-              .asSequence()
-              .map { Path.of(it) }
-              .toList()
-    }
+    private fun findInClassPath(prefix: String) =
+      System.getProperty("java.class.path").split(System.getProperty("path.separator"))
+        .asSequence()
+        .map { Path.of(it) }
+        .filter { it.fileName.toString().startsWith(prefix) }
+        .toList()
 
     private fun readArchiveEntriesPaths(archiveFile: File): List<Array<String>> {
       val entriesPaths = mutableListOf<Array<String>>()
