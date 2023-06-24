@@ -50,7 +50,6 @@ dependencies {
   // Used for test data
   testImplementation("org.codehaus.groovy:groovy:3.0.12")
   testImplementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.10")
-  testImplementation("org.scala-lang:scala3-library_3:3.3.0")
   testImplementation("org.apache.commons:commons-lang3:3.12.0")
 }
 
