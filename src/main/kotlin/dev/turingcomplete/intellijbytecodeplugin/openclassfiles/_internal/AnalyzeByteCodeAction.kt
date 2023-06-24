@@ -59,7 +59,7 @@ internal class AnalyzeByteCodeAction : DumbAwareAction(TITLE, null, ByteCodePlug
     }
   }
 
-  override fun getActionUpdateThread() = ActionUpdateThread.EDT
+  override fun getActionUpdateThread() = ActionUpdateThread.BGT
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
