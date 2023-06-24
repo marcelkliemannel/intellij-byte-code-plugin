@@ -3,7 +3,11 @@ package dev.turingcomplete.intellijbytecodeplugin.view
 import com.intellij.icons.AllIcons
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.ide.ui.LafManagerListener
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionUpdateThread
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.LogicalPosition
@@ -41,7 +45,11 @@ import dev.turingcomplete.intellijbytecodeplugin.view.common.OpenInEditorAction
 import java.awt.Component
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
-import javax.swing.*
+import javax.swing.DefaultListCellRenderer
+import javax.swing.Icon
+import javax.swing.JComponent
+import javax.swing.JList
+import javax.swing.JPanel
 
 abstract class ByteCodeParsingResultView(
   classFileContext: ClassFileContext,
@@ -54,7 +62,8 @@ abstract class ByteCodeParsingResultView(
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   private val editor: EditorEx by lazy { createEditor() }
-  private val parsingIndicatorLabel by lazy { JBLabel("Parsing...") }
+  private var editorCreated: Boolean = false
+  private val parsingIndicatorLabel = JBLabel("Parsing...")
 
   private val parsingResultCache: MutableMap<Int, ByteCodeParsingResult> = mutableMapOf()
 
@@ -99,7 +108,7 @@ abstract class ByteCodeParsingResultView(
   protected open fun additionalToolBarActions(): ActionGroup? = null
 
   override fun dispose() {
-    if (!editor.isDisposed) {
+    if (editorCreated && !editor.isDisposed) {
       EditorFactory.getInstance().releaseEditor(editor)
     }
 
@@ -195,11 +204,13 @@ abstract class ByteCodeParsingResultView(
       setCaretVisible(true)
 
       settings.apply {
-        settings.isLineMarkerAreaShown = true
-        settings.isIndentGuidesShown = true
-        settings.isLineNumbersShown = true
-        settings.isFoldingOutlineShown = true
+        isLineMarkerAreaShown = true
+        isIndentGuidesShown = true
+        isLineNumbersShown = true
+        isFoldingOutlineShown = true
       }
+
+      editorCreated = true
     }
   }
 
