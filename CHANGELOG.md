@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Add Java 22 support by updating ASM to 9.6
 
 ### Changed
 

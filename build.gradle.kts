@@ -39,7 +39,7 @@ val shadowAsmJar = tasks.create("shadowAsmJar", com.github.jengelman.gradle.plug
 dependencies {
   api(shadowAsmJar.outputs.files)
 
-  val asmVersion = "9.5"
+  val asmVersion = "9.6"
   asm("org.ow2.asm:asm:$asmVersion")
   asm("org.ow2.asm:asm-analysis:$asmVersion")
   asm("org.ow2.asm:asm-util:$asmVersion")
