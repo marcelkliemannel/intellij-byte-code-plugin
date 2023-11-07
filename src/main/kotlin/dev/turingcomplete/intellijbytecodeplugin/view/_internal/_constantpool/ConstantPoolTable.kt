@@ -97,7 +97,7 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
         else -> null
       }
     }
-    TableSpeedSearch(this, cellValueToSearchString)
+    TableSpeedSearch.installOn(this, cellValueToSearchString)
   }
 
   private fun toDisplayText(value: ConstantPoolInfo): String {

@@ -83,7 +83,7 @@ class InstructionsOverviewTool : ByteCodeTool("Instructions Overview") {
         getColumn(4).preferredWidth = getMaxRowWith(4) + 2
       }
 
-      TableSpeedSearch(this)
+      TableSpeedSearch.installOn(this)
 
       rowSorter = TableRowSorter(model).apply {
         setComparator(1, OPCODE_COMPARATOR)

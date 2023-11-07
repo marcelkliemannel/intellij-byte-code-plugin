@@ -13,7 +13,7 @@ import com.intellij.openapi.actionSystem.Toggleable
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.LoadingNode
-import com.intellij.ui.TreeSpeedSearch
+import com.intellij.ui.TreeUIHelper
 import com.intellij.ui.scale.JBUIScale
 import com.intellij.ui.tree.AsyncTreeModel
 import com.intellij.ui.tree.BaseTreeModel
@@ -133,10 +133,10 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
   private fun installSearchHandler() {
-    TreeSpeedSearch(this, true) { treePath ->
+    TreeUIHelper.getInstance().installTreeSpeedSearch(this, { treePath ->
       val lastPathComponent = treePath.lastPathComponent
       if (lastPathComponent is StructureNode) lastPathComponent.searchText(context) else null
-    }
+    }, true)
   }
 
   private fun syncTree(): () -> Unit = {
