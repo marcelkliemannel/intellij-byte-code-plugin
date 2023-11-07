@@ -13,10 +13,10 @@ fun properties(key: String) = project.findProperty(key).toString()
 plugins {
   java
   // See bundled version: https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
-  kotlin("jvm") version "1.8.0"
-  id("org.jetbrains.intellij") version "1.14.1"
-  id("com.github.johnrengelman.shadow") version "8.1.0"
-  id("org.jetbrains.changelog") version "2.0.0"
+  kotlin("jvm") version "1.8.20"
+  id("org.jetbrains.intellij") version "1.16.0"
+  id("com.github.johnrengelman.shadow") version "8.1.1"
+  id("org.jetbrains.changelog") version "2.2.0"
 }
 
 group = properties("pluginGroup")
@@ -48,7 +48,7 @@ dependencies {
   testImplementation("org.assertj:assertj-core:3.24.2")
 
   // Used for test data
-  testImplementation("org.codehaus.groovy:groovy:3.0.12")
+  testImplementation("org.codehaus.groovy:groovy:3.0.16")
   testImplementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.10")
   testImplementation("org.apache.commons:commons-lang3:3.12.0")
 }
@@ -73,7 +73,7 @@ tasks {
     version.set(properties("pluginVersion"))
     sinceBuild.set(properties("pluginSinceBuild"))
     untilBuild.set(properties("pluginUntilBuild"))
-    changeNotes.set(provider { changelog.renderItem(changelog.getLatest(), Changelog.OutputType.HTML) })
+    changeNotes.set(provider { changelog.renderItem(changelog.get(project.version as String), Changelog.OutputType.HTML) })
   }
 
   runPluginVerifier {
