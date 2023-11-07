@@ -39,6 +39,11 @@
   <depends>com.intellij.modules.platform</depends>
   <depends>com.intellij.java</depends>
 
+  <extensions defaultExtensionNs="com.intellij">
+    <applicationService
+            serviceImplementation="dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeAnalyserSettingsService"/>
+  </extensions>
+
   <extensionPoints>
     <extensionPoint name="openClassFilesAction"
                     interface="dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction"/>

@@ -4,6 +4,7 @@
 
 ### Added
 - Add Java 22 support by updating ASM to 9.6
+- Add persistent storage for configuration of the structure view and parsing options
 
 ### Changed
 

@@ -35,6 +35,7 @@ import com.intellij.util.ui.UIUtil
 import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory.Companion.TOOLBAR_PLACE_PREFIX
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideLeftInset
 import dev.turingcomplete.intellijbytecodeplugin._ui.withCommonsDefaults
+import dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeAnalyserSettingsService
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils.runAsync
@@ -50,6 +51,7 @@ import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.JList
 import javax.swing.JPanel
+import kotlin.properties.Delegates
 
 abstract class ByteCodeParsingResultView(
   classFileContext: ClassFileContext,
@@ -70,9 +72,15 @@ abstract class ByteCodeParsingResultView(
   private val goToMethods = mutableListOf<Pair<Int, String>>()
   private val goToMethodsLink: DropDownLink<Pair<Int, String>> by lazy { createGoToMethodsLink() }
 
-  private var skipDebug = false
-  private var skipCode = false
-  private var skipFrame = false
+  private var skipDebug by Delegates.observable(ByteCodeAnalyserSettingsService.skipDebug) { _, _, new ->
+    ByteCodeAnalyserSettingsService.skipDebug = new
+  }
+  private var skipCode by Delegates.observable(ByteCodeAnalyserSettingsService.skipCode) { _, _, new ->
+    ByteCodeAnalyserSettingsService.skipCode = new
+  }
+  private var skipFrame by Delegates.observable(ByteCodeAnalyserSettingsService.skipFrame) { _, _, new ->
+    ByteCodeAnalyserSettingsService.skipFrame = new
+  }
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
 
