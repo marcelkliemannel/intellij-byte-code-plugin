@@ -7,7 +7,7 @@ import com.intellij.openapi.fileEditor.impl.EditorWindow
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager
 import dev.turingcomplete.intellijbytecodeplugin._ui.NotificationUtils
-import dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeToolService
+import dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeAnalyserOpenClassFileService
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.Transferable
 import java.awt.dnd.DropTargetDragEvent
@@ -72,7 +72,7 @@ internal class FilesDropHandler(private val project: Project) : TransferHandler(
       if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
         val transferData = transferable.getTransferData(DataFlavor.javaFileListFlavor)
         if (transferData is TransferableWrapper) {
-          project.getService(ByteCodeToolService::class.java).openPsiElements(transferData.psiElements?.toList() ?: listOf())
+          project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openPsiElements(transferData.psiElements?.toList() ?: listOf())
           return true
         }
       }
@@ -80,7 +80,7 @@ internal class FilesDropHandler(private val project: Project) : TransferHandler(
       // Handle drop of other elements
       val virtualFileManager = VirtualFileManager.getInstance()
       FileCopyPasteUtil.getFileList(transferable)?.mapNotNull { virtualFileManager.findFileByNioPath(it.toPath()) }?.let {
-        project.getService(ByteCodeToolService::class.java).openFiles(it)
+        project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openFiles(it)
         return true
       }
     }

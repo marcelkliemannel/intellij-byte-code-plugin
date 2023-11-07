@@ -6,6 +6,7 @@ object ClassVersionUtils {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   val CLASS_VERSIONS = arrayOf(
+    ClassVersion(Opcodes.V22.toByte(), "Java SE 22"),
     ClassVersion(Opcodes.V21.toByte(), "Java SE 21"),
     ClassVersion(Opcodes.V20.toByte(), "Java SE 20"),
     ClassVersion(Opcodes.V19.toByte(), "Java SE 19"),

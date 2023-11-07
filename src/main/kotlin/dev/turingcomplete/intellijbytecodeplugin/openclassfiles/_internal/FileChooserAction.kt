@@ -6,7 +6,7 @@ import com.intellij.openapi.fileChooser.ex.FileChooserDialogImpl
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VfsUtil
-import dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeToolService
+import dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeAnalyserOpenClassFileService
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
 
 internal class FileChooserAction : OpenClassFilesToolWindowAction("Open Class Files...",
@@ -22,7 +22,7 @@ internal class FileChooserAction : OpenClassFilesToolWindowAction("Open Class Fi
     val dialog = FileChooserDialogImpl(descriptor, project)
     val startPath = project.guessProjectDir() ?: VfsUtil.getUserHomeDir()
     val classFilesToOpen = dialog.choose(project, startPath).filter { it.isValid }.toList()
-    project.getService(ByteCodeToolService::class.java).openFiles(classFilesToOpen)
+    project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openFiles(classFilesToOpen)
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //

@@ -13,7 +13,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiUtilBase
 import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodePluginIcons
-import dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeToolService
+import dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeAnalyserOpenClassFileService
 
 internal class AnalyzeByteCodeAction : DumbAwareAction(TITLE, null, ByteCodePluginIcons.ACTION_ICON) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
@@ -49,13 +49,13 @@ internal class AnalyzeByteCodeAction : DumbAwareAction(TITLE, null, ByteCodePlug
     val editorPsiFile = result.second
     if (psiElement != null) {
       val originalFile = CommonDataKeys.VIRTUAL_FILE.getData(e.dataContext)
-      project.getService(ByteCodeToolService::class.java).openPsiElements(listOf(psiElement), editorPsiFile, originalFile)
+      project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openPsiElements(listOf(psiElement), editorPsiFile, originalFile)
       return
     }
 
     val files = CommonDataKeys.VIRTUAL_FILE_ARRAY.getData(e.dataContext)
     if (files != null) {
-      project.getService(ByteCodeToolService::class.java).openFiles(files.toList())
+      project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openFiles(files.toList())
     }
   }
 

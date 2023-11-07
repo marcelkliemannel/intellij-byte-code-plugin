@@ -111,7 +111,7 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
           add(ViewValueAction())
         }
       })
-      TableSpeedSearch(this)
+      TableSpeedSearch.installOn(this)
     }
   }
 
