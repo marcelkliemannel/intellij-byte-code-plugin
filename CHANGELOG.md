@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- Fix refresh class file action may work on outdated cached version
+
 ## 3.2.0 - 2023-11-07
 
 ### Added

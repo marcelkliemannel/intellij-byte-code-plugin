@@ -24,7 +24,10 @@ internal class DefaultClassFileContext private constructor(private val project: 
                   onSuccess: (ClassFileContext) -> Unit,
                   onError: (Throwable) -> Unit) {
 
-      AsyncUtils.runAsync(project, { DefaultClassFileContext(project, classFile, true) }, onSuccess, onError)
+      AsyncUtils.runAsync(project, {
+        classFile.refresh(false, false)
+        DefaultClassFileContext(project, classFile, true)
+      }, onSuccess, onError)
     }
 
     @TestOnly
