@@ -1,15 +1,8 @@
 package dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal
 
-import com.intellij.compiler.impl.CompositeScope
 import com.intellij.ide.highlighter.JavaClassFileType
 import com.intellij.ide.util.JavaAnonymousClassesHelper
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ReadAction
-import com.intellij.openapi.compiler.CompileContext
-import com.intellij.openapi.compiler.CompileScope
-import com.intellij.openapi.compiler.CompileStatusNotification
-import com.intellij.openapi.compiler.CompilerManager
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.FileTypeRegistry
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.DumbService
@@ -19,13 +12,20 @@ import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.psi.*
+import com.intellij.psi.PsiAnonymousClass
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiClassOwner
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiJavaFile
+import com.intellij.psi.PsiJavaModule
+import com.intellij.psi.PsiTypeParameter
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.util.ClassUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiUtil
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesPreparationService.ClassFilePreparationTask
 import java.nio.file.Path
 
 /**
@@ -39,12 +39,10 @@ import java.nio.file.Path
  * in the 'IntelliJ IDEA Community Edition' project, which is licensed under
  * 'Apache License 2.0'.
  */
-internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, private val project: Project) {
+internal class OpenClassFilesTask(private val openClassFile: (ProcessableClassFile) -> Unit, private val project: Project) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
-    private val LOGGER = Logger.getInstance(OpenClassFilesTask::class.java)
-
     private const val MESSAGE_DIALOG_TITLE = "Open Class Files"
 
     fun isOpenableFile(file: VirtualFile, project: Project): Boolean {
@@ -78,16 +76,9 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   private val errors = mutableListOf<String>()
-
-  private val readyToOpen = mutableListOf<VirtualFile>()
-  private val outdatedClassFiles = mutableListOf<ClassFileNeedingPreparation>()
-  private val missingClassFiles = mutableListOf<ClassFileNeedingPreparation>()
-
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-
-  private val compilerManager by lazy { CompilerManager.getInstance(project) }
   private val projectFileIndex by lazy { ProjectFileIndex.getInstance(project) }
 
+  // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
   fun consumeFiles(files: List<VirtualFile>): OpenClassFilesTask {
@@ -99,7 +90,7 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
       }
 
       if (isReadyToOpen(file)) {
-        readyToOpen.add(file)
+        openClassFile(ProcessableClassFile(file))
         return@forEach
       }
 
@@ -185,7 +176,7 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
         // Disadvantage:
         // If the user tries to open an inner class of a decompiled .class file
         // during indexing, we would now open the outermost class file.
-        readyToOpen.add(originalFile)
+        openClassFile(ProcessableClassFile(originalFile))
       }
       else {
         errors.add("Couldn't process selection because indices are updating. Please try again after the indexing finished.")
@@ -250,25 +241,6 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
       Messages.showErrorDialog(project, message, MESSAGE_DIALOG_TITLE)
       return
     }
-
-    val outdatedClassFilesText = outdatedClassFiles.joinToString(", ", transform = { "'${it.sourceFile.name}'" })
-    val missingClassFilesText = missingClassFiles.joinToString(", ", transform = { "'${it.sourceFile.name}'" })
-    val compileScope = sequenceOf(prepareForCompilation(outdatedClassFiles,
-                                                        "The source file $outdatedClassFilesText is not up-to-date, should it be compiled?",
-                                                        "The source files $outdatedClassFilesText are not up-to-date, should these be compiled?",
-                                                        true),
-                                  prepareForCompilation(missingClassFiles,
-                                                        "The class file for the source file $missingClassFilesText could not be found, should it be compiled?",
-                                                        "The class files for the source files $missingClassFilesText could not be found, should these be compiled?",
-                                                        false))
-            .filterNotNull()
-            .reduceOrNull { first, second -> CompositeScope(first, second) }
-
-    readyToOpen.forEach { openFile(it) }
-
-    if (compileScope != null) {
-      compilerManager.compile(compileScope, OpenClassFilesAfterCompilationHandler(outdatedClassFiles.plus(missingClassFiles), openFile))
-    }
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
@@ -311,7 +283,7 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
         errors.add("Couldn't find class file: $file")
       }
       else {
-        readyToOpen.add(classFile)
+        openClassFile(ProcessableClassFile(classFile))
       }
 
       return
@@ -351,19 +323,11 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
         Pair(module, expectedClassFilePath)
       }
     } ?: return
-    val module = moduleToExpectedClassFilePath.first
     val expectedClassFilePath = moduleToExpectedClassFilePath.second
+    val module = moduleToExpectedClassFilePath.first
 
-    val classFile = VirtualFileManager.getInstance().findFileByNioPath(expectedClassFilePath)
-    if (classFile == null || !classFile.isValid) {
-      missingClassFiles.add(ClassFileNeedingPreparation(module, file, expectedClassFilePath))
-    }
-    else if (!compilerManager.isUpToDate(compilerManager.createFilesCompileScope(arrayOf(file)))) {
-      outdatedClassFiles.add(ClassFileNeedingPreparation(module, file, expectedClassFilePath))
-    }
-    else {
-      readyToOpen.add(classFile)
-    }
+    project.getService(ClassFilesPreparationService::class.java)
+      .openClassFilesAfterPreparation(listOf(ClassFilePreparationTask(expectedClassFilePath, Pair(sourceFile, module))), null, openClassFile)
   }
 
   private fun toJvmClassName(psiClass: PsiClass): String? {
@@ -384,61 +348,6 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
     val classRoot = (if (isTest) compiler.compilerOutputForTestsPointer else compiler.compilerOutputPointer) ?: return null
     val relativePath = "${jvmClassName.replace('.', '/')}.class"
     return Path.of(classRoot.presentableUrl, relativePath)
-  }
-
-  private fun prepareForCompilation(classFilesNeedingPreparation: List<ClassFileNeedingPreparation>,
-                                    singularQuestion: String,
-                                    pluralQuestion: String,
-                                    tryToUseClassesAsTheyAre: Boolean): CompileScope? {
-
-    if (classFilesNeedingPreparation.isEmpty()) {
-      return null
-    }
-
-    val useSingular = classFilesNeedingPreparation.size == 1
-    val options = mutableListOf<String>()
-    if (tryToUseClassesAsTheyAre) {
-      options.add(if (useSingular) "Try to use the class as it is" else "Try to use classes as they are")
-    }
-    options.add(if (useSingular) "Compile only this file" else "Compile only these files")
-    val compileOnlyClassesAnswerIndex = options.size - 1
-
-    options.add(if (useSingular) "Compile whole module" else "Compile whole modules")
-    val compileWholeModulesAnswerIndex = options.size - 1
-
-    options.add(if (useSingular) "Compile whole module tree" else "Compile whole module trees")
-    val compileWholeModulesAndDependentModulesAnswerIndex = options.size - 1
-
-    options.add("Cancel")
-    val cancelAnswerIndex = options.size - 1
-
-    val answer = Messages.showDialog(project,
-                                     if (useSingular) singularQuestion else pluralQuestion,
-                                     MESSAGE_DIALOG_TITLE,
-                                     options.toTypedArray(),
-                                     0, null)
-    return when (answer) {
-        -1, cancelAnswerIndex -> {
-          null
-        }
-        compileOnlyClassesAnswerIndex -> {
-          CompilerManager.getInstance(project).createFilesCompileScope(classFilesNeedingPreparation.map { it.sourceFile }.toTypedArray())
-        }
-        compileWholeModulesAnswerIndex, compileWholeModulesAndDependentModulesAnswerIndex -> {
-          val includeDependentModules = answer == compileWholeModulesAndDependentModulesAnswerIndex
-          CompilerManager.getInstance(project).createModulesCompileScope(classFilesNeedingPreparation.map { it.module }.toTypedArray(), includeDependentModules)
-        }
-        else -> {
-          if (tryToUseClassesAsTheyAre) {
-            classFilesNeedingPreparation
-                    .mapNotNull { VirtualFileManager.getInstance().findFileByNioPath(it.expectedClassFilePath) }
-                    .filter { it.isValid }
-                    .forEach { readyToOpen.add(it) }
-          }
-
-          null
-        }
-    }
   }
 
   private fun findNextPsiClass(psiElement: PsiElement): PsiClass? {
@@ -484,36 +393,4 @@ internal class OpenClassFilesTask(private val openFile: (VirtualFile) -> Unit, p
   }
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
-
-  private class ClassFileNeedingPreparation(val module: Module, val sourceFile: VirtualFile, val expectedClassFilePath: Path)
-
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
-
-  private class OpenClassFilesAfterCompilationHandler(private val classFilesNeedingPreparation: List<ClassFileNeedingPreparation>,
-                                                      private val openFile: (VirtualFile) -> Unit)
-    : CompileStatusNotification {
-
-    override fun finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext) {
-      if (aborted || errors > 0) {
-        return
-      }
-
-      if (compileContext.project.isDisposed) {
-        return
-      }
-
-      ApplicationManager.getApplication().executeOnPooledThread {
-        val virtualFileManager = VirtualFileManager.getInstance()
-        classFilesNeedingPreparation.forEach {
-          val virtualFile = virtualFileManager.refreshAndFindFileByNioPath(it.expectedClassFilePath)
-          if (virtualFile != null && virtualFile.isValid) {
-            openFile(virtualFile)
-          }
-          else {
-            LOGGER.warn("Failed to find class file '${it.expectedClassFilePath}' after compilation.")
-          }
-        }
-      }
-    }
-  }
 }

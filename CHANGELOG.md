@@ -4,13 +4,16 @@
 
 ### Added
 
+- Add option to build the whole project if a class file is outdated or missing
+- Add option to re-compile the class file in the the "Re-Parse Class File" action if the class file is outdated or missing
+
 ### Changed
 
 ### Removed
 
 ### Fixed
 
-- Fix refresh class file action may work on outdated cached version
+- Fix "Re-Parse Class File" action may work on an outdated cached version
 
 ## 3.2.0 - 2023-11-07
 

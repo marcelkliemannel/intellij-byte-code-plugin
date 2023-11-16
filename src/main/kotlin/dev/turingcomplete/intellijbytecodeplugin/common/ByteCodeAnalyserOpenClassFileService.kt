@@ -7,6 +7,7 @@ import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ProcessableClassFile
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.OpenClassFilesTask
 
 @Service(Service.Level.PROJECT)
@@ -14,7 +15,7 @@ class ByteCodeAnalyserOpenClassFileService(val project: Project) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
-  private val openClassFile: (VirtualFile) -> Unit = {
+  private val openClassFile: (ProcessableClassFile) -> Unit = {
     val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(ByteCodeToolWindowFactory.TOOL_WINDOW_ID)
                      ?: throw IllegalStateException("Could not find tool window '${ByteCodeToolWindowFactory.TOOL_WINDOW_ID}'")
     ByteCodeToolWindowFactory.openClassFile(it, toolWindow, project)
@@ -37,4 +38,5 @@ class ByteCodeAnalyserOpenClassFileService(val project: Project) {
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
+
 }

@@ -9,7 +9,6 @@ import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.ValueNode
 import junit.framework.AssertionFailedError
-import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import javax.swing.tree.TreeNode
@@ -57,15 +56,9 @@ class StructureTreeTest(testName: String, classFilePath: String)  : ClassFileCon
 
   @Test
   fun testFullStructureTreeCreation() {
-    var fullyCreated = false
-    DefaultClassFileContext.loadSync(project, classFileAsVirtualFile,
-                                     {
-                                       val tree = StructureTree(it, testRootDisposable)
-                                       loadAllChildren(tree, tree.getChildren())
-                                       fullyCreated = true
-                                     },
-                                     { throw it })
-    Assert.assertTrue(fullyCreated)
+    val classFileContext = DefaultClassFileContext(project, classFileAsVirtualFile, false)
+    val tree = StructureTree(classFileContext, testRootDisposable)
+    loadAllChildren(tree, tree.getChildren())
   }
 
   private fun loadAllChildren(tree: StructureTree, children: List<TreeNode>?) {

@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.DialogWrapper.IdeModalityType
+import com.intellij.openapi.ui.OptionAction
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.HyperlinkLabel
 import com.intellij.ui.ScrollPaneFactory
@@ -14,12 +15,16 @@ import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import java.awt.Dimension
+import java.awt.event.ActionEvent
 import java.awt.event.InputEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.text.DecimalFormat
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import javax.swing.AbstractAction
+import javax.swing.Action
+import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.JFormattedTextField
 import javax.swing.text.AbstractDocument
@@ -36,6 +41,31 @@ internal object UiUtils {
       setHyperlinkTarget(url)
     }
   }
+
+  fun createAction(title: String, icon: Icon?, action: (ActionEvent?) -> Unit) = object : AbstractAction(title, icon) {
+
+    init {
+      UIUtil.assignMnemonic(title, this)
+    }
+
+    override fun actionPerformed(e: ActionEvent?) {
+      action(e)
+    }
+  }
+
+  fun createOptionsAction(title: String, icon: Icon?, options: Array<Action>, action: (ActionEvent?) -> Unit): OptionAction =
+    object : AbstractAction(title, icon), OptionAction {
+
+      init {
+        UIUtil.assignMnemonic(title, this)
+      }
+
+      override fun actionPerformed(e: ActionEvent?) {
+        action(e)
+      }
+
+      override fun getOptions(): Array<Action> = options
+    }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
@@ -93,19 +123,19 @@ internal object UiUtils {
     fun showTextAreaPopup(value: String, dataContext: DataContext) {
       val valueTextArea = Panel.NotEditableTextArea(value, true)
       JBPopupFactory.getInstance()
-              .createComponentPopupBuilder(valueTextArea, valueTextArea)
-              .setRequestFocus(true)
-              .setFocusable(true)
-              .setResizable(true)
-              .setMovable(true)
-              .setModalContext(false)
-              .setShowShadow(true)
-              .setShowBorder(true)
-              .setCancelKeyEnabled(true)
-              .setCancelOnClickOutside(true)
-              .setCancelOnOtherWindowOpen(true)
-              .createPopup()
-              .showInBestPositionFor(dataContext)
+        .createComponentPopupBuilder(valueTextArea, valueTextArea)
+        .setRequestFocus(true)
+        .setFocusable(true)
+        .setResizable(true)
+        .setMovable(true)
+        .setModalContext(false)
+        .setShowShadow(true)
+        .setShowBorder(true)
+        .setCancelKeyEnabled(true)
+        .setCancelOnClickOutside(true)
+        .setCancelOnOtherWindowOpen(true)
+        .createPopup()
+        .showInBestPositionFor(dataContext)
     }
   }
 

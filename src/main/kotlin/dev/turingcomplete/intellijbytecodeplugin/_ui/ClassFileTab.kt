@@ -7,19 +7,24 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.AnimatedIcon
 import com.intellij.ui.TabbedPaneWrapper
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.components.BorderLayoutPanel
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
+import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesPreparationService
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesPreparationService.ClassFilePreparationTask
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ProcessableClassFile
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeView
 import dev.turingcomplete.intellijbytecodeplugin.view._internal.ErrorStateHandler
 import javax.swing.JComponent
 import javax.swing.SwingConstants
 
-internal class ClassFileTab(private val project: Project, private val classFile: VirtualFile)
-  : ErrorStateHandler(), DataProvider, DumbAware, Disposable {
+internal class ClassFileTab(
+  private val project: Project,
+  private var processableClassFile: ProcessableClassFile
+) : ErrorStateHandler(), DataProvider, DumbAware, Disposable {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
@@ -44,6 +49,21 @@ internal class ClassFileTab(private val project: Project, private val classFile:
   }
 
   override fun reParseClassNodeContext() {
+    val sourceFile = processableClassFile.sourceFile
+    if (sourceFile != null) {
+      val classFilePreparationTask = ClassFilePreparationTask(processableClassFile.classFile.toNioPath(), sourceFile)
+      project.getService(ClassFilesPreparationService::class.java)
+        .openClassFilesAfterPreparation(listOf(classFilePreparationTask), centerComponentContainer) {
+          processableClassFile = it
+          doReParseClassNodeContext()
+        }
+    }
+    else {
+      doReParseClassNodeContext()
+    }
+  }
+
+  private fun doReParseClassNodeContext() {
     ApplicationManager.getApplication().invokeLater {
       val previousSelectedByteCodeViewIndex = byteCodeViewTabs?.selectedByteCodeViewIndex
       loadClassNodeContext(previousSelectedByteCodeViewIndex)
@@ -62,28 +82,41 @@ internal class ClassFileTab(private val project: Project, private val classFile:
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
   private fun loadClassNodeContext(selectedByteCodeViewIndex: Int? = 0) {
-    setCenter(JBLabel("Parsing '${classFile.nameWithoutExtension}'...", AnimatedIcon.Default(), SwingConstants.CENTER))
+    setCenter(JBLabel("Parsing '${processableClassFile.classFile.nameWithoutExtension}'...", AnimatedIcon.Default(), SwingConstants.CENTER))
 
-    val onSuccess = loadTabs(selectedByteCodeViewIndex ?: 0)
-    DefaultClassFileContext.loadAsync(project, classFile, onSuccess) { cause ->
-      onError("Failed to parse class file '${classFile.name}'", cause)
+    val createClassFileContext = {
+      // If we reach this method through the "refresh class file" action, it
+      // may happen that the file has changed on the disc, but the `VirtualFile`
+      // does not pick up this change and the `VirtualFile#inputStream` returns
+      // an outdated cached version.
+      if (!processableClassFile.refreshValidity()) {
+        throw IllegalStateException("Class file no longer exists.")
+      }
+      DefaultClassFileContext(project, processableClassFile.classFile, true)
     }
+    val onSuccess: (DefaultClassFileContext) -> Unit = { classFileContext ->
+      ApplicationManager.getApplication().invokeLater {
+        loadTabs(classFileContext, selectedByteCodeViewIndex ?: 0)
+      }
+    }
+    val onError: (Throwable) -> Unit = { cause ->
+      onError("Failed to parse class file '${processableClassFile.classFile.name}'", cause)
+    }
+    AsyncUtils.runAsync(project, createClassFileContext, onSuccess, onError)
   }
 
-  private fun loadTabs(selectedByteCodeViewIndex: Int): (ClassFileContext) -> Unit = { classFileContext ->
-    ApplicationManager.getApplication().invokeLater {
-      if (project.isDisposed) {
-        return@invokeLater
-      }
+  private fun loadTabs(classFileContext: ClassFileContext, selectedByteCodeViewIndex: Int) {
+    if (project.isDisposed) {
+      return
+    }
 
-      byteCodeViewTabs = ByteCodeViewTabs(classFileContext, this)
+    byteCodeViewTabs = ByteCodeViewTabs(classFileContext, this)
+    // We are inside the EDT -> no threading issues
+    setCenter(byteCodeViewTabs!!.component)
+
+    if (selectedByteCodeViewIndex != 0) {
       // We are inside the EDT -> no threading issues
-      setCenter(byteCodeViewTabs!!.component)
-
-      if (selectedByteCodeViewIndex != 0) {
-        // We are inside the EDT -> no threading issues
-        byteCodeViewTabs!!.selectBytecodeViewIndex(selectedByteCodeViewIndex)
-      }
+      byteCodeViewTabs!!.selectBytecodeViewIndex(selectedByteCodeViewIndex)
     }
   }
 

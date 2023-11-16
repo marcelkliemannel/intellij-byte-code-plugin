@@ -20,7 +20,14 @@ import java.awt.Dimension
 import java.awt.GridBagLayout
 import java.awt.event.ActionEvent
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.swing.*
+import javax.swing.AbstractAction
+import javax.swing.Box
+import javax.swing.BoxLayout
+import javax.swing.JButton
+import javax.swing.JComponent
+import javax.swing.JPanel
+import javax.swing.JTextArea
+import javax.swing.SwingConstants
 
 abstract class ErrorStateHandler {
   // -- Companion Object -------------------------------------------------------------------------------------------- //

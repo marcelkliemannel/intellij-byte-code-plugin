@@ -3,46 +3,20 @@ package dev.turingcomplete.intellijbytecodeplugin._ui
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
-import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.ClassReader
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNode
-import org.jetbrains.annotations.TestOnly
 
-internal class DefaultClassFileContext private constructor(private val project: Project,
-                                                           private val classFile: VirtualFile,
-                                                           private val workAsync: Boolean)
-  : ClassFileContext {
+internal class DefaultClassFileContext(
+  private val project: Project,
+  private val classFile: VirtualFile,
+  private val workAsync: Boolean
+) : ClassFileContext {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
     const val ASM_API: Int = Opcodes.ASM9
-
-    fun loadAsync(project: Project,
-                  classFile: VirtualFile,
-                  onSuccess: (ClassFileContext) -> Unit,
-                  onError: (Throwable) -> Unit) {
-
-      AsyncUtils.runAsync(project, {
-        classFile.refresh(false, false)
-        DefaultClassFileContext(project, classFile, true)
-      }, onSuccess, onError)
-    }
-
-    @TestOnly
-    fun loadSync(project: Project,
-                 classFile: VirtualFile,
-                 onSuccess: (ClassFileContext) -> Unit,
-                 onError: (Throwable) -> Unit) {
-
-      try {
-        onSuccess(DefaultClassFileContext(project, classFile, false))
-      }
-      catch (e: Throwable) {
-        onError(e)
-      }
-    }
   }
 
   // -- Properties -------------------------------------------------------------------------------------------------- //
