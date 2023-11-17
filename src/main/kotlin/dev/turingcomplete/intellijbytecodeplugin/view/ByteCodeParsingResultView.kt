@@ -28,11 +28,13 @@ import com.intellij.ui.components.DropDownLink
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.DocumentUtil
 import com.intellij.util.PlatformIcons
+import com.intellij.util.asSafely
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.ui.GridBag
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory.Companion.TOOLBAR_PLACE_PREFIX
+import dev.turingcomplete.intellijbytecodeplugin._ui.SimpleListCellRenderer
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideLeftInset
 import dev.turingcomplete.intellijbytecodeplugin._ui.withCommonsDefaults
 import dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeAnalyserSettingsService
@@ -43,13 +45,10 @@ import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesD
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.ClassReader
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction.Companion.addAllByteCodeActions
 import dev.turingcomplete.intellijbytecodeplugin.view.common.OpenInEditorAction
-import java.awt.Component
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
-import javax.swing.DefaultListCellRenderer
 import javax.swing.Icon
 import javax.swing.JComponent
-import javax.swing.JList
 import javax.swing.JPanel
 import kotlin.properties.Delegates
 
@@ -145,7 +144,7 @@ abstract class ByteCodeParsingResultView(
     val createPopUp: (DropDownLink<Pair<Int, String>>) -> JBPopup = {
       JBPopupFactory.getInstance()
         .createPopupChooserBuilder(goToMethods)
-        .setRenderer(GoToMethodsCellRenderer())
+        .setRenderer(SimpleListCellRenderer { it.asSafely<Pair<Int, String>>()?.let { "${it.second} (line: ${it.first + 1})" } ?: "" })
         .setItemChosenCallback { goToMethod(it.first) }
         .createPopup()
     }
@@ -326,25 +325,5 @@ abstract class ByteCodeParsingResultView(
     }
 
     override fun getActionUpdateThread() = ActionUpdateThread.EDT
-  }
-
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
-
-  private class GoToMethodsCellRenderer : DefaultListCellRenderer() {
-
-    @Suppress("UNCHECKED_CAST")
-    override fun getListCellRendererComponent(list: JList<*>?, value: Any?, index: Int, selected: Boolean, focused: Boolean): Component {
-      super.getListCellRendererComponent(list, value, index, selected, false)
-
-      value as Pair<Int, String>
-      text = "${value.second} (line: ${value.first + 1})"
-
-      border = JBUI.Borders.empty(0, 5, 0, 10)
-      if (!selected) {
-        background = UIUtil.getLabelBackground()
-      }
-
-      return this
-    }
   }
 }

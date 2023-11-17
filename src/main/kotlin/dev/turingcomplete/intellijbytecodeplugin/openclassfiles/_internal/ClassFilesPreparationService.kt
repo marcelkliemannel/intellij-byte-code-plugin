@@ -9,14 +9,13 @@ import com.intellij.openapi.compiler.CompileStatusNotification
 import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.ui.dsl.builder.panel
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.joinAsNaturalLanguage
+import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile
 import java.nio.file.Path
 import javax.swing.Action
 import javax.swing.Icon
@@ -57,12 +56,12 @@ internal class ClassFilesPreparationService(private val project: Project) {
       }
 
       val sourceFile = classFilePreparationContext.sourceFile
-      sourceFile.first.refresh(false, false)
-      if (!sourceFile.first.isValid) {
-        logger.warn("Can't process source file '${sourceFile.first.path}' since it is no longer valid")
+      sourceFile.file.refresh(false, false)
+      if (!sourceFile.file.isValid) {
+        logger.warn("Can't process source file '${sourceFile.file.path}' since it is no longer valid")
         return@forEach
       }
-      if (!compilerManager.isUpToDate(compilerManager.createFilesCompileScope(arrayOf(sourceFile.first)))) {
+      if (!compilerManager.isUpToDate(compilerManager.createFilesCompileScope(arrayOf(sourceFile.file)))) {
         outdatedClassFiles.add(classFilePreparationContext)
       }
       else {
@@ -95,12 +94,12 @@ internal class ClassFilesPreparationService(private val project: Project) {
     return when (selectedPrepareMode) {
       PrepareMode.BUILD_PROJECT -> CompilerManager.getInstance(project).createProjectCompileScope(project)
       PrepareMode.COMPILE_MODULES -> CompilerManager.getInstance(project)
-        .createModulesCompileScope(classFiles.map { it.sourceFile.second }.toTypedArray(), false)
+        .createModulesCompileScope(classFiles.map { it.sourceFile.module }.toTypedArray(), false)
 
       PrepareMode.COMPILE_MODULE_TREES -> CompilerManager.getInstance(project)
-        .createModulesCompileScope(classFiles.map { it.sourceFile.second }.toTypedArray(), true)
+        .createModulesCompileScope(classFiles.map { it.sourceFile.module }.toTypedArray(), true)
 
-      PrepareMode.COMPILE_FILES -> CompilerManager.getInstance(project).createFilesCompileScope(classFiles.map { it.sourceFile.first }.toTypedArray())
+      PrepareMode.COMPILE_FILES -> CompilerManager.getInstance(project).createFilesCompileScope(classFiles.map { it.sourceFile.file }.toTypedArray())
       PrepareMode.USE_DIRECTLY -> {
         assert(prepareReason == PrepareReason.OUT_DATED)
         classFiles.forEach {
@@ -119,7 +118,7 @@ internal class ClassFilesPreparationService(private val project: Project) {
   // -- Private Methods --------------------------------------------------------------------------------------------- //
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  internal class ClassFilePreparationTask(val expectedClassFilePath: Path, val sourceFile: Pair<VirtualFile, Module>)
+  internal class ClassFilePreparationTask(val expectedClassFilePath: Path, val sourceFile: SourceFile)
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
@@ -175,13 +174,13 @@ internal class ClassFilesPreparationService(private val project: Project) {
                                     val allowsUseDirectly: Boolean) {
 
     OUT_DATED(
-      { classFile -> "The class file for the source file '${classFile.sourceFile.first.name}' is outdated. Should it be compiled?" },
-      { classFiles -> "The class files for the source files ${classFiles.joinAsNaturalLanguage { "'${it.sourceFile.first.name}'" }} are outdated. Should they be compiled?" },
+      { classFile -> "The class file for the source file '${classFile.sourceFile.file.name}' is outdated. Should it be compiled?" },
+      { classFiles -> "The class files for the source files ${classFiles.joinAsNaturalLanguage { "'${it.sourceFile.file.name}'" }} are outdated. Should they be compiled?" },
       true
     ),
     MISSING(
-      { classFile -> "The class file for the source file '${classFile.sourceFile.first.name}' is missing. Should it be compiled?" },
-      { classFiles -> "The class files for the source files ${classFiles.joinAsNaturalLanguage { "'${it.sourceFile.first.name}'" }}' are missing. Should they be compiled?" },
+      { classFile -> "The class file for the source file '${classFile.sourceFile.file.name}' is missing. Should it be compiled?" },
+      { classFiles -> "The class files for the source files ${classFiles.joinAsNaturalLanguage { "'${it.sourceFile.file.name}'" }}' are missing. Should they be compiled?" },
       false
     )
   }

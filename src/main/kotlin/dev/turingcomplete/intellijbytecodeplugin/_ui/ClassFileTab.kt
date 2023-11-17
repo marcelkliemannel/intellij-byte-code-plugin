@@ -92,9 +92,9 @@ internal class ClassFileTab(
       if (!processableClassFile.refreshValidity()) {
         throw IllegalStateException("Class file no longer exists.")
       }
-      DefaultClassFileContext(project, processableClassFile.classFile, true)
+      DefaultClassFileContext(project, processableClassFile, true)
     }
-    val onSuccess: (DefaultClassFileContext) -> Unit = { classFileContext ->
+    val onSuccess: (ClassFileContext) -> Unit = { classFileContext ->
       ApplicationManager.getApplication().invokeLater {
         loadTabs(classFileContext, selectedByteCodeViewIndex ?: 0)
       }

@@ -25,6 +25,7 @@ import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.util.ClassUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiUtil
+import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesPreparationService.ClassFilePreparationTask
 import java.nio.file.Path
 
@@ -81,7 +82,7 @@ internal class OpenClassFilesTask(private val openClassFile: (ProcessableClassFi
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
-  fun consumeFiles(files: List<VirtualFile>): OpenClassFilesTask {
+  fun consumeFiles(files: List<VirtualFile>) {
     val psiFilesToOpen = mutableListOf<PsiFile>()
 
     files.forEach { file ->
@@ -113,14 +114,14 @@ internal class OpenClassFilesTask(private val openClassFile: (ProcessableClassFi
       consumePsiFiles(psiFilesToOpen, true)
     }
 
-    return this
+    handleErrors()
   }
 
   /**
    * @param doNotProcessAsVirtualFiles true, if the given `psiFiles` should not
    * be processed as [VirtualFile]s by calling [consumeFiles].
    */
-  fun consumePsiFiles(psiFiles: List<PsiFile>, doNotProcessAsVirtualFiles: Boolean = false): OpenClassFilesTask {
+  fun consumePsiFiles(psiFiles: List<PsiFile>, doNotProcessAsVirtualFiles: Boolean = false) {
     psiFiles.forEach { psiFile ->
       if (DumbService.isDumb(project)) {
         errors.add("Couldn't determine if file '${psiFile.name}' is a processable class or source file " +
@@ -161,10 +162,10 @@ internal class OpenClassFilesTask(private val openClassFile: (ProcessableClassFi
                  "directory directly.")
     }
 
-    return this
+    handleErrors()
   }
 
-  fun consumePsiElements(psiElements: List<PsiElement>, originPsiFile: PsiFile? = null, originalFile: VirtualFile? = null): OpenClassFilesTask {
+  fun consumePsiElements(psiElements: List<PsiElement>, originPsiFile: PsiFile? = null, originalFile: VirtualFile? = null) {
     if (DumbService.isDumb(project)) {
       if (originalFile != null && isReadyToOpen(originalFile)) {
         // Fallback to the original file
@@ -182,7 +183,7 @@ internal class OpenClassFilesTask(private val openClassFile: (ProcessableClassFi
         errors.add("Couldn't process selection because indices are updating. Please try again after the indexing finished.")
       }
 
-      return this
+      handleErrors()
     }
 
     psiElements.forEach { psiElement ->
@@ -227,10 +228,26 @@ internal class OpenClassFilesTask(private val openClassFile: (ProcessableClassFi
       consumePsiClass(psiClass, psiFile)
     }
 
-    return this
+    handleErrors()
   }
 
-  fun openFiles() {
+  fun consumeProcessableClassFiles(processableClassFiles: List<ProcessableClassFile>) {
+    // Consume class files without a source file directly
+    processableClassFiles.filter { it.sourceFile == null }.forEach {
+      openClassFile(it)
+    }
+
+    // Prepare class files with a source file
+    val classFilePreparationTasks = processableClassFiles.filter { it.sourceFile != null }.map {
+      ClassFilePreparationTask(it.classFile.toNioPath(), it.sourceFile!!)
+    }
+    project.getService(ClassFilesPreparationService::class.java)
+      .openClassFilesAfterPreparation(classFilePreparationTasks, null, openClassFile)
+
+    handleErrors()
+  }
+
+  private fun handleErrors() {
     if (errors.isNotEmpty()) {
       val message = if (errors.size == 1) {
         errors[0]
@@ -327,7 +344,7 @@ internal class OpenClassFilesTask(private val openClassFile: (ProcessableClassFi
     val module = moduleToExpectedClassFilePath.first
 
     project.getService(ClassFilesPreparationService::class.java)
-      .openClassFilesAfterPreparation(listOf(ClassFilePreparationTask(expectedClassFilePath, Pair(sourceFile, module))), null, openClassFile)
+      .openClassFilesAfterPreparation(listOf(ClassFilePreparationTask(expectedClassFilePath, SourceFile(sourceFile, module))), null, openClassFile)
   }
 
   private fun toJvmClassName(psiClass: PsiClass): String? {

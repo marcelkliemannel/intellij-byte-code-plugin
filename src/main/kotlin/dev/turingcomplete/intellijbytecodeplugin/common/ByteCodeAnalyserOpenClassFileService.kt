@@ -7,8 +7,8 @@ import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory
-import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ProcessableClassFile
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.OpenClassFilesTask
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ProcessableClassFile
 
 @Service(Service.Level.PROJECT)
 class ByteCodeAnalyserOpenClassFileService(val project: Project) {
@@ -25,15 +25,19 @@ class ByteCodeAnalyserOpenClassFileService(val project: Project) {
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
   fun openPsiFiles(psiFiles: List<PsiFile>) {
-    OpenClassFilesTask(openClassFile, project).consumePsiFiles(psiFiles).openFiles()
+    OpenClassFilesTask(openClassFile, project).consumePsiFiles(psiFiles)
   }
 
   fun openPsiElements(psiElements: List<PsiElement>, originPsiFile: PsiFile? = null, originalFile: VirtualFile? = null) {
-    OpenClassFilesTask(openClassFile, project).consumePsiElements(psiElements, originPsiFile, originalFile).openFiles()
+    OpenClassFilesTask(openClassFile, project).consumePsiElements(psiElements, originPsiFile, originalFile)
   }
 
   fun openFiles(files: List<VirtualFile>) {
-    OpenClassFilesTask(openClassFile, project).consumeFiles(files).openFiles()
+    OpenClassFilesTask(openClassFile, project).consumeFiles(files)
+  }
+
+  internal fun openProcessableClassFiles(processableClassFiles: List<ProcessableClassFile>) {
+    OpenClassFilesTask(openClassFile, project).consumeProcessableClassFiles(processableClassFiles)
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //

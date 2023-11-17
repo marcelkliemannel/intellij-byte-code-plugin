@@ -47,7 +47,6 @@ class OpenClassFilesTaskTest(
     val actualClassFilesReadyToOpen = mutableListOf<VirtualFile>()
     OpenClassFilesTask({ actualClassFilesReadyToOpen.add(it.classFile) }, project)
       .consumeFiles(listOf(classFileAsVirtualFile))
-      .openFiles()
     Assert.assertEquals(1, actualClassFilesReadyToOpen.size)
     Assert.assertEquals(classFileAsVirtualFile, actualClassFilesReadyToOpen[0])
   }
@@ -61,7 +60,6 @@ class OpenClassFilesTaskTest(
     val actualClassFilesReadyToOpen = mutableListOf<VirtualFile>()
     OpenClassFilesTask({ actualClassFilesReadyToOpen.add(it.classFile) }, project)
       .consumePsiFiles(listOf(psiJavaFile!!))
-      .openFiles()
     Assert.assertEquals(1, actualClassFilesReadyToOpen.size)
     Assert.assertEquals(classFileAsVirtualFile, actualClassFilesReadyToOpen[0])
   }
@@ -136,7 +134,6 @@ class OpenClassFilesTaskTest(
                            .isEqualTo(it.classFile.name)
                        }, project)
       .consumePsiElements(psiElements)
-      .openFiles()
     Assert.assertEquals(psiElements.size, filesOpened)
   }
 

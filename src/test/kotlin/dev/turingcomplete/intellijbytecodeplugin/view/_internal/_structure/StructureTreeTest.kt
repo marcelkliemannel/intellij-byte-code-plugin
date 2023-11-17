@@ -7,6 +7,7 @@ import dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase
 import dev.turingcomplete.intellijbytecodeplugin._ui.DefaultClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ProcessableClassFile
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.ValueNode
 import junit.framework.AssertionFailedError
 import org.junit.Test
@@ -56,7 +57,7 @@ class StructureTreeTest(testName: String, classFilePath: String)  : ClassFileCon
 
   @Test
   fun testFullStructureTreeCreation() {
-    val classFileContext = DefaultClassFileContext(project, classFileAsVirtualFile, false)
+    val classFileContext = DefaultClassFileContext(project, ProcessableClassFile(classFileAsVirtualFile, null), false)
     val tree = StructureTree(classFileContext, testRootDisposable)
     loadAllChildren(tree, tree.getChildren())
   }

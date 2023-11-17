@@ -19,10 +19,14 @@ interface ClassFileContext {
   fun project(): Project
 
   fun classFile(): VirtualFile
+  
+  fun sourceFile(): SourceFile?
 
   fun classNode(): ClassNode
 
   fun classReader(): ClassReader
+
+  fun relatedClassFiles(): List<VirtualFile>
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
