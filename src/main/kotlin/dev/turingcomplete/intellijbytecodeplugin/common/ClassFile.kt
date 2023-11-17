@@ -1,21 +1,20 @@
-package dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal
+package dev.turingcomplete.intellijbytecodeplugin.common
 
 import com.intellij.openapi.vfs.VirtualFile
-import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile
 
-data class ProcessableClassFile(val classFile: VirtualFile, val sourceFile: SourceFile? = null) {
+data class ClassFile internal constructor(val file: VirtualFile, val sourceFile: SourceFile? = null) {
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //
 
   init {
-    assert(classFile.extension == "class")
+    assert(file.extension == "class")
   }
 
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
   fun refreshValidity(): Boolean {
-    classFile.refresh(false, false)
-    return classFile.isValid
+    file.refresh(false, false)
+    return file.isValid
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //

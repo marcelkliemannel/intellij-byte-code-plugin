@@ -13,9 +13,9 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.components.BorderLayoutPanel
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
-import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesPreparationService
-import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesPreparationService.ClassFilePreparationTask
-import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ProcessableClassFile
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesPreparatorService
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesPreparatorService.ClassFilePreparationTask
+import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeView
 import dev.turingcomplete.intellijbytecodeplugin.view._internal.ErrorStateHandler
 import javax.swing.JComponent
@@ -23,7 +23,7 @@ import javax.swing.SwingConstants
 
 internal class ClassFileTab(
   private val project: Project,
-  private var processableClassFile: ProcessableClassFile
+  private var classFile: ClassFile
 ) : ErrorStateHandler(), DataProvider, DumbAware, Disposable {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
@@ -49,12 +49,12 @@ internal class ClassFileTab(
   }
 
   override fun reParseClassNodeContext() {
-    val sourceFile = processableClassFile.sourceFile
+    val sourceFile = classFile.sourceFile
     if (sourceFile != null) {
-      val classFilePreparationTask = ClassFilePreparationTask(processableClassFile.classFile.toNioPath(), sourceFile)
-      project.getService(ClassFilesPreparationService::class.java)
-        .openClassFilesAfterPreparation(listOf(classFilePreparationTask), centerComponentContainer) {
-          processableClassFile = it
+      val classFilePreparationTask = ClassFilePreparationTask(classFile.file.toNioPath(), sourceFile)
+      project.getService(ClassFilesPreparatorService::class.java)
+        .prepareClassFiles(listOf(classFilePreparationTask), centerComponentContainer) {
+          classFile = it
           doReParseClassNodeContext()
         }
     }
@@ -82,17 +82,17 @@ internal class ClassFileTab(
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
   private fun loadClassNodeContext(selectedByteCodeViewIndex: Int? = 0) {
-    setCenter(JBLabel("Parsing '${processableClassFile.classFile.nameWithoutExtension}'...", AnimatedIcon.Default(), SwingConstants.CENTER))
+    setCenter(JBLabel("Parsing '${classFile.file.nameWithoutExtension}'...", AnimatedIcon.Default(), SwingConstants.CENTER))
 
     val createClassFileContext = {
       // If we reach this method through the "refresh class file" action, it
       // may happen that the file has changed on the disc, but the `VirtualFile`
       // does not pick up this change and the `VirtualFile#inputStream` returns
       // an outdated cached version.
-      if (!processableClassFile.refreshValidity()) {
+      if (!classFile.refreshValidity()) {
         throw IllegalStateException("Class file no longer exists.")
       }
-      DefaultClassFileContext(project, processableClassFile, true)
+      DefaultClassFileContext(project, classFile, true)
     }
     val onSuccess: (ClassFileContext) -> Unit = { classFileContext ->
       ApplicationManager.getApplication().invokeLater {
@@ -100,7 +100,7 @@ internal class ClassFileTab(
       }
     }
     val onError: (Throwable) -> Unit = { cause ->
-      onError("Failed to parse class file '${processableClassFile.classFile.name}'", cause)
+      onError("Failed to parse class file '${classFile.file.name}'", cause)
     }
     AsyncUtils.runAsync(project, createClassFileContext, onSuccess, onError)
   }

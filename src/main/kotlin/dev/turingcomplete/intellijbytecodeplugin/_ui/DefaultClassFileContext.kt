@@ -2,16 +2,16 @@ package dev.turingcomplete.intellijbytecodeplugin._ui
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile
-import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ProcessableClassFile
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.ClassReader
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNode
 
 internal class DefaultClassFileContext(
   private val project: Project,
-  private val processableClassFile: ProcessableClassFile,
+  private val classFile: ClassFile,
   private val workAsync: Boolean
 ) : ClassFileContext {
 
@@ -23,7 +23,7 @@ internal class DefaultClassFileContext(
 
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
-  private val classReader: ClassReader = ClassReader(processableClassFile.classFile.inputStream)
+  private val classReader: ClassReader = ClassReader(classFile.file.inputStream)
   private val classNode: ClassNode = readClassNode()
   private val nestedClassFiles: List<VirtualFile> = findRelatedClassFiles()
 
@@ -32,9 +32,9 @@ internal class DefaultClassFileContext(
 
   override fun workAsync(): Boolean = workAsync
 
-  override fun classFile(): VirtualFile = processableClassFile.classFile
+  override fun classFile(): VirtualFile = classFile.file
 
-  override fun sourceFile(): SourceFile? = processableClassFile.sourceFile
+  override fun sourceFile(): SourceFile? = classFile.sourceFile
 
   override fun project(): Project = project
 
@@ -51,12 +51,12 @@ internal class DefaultClassFileContext(
   }
 
   private fun findRelatedClassFiles(): List<VirtualFile> {
-    val parentDirectory = processableClassFile.classFile.parent
+    val parentDirectory = classFile.file.parent
     if (!parentDirectory.isDirectory) {
       return emptyList()
     }
 
-    val rootClassFileNamePrefix = processableClassFile.classFile.nameWithoutExtension.takeWhile { it != '$' }
+    val rootClassFileNamePrefix = "${classFile.file.nameWithoutExtension.takeWhile { it != '$' }}$"
     return parentDirectory.children
       .filter { it.extension == "class" && it.name.startsWith(rootClassFileNamePrefix) }
   }

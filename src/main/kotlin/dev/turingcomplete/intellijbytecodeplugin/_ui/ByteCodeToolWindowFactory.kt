@@ -27,7 +27,7 @@ import com.intellij.util.ui.EmptyIcon
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.AnalyzeByteCodeAction
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
-import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ProcessableClassFile
+import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
 import java.awt.dnd.DropTarget
 import javax.swing.Icon
@@ -55,14 +55,14 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
       }
     }
 
-    fun openClassFile(processableClassFile: ProcessableClassFile, toolWindow: ToolWindow, project: Project) {
+    fun openClassFile(classFile: ClassFile, toolWindow: ToolWindow, project: Project) {
       ApplicationManager.getApplication().invokeLater {
-        val newClassFileTab = ClassFileTab(project, processableClassFile)
+        val newClassFileTab = ClassFileTab(project, classFile)
         Disposer.register(toolWindow.disposable, newClassFileTab)
         val contentManager = toolWindow.contentManager
         val content = contentManager.factory.createContent(
           newClassFileTab.createComponent(true),
-          processableClassFile.classFile.nameWithoutExtension,
+          classFile.file.nameWithoutExtension,
           true
         )
         content.putUserData(ClassFileTab.CLASS_FILE_TAB_KEY, newClassFileTab)

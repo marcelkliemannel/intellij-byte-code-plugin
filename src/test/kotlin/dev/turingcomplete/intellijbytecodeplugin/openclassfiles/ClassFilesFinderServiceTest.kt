@@ -8,14 +8,14 @@ import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiTreeUtil
 import dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase
-import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.OpenClassFilesTask
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesFinderService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(org.junit.runners.Parameterized::class)
-class OpenClassFilesTaskTest(
+class ClassFilesFinderServiceTest(
   @Suppress("UNUSED_PARAMETER") testName: String,
   classFilePath: String
 ) : ClassFileConsumerTestCase(classFilePath) {
@@ -45,8 +45,8 @@ class OpenClassFilesTaskTest(
   @Test
   fun testOpenFile() {
     val actualClassFilesReadyToOpen = mutableListOf<VirtualFile>()
-    OpenClassFilesTask({ actualClassFilesReadyToOpen.add(it.classFile) }, project)
-      .consumeFiles(listOf(classFileAsVirtualFile))
+    ClassFilesFinderService(project)
+      .findByVirtualFiles(listOf(classFileAsVirtualFile), { actualClassFilesReadyToOpen.add(it.file) })
     Assert.assertEquals(1, actualClassFilesReadyToOpen.size)
     Assert.assertEquals(classFileAsVirtualFile, actualClassFilesReadyToOpen[0])
   }
@@ -58,8 +58,8 @@ class OpenClassFilesTaskTest(
     }
 
     val actualClassFilesReadyToOpen = mutableListOf<VirtualFile>()
-    OpenClassFilesTask({ actualClassFilesReadyToOpen.add(it.classFile) }, project)
-      .consumePsiFiles(listOf(psiJavaFile!!))
+    ClassFilesFinderService(project)
+      .findByPsiFiles(listOf(psiJavaFile!!), { actualClassFilesReadyToOpen.add(it.file) })
     Assert.assertEquals(1, actualClassFilesReadyToOpen.size)
     Assert.assertEquals(classFileAsVirtualFile, actualClassFilesReadyToOpen[0])
   }
@@ -127,13 +127,13 @@ class OpenClassFilesTaskTest(
     Assert.assertTrue("Expected at least 1 PSI element.", psiElements.isNotEmpty())
 
     var filesOpened = 0
-    OpenClassFilesTask({
-                         filesOpened++
-                         assertThat(expectedClassFileName)
-                           .describedAs("File ${it.classFile.path} should have expected class file name")
-                           .isEqualTo(it.classFile.name)
-                       }, project)
-      .consumePsiElements(psiElements)
+    ClassFilesFinderService(project)
+      .findByPsiElements(psiElements, {
+        filesOpened++
+        assertThat(expectedClassFileName)
+          .describedAs("File ${it.file.path} should have expected class file name")
+          .isEqualTo(it.file.name)
+      })
     Assert.assertEquals(psiElements.size, filesOpened)
   }
 

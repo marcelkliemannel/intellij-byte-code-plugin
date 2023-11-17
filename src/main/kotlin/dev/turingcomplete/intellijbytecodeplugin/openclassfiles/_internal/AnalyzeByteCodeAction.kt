@@ -29,13 +29,13 @@ internal class AnalyzeByteCodeAction : DumbAwareAction(TITLE, null, ByteCodePlug
   override fun update(e: AnActionEvent) {
     e.presentation.isEnabled = CommonDataKeys.PROJECT.getData(e.dataContext)?.let { project ->
       val files = CommonDataKeys.VIRTUAL_FILE_ARRAY.getData(e.dataContext)
-      if (files?.any { OpenClassFilesTask.isOpenableFile(it, project) } == true) {
+      if (files?.any { ClassFilesFinderService.isOpenableFile(it, project) } == true) {
         true
       }
       else {
         findPsiElement(project, e.dataContext).let { result ->
           val psiElement = result.first
-          OpenClassFilesTask.isOpenableFile(psiElement?.containingFile)
+          ClassFilesFinderService.isOpenableFile(psiElement?.containingFile)
         }
       }
     } ?: false

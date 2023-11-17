@@ -15,6 +15,7 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.ui.dsl.builder.panel
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.joinAsNaturalLanguage
+import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile
 import java.nio.file.Path
 import javax.swing.Action
@@ -22,7 +23,7 @@ import javax.swing.Icon
 import javax.swing.JComponent
 
 @Service(Service.Level.PROJECT)
-internal class ClassFilesPreparationService(private val project: Project) {
+internal class ClassFilesPreparatorService(private val project: Project) {
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //
 
@@ -30,19 +31,19 @@ internal class ClassFilesPreparationService(private val project: Project) {
 
   // -- Exported Methods -------------------------------------------------------------------------------------------- //
 
-  fun openClassFilesAfterPreparation(
-    classFilePreparationTasks: List<ClassFilePreparationTask>,
+  fun prepareClassFiles(
+    preparationTasks: List<ClassFilePreparationTask>,
     parentComponent: JComponent? = null,
-    openClassFile: (ProcessableClassFile) -> Unit,
+    consumeClassFile: (ClassFile) -> Unit,
   ) {
-    if (classFilePreparationTasks.isEmpty()) {
+    if (preparationTasks.isEmpty()) {
       return
     }
 
     val outdatedClassFiles = mutableListOf<ClassFilePreparationTask>()
     val missingClassFiles = mutableListOf<ClassFilePreparationTask>()
 
-    classFilePreparationTasks.forEach { classFilePreparationContext ->
+    preparationTasks.forEach { classFilePreparationContext ->
       val classFile = VirtualFileManager.getInstance().findFileByNioPath(classFilePreparationContext.expectedClassFilePath)
       if (classFile == null) {
         missingClassFiles.add(classFilePreparationContext)
@@ -65,17 +66,17 @@ internal class ClassFilesPreparationService(private val project: Project) {
         outdatedClassFiles.add(classFilePreparationContext)
       }
       else {
-        openClassFile(ProcessableClassFile(classFile, sourceFile))
+        consumeClassFile(ClassFile(classFile, sourceFile))
       }
     }
 
     val compileScope = sequenceOf(
-      determineCompileScope(outdatedClassFiles, PrepareReason.OUT_DATED, parentComponent, openClassFile),
-      determineCompileScope(missingClassFiles, PrepareReason.MISSING, parentComponent, openClassFile)
+      determineCompileScope(outdatedClassFiles, PrepareReason.OUT_DATED, parentComponent, consumeClassFile),
+      determineCompileScope(missingClassFiles, PrepareReason.MISSING, parentComponent, consumeClassFile)
     ).filterNotNull().reduceOrNull { first, second -> CompositeScope(first, second) }
 
     if (compileScope != null) {
-      compilerManager.compile(compileScope, OpenClassFilesAfterCompilationHandler(outdatedClassFiles.plus(missingClassFiles), openClassFile))
+      compilerManager.compile(compileScope, OpenClassFilesAfterCompilationHandler(outdatedClassFiles.plus(missingClassFiles), consumeClassFile))
     }
   }
 
@@ -83,7 +84,7 @@ internal class ClassFilesPreparationService(private val project: Project) {
     classFiles: MutableList<ClassFilePreparationTask>,
     prepareReason: PrepareReason,
     parentComponent: JComponent?,
-    openClassFile: (ProcessableClassFile) -> Unit,
+    openClassFile: (ClassFile) -> Unit,
   ): CompileScope? {
     if (classFiles.isEmpty()) {
       return null
@@ -105,7 +106,7 @@ internal class ClassFilesPreparationService(private val project: Project) {
         classFiles.forEach {
           val classFile = VirtualFileManager.getInstance().findFileByNioPath(it.expectedClassFilePath)
           if (classFile != null) {
-            openClassFile(ProcessableClassFile(classFile, it.sourceFile))
+            openClassFile(ClassFile(classFile, it.sourceFile))
           }
         }
         null
@@ -124,7 +125,7 @@ internal class ClassFilesPreparationService(private val project: Project) {
 
   private class OpenClassFilesAfterCompilationHandler(
     private val classFilesNeedingPreparation: List<ClassFilePreparationTask>,
-    private val openClassFile: (ProcessableClassFile) -> Unit
+    private val openClassFile: (ClassFile) -> Unit
   ) : CompileStatusNotification {
 
     override fun finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext) {
@@ -141,7 +142,7 @@ internal class ClassFilesPreparationService(private val project: Project) {
         classFilesNeedingPreparation.forEach {
           val classFile = virtualFileManager.refreshAndFindFileByNioPath(it.expectedClassFilePath)
           if (classFile != null && classFile.isValid) {
-            openClassFile(ProcessableClassFile(classFile, it.sourceFile))
+            openClassFile(ClassFile(classFile, it.sourceFile))
           }
           else {
             logger.warn("Failed to find class file '${it.expectedClassFilePath}' after compilation")
@@ -160,10 +161,11 @@ internal class ClassFilesPreparationService(private val project: Project) {
     val icon: Icon = AllIcons.Actions.Compile
   ) {
 
-    BUILD_PROJECT(code = 2, singularTitle = "Build &Project"),
-    COMPILE_MODULES(code = 3, singularTitle = "Compile &Modules"),
-    COMPILE_MODULE_TREES(code = 4, singularTitle = "Compile Module and &Dependent Modules"),
-    COMPILE_FILES(code = 5, singularTitle = "Compile F&ile", pluralTitle = "Compile &Files"),
+    // Code `1` is fix for the cancel action
+    BUILD_PROJECT(code = 2, singularTitle = "Build Project"),
+    COMPILE_MODULES(code = 3, singularTitle = "Compile Module"),
+    COMPILE_MODULE_TREES(code = 4, singularTitle = "Compile Module and Dependent Modules"),
+    COMPILE_FILES(code = 5, singularTitle = "Compile File", pluralTitle = "Compile Files"),
     USE_DIRECTLY(code = 6, singularTitle = "Use file as it is", pluralTitle = "Use files as they are", icon = AllIcons.Actions.Execute)
   }
 
@@ -261,6 +263,6 @@ internal class ClassFilesPreparationService(private val project: Project) {
 
   companion object {
 
-    private val logger = Logger.getInstance(OpenClassFilesTask::class.java)
+    private val logger = Logger.getInstance(ClassFilesFinderService::class.java)
   }
 }

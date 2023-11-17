@@ -3,7 +3,7 @@ package dev.turingcomplete.intellijbytecodeplugin.common
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.VirtualFile
 
-data class SourceFile(val file: VirtualFile, val module: Module) {
+data class SourceFile internal constructor(val file: VirtualFile, val module: Module) {
   // -- Properties -------------------------------------------------------------------------------------------------- //
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exported Methods -------------------------------------------------------------------------------------------- //

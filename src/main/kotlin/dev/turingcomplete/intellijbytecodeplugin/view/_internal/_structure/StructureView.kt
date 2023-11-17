@@ -19,7 +19,7 @@ import dev.turingcomplete.intellijbytecodeplugin._ui.withCommonsDefaults
 import dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeAnalyserOpenClassFileService
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
-import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ProcessableClassFile
+import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction.Companion.addAllByteCodeActions
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeView
 import java.awt.GridBagConstraints
@@ -93,7 +93,7 @@ internal class StructureView(classFileContext: ClassFileContext)
         .setRenderer(SimpleListCellRenderer { it.asSafely<Pair<VirtualFile?, String>>()?.second ?: "" })
         .setItemChosenCallback {
           classFileContext.project().getService(ByteCodeAnalyserOpenClassFileService::class.java)
-            .openProcessableClassFiles(listOf(ProcessableClassFile(it.first, classFileContext.sourceFile())))
+            .openClassFiles(listOf(ClassFile(it.first, classFileContext.sourceFile())))
         }
         .createPopup()
     }
