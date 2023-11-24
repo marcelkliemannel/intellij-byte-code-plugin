@@ -35,7 +35,10 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
+
     private val LOG = Logger.getInstance(ClassStructureNode::class.java)
+
+    private val KOTLIN_METADATA_ANNOTATION_DESC = "Lkotlin/Metadata;"
 
     private fun determineClassIcon(classNode: ClassNode): Icon {
       return when {
@@ -65,6 +68,7 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
       addAttributesNode(classNode.attrs)
       addInnerClasses()
       addNestNode()
+      addKotlinMetadataNode()
       addAnnotationsNode("Annotations", classNode.visibleAnnotations, classNode.invisibleAnnotations)
       addAnnotationsNode("Type Annotations", classNode.visibleTypeAnnotations, classNode.invisibleTypeAnnotations)
       addFieldsNode()
@@ -150,6 +154,14 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
                   goToProvider = GoToProvider.Class(nestMember))
       }
     })
+  }
+
+  private fun addKotlinMetadataNode() {
+    val kotlinMetadataAnnotation = classNode.visibleAnnotations?.find { it.desc == KOTLIN_METADATA_ANNOTATION_DESC }
+      ?: return
+
+    val fieldNameToValueList: List<Pair<Any, Any?>> = kotlinMetadataAnnotation.values.toList().chunked(2).map { Pair(it[0], it[1]) }
+    add(KotlinMetadataStructureNode(fieldNameToValueList))
   }
 
   private fun addInnerClasses() {

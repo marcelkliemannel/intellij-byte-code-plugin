@@ -4,6 +4,7 @@
 
 ### Added
 
+- Add Kotlin metadata overview to the structure view
 - Add list relates class files (e.g., nested classes for lambdas) to the structure view
 - Add option to build the whole project if a class file is outdated or missing
 - Add option to re-compile the class file in the "Re-Parse Class File" action if the class file is outdated or missing

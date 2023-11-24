@@ -104,11 +104,11 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
   fun <T : Any> addTitleNodeWithElements(elements: List<T>?,
                                          createTitleNode: () -> TextNode,
                                          addElementsAsync: Boolean = false,
-                                         mapElement: (Int, T) -> StructureNode) {
+                                         mapElement: (Int, T) -> StructureNode?) {
 
     if (!elements.isNullOrEmpty()) {
       val addElements: TextNode.() -> Unit = {
-        elements.mapIndexed(mapElement).forEach { elementNode ->
+        elements.mapIndexedNotNull(mapElement).forEach { elementNode ->
           add(elementNode)
         }
       }
