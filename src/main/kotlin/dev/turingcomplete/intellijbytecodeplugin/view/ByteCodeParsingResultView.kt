@@ -47,7 +47,6 @@ import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction.Companion.a
 import dev.turingcomplete.intellijbytecodeplugin.view.common.OpenInEditorAction
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
-import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.JPanel
 import kotlin.properties.Delegates
@@ -55,9 +54,9 @@ import kotlin.properties.Delegates
 abstract class ByteCodeParsingResultView(
   classFileContext: ClassFileContext,
   title: String,
-  icon: Icon,
-  private val goToMethodsRegex: Regex? = null
-) : ByteCodeView(classFileContext, title, icon) {
+  private val goToMethodsRegex: Regex? = null,
+  private val parsingOptionsAvailable: Boolean = true
+) : ByteCodeView(classFileContext, title) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
@@ -167,22 +166,24 @@ abstract class ByteCodeParsingResultView(
 
       addSeparator()
 
-      add(object : DefaultActionGroup("Parsing Options", true) {
-        init {
-          templatePresentation.icon = AllIcons.General.Filter
+      if (parsingOptionsAvailable) {
+        add(object : DefaultActionGroup("Parsing Options", true) {
+          init {
+            templatePresentation.icon = AllIcons.General.Filter
 
-          add(ToggleParsingOptionAction("Skip Debug Information", { skipDebug }, { skipDebug = !skipDebug }))
-          add(ToggleParsingOptionAction("Skip Method Code", { skipCode }, { skipCode = !skipCode }))
-          add(ToggleParsingOptionAction("Skip Frames", { skipFrame }, { skipFrame = !skipFrame }))
-        }
+            add(ToggleParsingOptionAction("Skip Debug Information", { skipDebug }, { skipDebug = !skipDebug }))
+            add(ToggleParsingOptionAction("Skip Method Code", { skipCode }, { skipCode = !skipCode }))
+            add(ToggleParsingOptionAction("Skip Frames", { skipFrame }, { skipFrame = !skipFrame }))
+          }
 
-        override fun update(e: AnActionEvent) {
-          val enabled = isByteCodeParsingResultAvailable()
-          e.presentation.isEnabled = enabled
-        }
+          override fun update(e: AnActionEvent) {
+            val enabled = isByteCodeParsingResultAvailable()
+            e.presentation.isEnabled = enabled
+          }
 
-        override fun getActionUpdateThread() = ActionUpdateThread.BGT
-      })
+          override fun getActionUpdateThread() = ActionUpdateThread.BGT
+        })
+      }
 
       addSeparator()
 

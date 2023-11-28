@@ -6,9 +6,8 @@ import com.intellij.openapi.extensions.ExtensionPointName
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.view._internal.ErrorStateHandler
-import javax.swing.Icon
 
-abstract class ByteCodeView(val classFileContext: ClassFileContext, val title: String, val icon: Icon)
+abstract class ByteCodeView(val classFileContext: ClassFileContext, val title: String)
   : ErrorStateHandler(), Disposable, DataProvider {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //

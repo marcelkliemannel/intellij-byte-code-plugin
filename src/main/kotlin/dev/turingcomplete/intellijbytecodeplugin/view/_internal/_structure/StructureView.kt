@@ -1,6 +1,5 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure
 
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.actionSystem.DefaultActionGroup
@@ -17,9 +16,9 @@ import dev.turingcomplete.intellijbytecodeplugin._ui.SimpleListCellRenderer
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideLeftInset
 import dev.turingcomplete.intellijbytecodeplugin._ui.withCommonsDefaults
 import dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeAnalyserOpenClassFileService
+import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
-import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction.Companion.addAllByteCodeActions
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeView
 import java.awt.GridBagConstraints
@@ -28,7 +27,7 @@ import javax.swing.JComponent
 import javax.swing.JPanel
 
 internal class StructureView(classFileContext: ClassFileContext)
-  : ByteCodeView(classFileContext, "Structure", AllIcons.Toolwindows.ToolWindowStructure), DataProvider {
+  : ByteCodeView(classFileContext, "Structure"), DataProvider {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //

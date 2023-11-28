@@ -4,6 +4,7 @@
 
 ### Added
 
+- Add decompiled tab (this replaces the decompile toolbar action)
 - Add Kotlin metadata overview to the structure view
 - Add list relates class files (e.g., nested classes for lambdas) to the structure view
 - Add option to build the whole project if a class file is outdated or missing

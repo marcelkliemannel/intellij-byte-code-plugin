@@ -2,7 +2,6 @@ package dev.turingcomplete.intellijbytecodeplugin.view._internal
 
 import com.intellij.codeInsight.actions.RearrangeCodeProcessor
 import com.intellij.codeInsight.actions.ReformatCodeProcessor
-import com.intellij.icons.AllIcons
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
@@ -15,7 +14,7 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.ASMifier
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeParsingResultView
 
 class AsmView(classFileContext: ClassFileContext) :
-  ByteCodeParsingResultView(classFileContext, "ASM", AllIcons.FileTypes.Text, METHOD_LINE_REGEX) {
+  ByteCodeParsingResultView(classFileContext, "ASM", METHOD_LINE_REGEX) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 

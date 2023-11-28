@@ -11,11 +11,11 @@ import com.intellij.ui.AnimatedIcon
 import com.intellij.ui.TabbedPaneWrapper
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.components.BorderLayoutPanel
+import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesPreparatorService
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesPreparatorService.ClassFilePreparationTask
-import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeView
 import dev.turingcomplete.intellijbytecodeplugin.view._internal.ErrorStateHandler
 import javax.swing.JComponent
@@ -141,7 +141,7 @@ internal class ClassFileTab(
       byteCodeViews = ByteCodeView.EP.extensions.mapIndexed { index, byteCodeViewCreator ->
         val selected = index == 0
         val classFileView = byteCodeViewCreator.create(classFileContext)
-        addTab(classFileView.title, classFileView.icon, classFileView.createComponent(selected), null)
+        addTab(classFileView.title, null, classFileView.createComponent(selected), null)
         Disposer.register(parentDisposable, classFileView)
         classFileView
       }

@@ -88,10 +88,11 @@
     <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.AsmView$MyCreator"/>
     <byteCodeView
+            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.DecompiledView$MyCreator"/>
+    <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._constantpool.ConstantPoolView$MyCreator"/>
 
     <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.ReParseByteCodeAction"/>
-    <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.DecompileByteCodeAction"/>
     <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.VerifyByteCodeAction"/>
   </extensions>
 
