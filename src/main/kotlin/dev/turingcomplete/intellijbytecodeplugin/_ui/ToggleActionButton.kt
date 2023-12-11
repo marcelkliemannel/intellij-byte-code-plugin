@@ -1,4 +1,4 @@
-package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure
+package dev.turingcomplete.intellijbytecodeplugin._ui
 
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -6,9 +6,11 @@ import com.intellij.ui.DumbAwareActionButton
 import com.intellij.util.PlatformIcons
 import com.intellij.util.ui.EmptyIcon
 
-internal class RenderOption(renderModeName: String,
-                            private val setValue: () -> Unit,
-                            private val isSelected: () -> Boolean) : DumbAwareActionButton(renderModeName) {
+internal class ToggleActionButton(
+  title: String,
+  private val setValue: () -> Unit,
+  private val isSelected: () -> Boolean
+) : DumbAwareActionButton(title) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //

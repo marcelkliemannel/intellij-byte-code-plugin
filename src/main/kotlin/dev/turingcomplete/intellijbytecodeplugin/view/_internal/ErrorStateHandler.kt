@@ -57,7 +57,7 @@ abstract class ErrorStateHandler {
 
   abstract fun reParseClassNodeContext()
 
-  fun onError(message: String, cause: Throwable) {
+  fun onError(message: String, cause: Throwable? = null) {
     LOG.warn(message, cause)
 
     inErrorState.set(true)
@@ -96,7 +96,7 @@ abstract class ErrorStateHandler {
   // -- Private Methods --------------------------------------------------------------------------------------------- //
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  private class ErrorStatePanel(message: String, cause: Throwable, retry: () -> Unit) : JPanel(GridBagLayout()) {
+  private class ErrorStatePanel(message: String, cause: Throwable?, retry: () -> Unit) : JPanel(GridBagLayout()) {
 
     init {
       border = JBEmptyBorder(UIUtil.getRegularPanelInsets())
@@ -106,7 +106,7 @@ abstract class ErrorStateHandler {
       val box = Box(BoxLayout.Y_AXIS)
       box.add(Box.createVerticalGlue())
       // Error
-      val errorText = if (cause.message != null) "<b>$message:<br />${cause.message}</b>" else "<b>$message.</b>"
+      val errorText = if (cause?.message != null) "<b>$message:<br />${cause.message}</b>" else "<b>$message.</b>"
       box.add(JBLabel("<html>${errorText}</html>", AllIcons.General.BalloonError, SwingConstants.CENTER).apply {
         alignmentX = Component.CENTER_ALIGNMENT
       })
@@ -127,17 +127,19 @@ abstract class ErrorStateHandler {
       add(box, bag.nextLine().next().weightx(1.0).weighty(1.0).fillCell())
 
       // Stack trace
-      add(JButton().apply {
-        action = object : AbstractAction("Show full error stack trace...") {
-          override fun actionPerformed(e: ActionEvent?) {
-            val errorStackTraceTextArea = JBScrollPane(JTextArea(cause.getThrowableText()).apply { isEditable = false }).apply {
-              putClientProperty(UIUtil.KEEP_BORDER_SIDES, SideBorder.ALL)
-            }
+      if (cause != null) {
+        add(JButton().apply {
+          action = object : AbstractAction("Show stack trace...") {
+            override fun actionPerformed(e: ActionEvent?) {
+              val errorStackTraceTextArea = JBScrollPane(JTextArea(cause.getThrowableText()).apply { isEditable = false }).apply {
+                putClientProperty(UIUtil.KEEP_BORDER_SIDES, SideBorder.ALL)
+              }
 
-            UiUtils.Dialog.show("Full Error Stack Trace", errorStackTraceTextArea, Dimension(600, 500), null)
+              UiUtils.Dialog.show("Error Stack Trace", errorStackTraceTextArea, Dimension(600, 500), null)
+            }
           }
-        }
-      }, bag.nextLine().next().overrideTopInset(UIUtil.LARGE_VGAP))
+        }, bag.nextLine().next().overrideTopInset(UIUtil.LARGE_VGAP))
+      }
 
       // Hint
       add(JBLabel("<html>Please create a bug for the $PLUGIN_NAME plugin if this error should not occur.</html>",

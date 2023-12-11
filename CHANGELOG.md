@@ -12,6 +12,8 @@
 
 ### Changed
 
+- Complete revision of the open class file mechanism. This results in better support for nested classes and Kotlin files
+
 ### Removed
 
 ### Fixed

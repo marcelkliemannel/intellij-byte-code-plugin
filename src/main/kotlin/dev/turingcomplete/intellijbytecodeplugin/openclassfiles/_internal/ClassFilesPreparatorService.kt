@@ -11,12 +11,13 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.ui.dsl.builder.panel
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
-import dev.turingcomplete.intellijbytecodeplugin._ui.joinAsNaturalLanguage
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
-import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile
+import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile.CompilableSourceFile
+import org.jsoup.internal.StringUtil.StringJoiner
 import java.nio.file.Path
 import javax.swing.Action
 import javax.swing.Icon
@@ -44,7 +45,7 @@ internal class ClassFilesPreparatorService(private val project: Project) {
     val missingClassFiles = mutableListOf<ClassFilePreparationTask>()
 
     preparationTasks.forEach { classFilePreparationContext ->
-      val classFile = VirtualFileManager.getInstance().findFileByNioPath(classFilePreparationContext.expectedClassFilePath)
+      val classFile = VirtualFileManager.getInstance().findFileByNioPath(classFilePreparationContext.compilerOutputClassFilePath)
       if (classFile == null) {
         missingClassFiles.add(classFilePreparationContext)
         return@forEach
@@ -104,7 +105,7 @@ internal class ClassFilesPreparatorService(private val project: Project) {
       PrepareMode.USE_DIRECTLY -> {
         assert(prepareReason == PrepareReason.OUT_DATED)
         classFiles.forEach {
-          val classFile = VirtualFileManager.getInstance().findFileByNioPath(it.expectedClassFilePath)
+          val classFile = VirtualFileManager.getInstance().findFileByNioPath(it.compilerOutputClassFilePath)
           if (classFile != null) {
             openClassFile(ClassFile(classFile, it.sourceFile))
           }
@@ -119,7 +120,7 @@ internal class ClassFilesPreparatorService(private val project: Project) {
   // -- Private Methods --------------------------------------------------------------------------------------------- //
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  internal class ClassFilePreparationTask(val expectedClassFilePath: Path, val sourceFile: SourceFile)
+  internal data class ClassFilePreparationTask(val compilerOutputClassFilePath: Path, val sourceFile: CompilableSourceFile)
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
@@ -140,12 +141,16 @@ internal class ClassFilesPreparatorService(private val project: Project) {
       ApplicationManager.getApplication().executeOnPooledThread {
         val virtualFileManager = VirtualFileManager.getInstance()
         classFilesNeedingPreparation.forEach {
-          val classFile = virtualFileManager.refreshAndFindFileByNioPath(it.expectedClassFilePath)
+          val classFile = virtualFileManager.refreshAndFindFileByNioPath(it.compilerOutputClassFilePath)
           if (classFile != null && classFile.isValid) {
             openClassFile(ClassFile(classFile, it.sourceFile))
           }
           else {
-            logger.warn("Failed to find class file '${it.expectedClassFilePath}' after compilation")
+            Messages.showErrorDialog(
+              compileContext.project,
+              "Failed to find the class file '${it.compilerOutputClassFilePath}' in the compiler output directory.",
+              "Analyse Class Files"
+            )
           }
         }
       }
@@ -171,18 +176,48 @@ internal class ClassFilesPreparatorService(private val project: Project) {
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  internal enum class PrepareReason(val singularQuestion: (ClassFilePreparationTask) -> String,
-                                    val pluralQuestion: (List<ClassFilePreparationTask>) -> String,
-                                    val allowsUseDirectly: Boolean) {
+  internal enum class PrepareReason(
+    val question: (Map<String, List<String>>) -> String,
+    val allowsUseDirectly: Boolean
+  ) {
 
     OUT_DATED(
-      { classFile -> "The class file for the source file '${classFile.sourceFile.file.name}' is outdated. Should it be compiled?" },
-      { classFiles -> "The class files for the source files ${classFiles.joinAsNaturalLanguage { "'${it.sourceFile.file.name}'" }} are outdated. Should they be compiled?" },
+      { sourceFileNamesToClassFilesNames ->
+        val sourceFileNames = sourceFileNamesToClassFilesNames.keys.toList()
+        val classFilesNames = sourceFileNamesToClassFilesNames.values.flatten().toList()
+        StringJoiner(" ").apply {
+          add("<html>")
+          add("The")
+          add("source file${if (sourceFileNames.size > 1) "s" else ""}")
+          add(formatFileNames(sourceFileNames))
+          add(if (classFilesNames.size > 1) "are" else "is")
+          add("outdated. Should")
+          add(if (sourceFileNames.size > 1) "they" else "it")
+          add("be compiled?")
+          add("</html>")
+        }.complete()
+      },
       true
     ),
     MISSING(
-      { classFile -> "The class file for the source file '${classFile.sourceFile.file.name}' is missing. Should it be compiled?" },
-      { classFiles -> "The class files for the source files ${classFiles.joinAsNaturalLanguage { "'${it.sourceFile.file.name}'" }}' are missing. Should they be compiled?" },
+      { sourceFileNamesToClassFilesNames ->
+        val sourceFileNames = sourceFileNamesToClassFilesNames.keys.toList()
+        val classFilesNames = sourceFileNamesToClassFilesNames.values.flatten().toList()
+        StringJoiner(" ").apply {
+          add("<html>")
+          add("The")
+          add("class file${if (classFilesNames.size > 1) "s" else ""}")
+          add(formatFileNames(classFilesNames))
+          add("for the")
+          add("source file${if (sourceFileNames.size > 1) "s" else ""}")
+          add(formatFileNames(sourceFileNames))
+          add(if (classFilesNames.size > 1) "are" else "is")
+          add("missing. Should")
+          add(if (sourceFileNames.size > 1) "they" else "it")
+          add("be compiled?")
+          add("</html>")
+        }.complete()
+      },
       false
     )
   }
@@ -192,11 +227,15 @@ internal class ClassFilesPreparatorService(private val project: Project) {
   internal class PrepareClassFilesOptionsDialog(
     project: Project,
     private val prepareReason: PrepareReason,
-    private val classFiles: List<ClassFilePreparationTask>,
+    classFiles: List<ClassFilePreparationTask>,
     parentComponent: JComponent? = null
   ) : DialogWrapper(project, parentComponent, false, IdeModalityType.IDE, true) {
 
-    private val useSingular = classFiles.size == 1
+    // There could be multiple `ClassFilePreparationTask`s for the same source
+    // file. For example, this could be the case for a Kotlin file with two
+    // top-level classes.
+    private val sourceFileNamesToClassFilesNames = classFiles.groupBy({ it.sourceFile.file.name }) { it.compilerOutputClassFilePath.fileName.toString() }
+    private val useSingular = sourceFileNamesToClassFilesNames.size == 1
 
     init {
       myOKAction = if (prepareReason.allowsUseDirectly) {
@@ -216,7 +255,7 @@ internal class ClassFilesPreparatorService(private val project: Project) {
 
     override fun createCenterPanel(): JComponent = panel {
       row {
-        label(if (useSingular) prepareReason.singularQuestion(classFiles[0]) else prepareReason.pluralQuestion(classFiles))
+        label(prepareReason.question(sourceFileNamesToClassFilesNames))
       }
     }
 
@@ -241,14 +280,14 @@ internal class ClassFilesPreparatorService(private val project: Project) {
       return actions.toTypedArray()
     }
 
-    override fun isOK(): Boolean = PrepareMode.values().find { it.code == exitCode } != null
+    override fun isOK(): Boolean = PrepareMode.entries.find { it.code == exitCode } != null
 
     fun showAndGetResult(): PrepareMode? {
       if (!showAndGet()) {
         return null
       }
 
-      return PrepareMode.values().find { it.code == exitCode }
+      return PrepareMode.entries.find { it.code == exitCode }
     }
 
     private fun createPrepareModeAction(prepareMode: PrepareMode): Action {
@@ -264,5 +303,13 @@ internal class ClassFilesPreparatorService(private val project: Project) {
   companion object {
 
     private val logger = Logger.getInstance(ClassFilesFinderService::class.java)
+
+    fun formatFileNames(fileNames: List<String>): String =
+      if (fileNames.size == 1) {
+        "'${fileNames[0]}'"
+      }
+      else {
+        fileNames.joinToString(prefix = "<ul>", postfix = "</ul>", separator = "") { "<li>$it</li>" }
+      }
   }
 }

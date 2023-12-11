@@ -37,7 +37,7 @@ internal class FilesDropHandler(private val project: Project) : TransferHandler(
   }
 
   override fun handleDrop(transferable: Transferable, project: Project?, editorWindow: EditorWindow?) {
-    handleDrop0( transferable)
+    handleDrop0(transferable)
   }
 
   override fun importData(comp: JComponent?, transferable: Transferable): Boolean {
@@ -72,17 +72,29 @@ internal class FilesDropHandler(private val project: Project) : TransferHandler(
       if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
         val transferData = transferable.getTransferData(DataFlavor.javaFileListFlavor)
         if (transferData is TransferableWrapper) {
-          project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openPsiElements(transferData.psiElements?.toList() ?: listOf())
+          transferData.psiElements
+            ?.map { it to null }
+            ?.toMap()
+            ?.takeIf { it.isNotEmpty() }
+            ?.let {
+              project.getService(ByteCodeAnalyserOpenClassFileService::class.java)
+                .openPsiElements(it)
+            }
+
           return true
         }
       }
 
       // Handle drop of other elements
       val virtualFileManager = VirtualFileManager.getInstance()
-      FileCopyPasteUtil.getFileList(transferable)?.mapNotNull { virtualFileManager.findFileByNioPath(it.toPath()) }?.let {
-        project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openFiles(it)
-        return true
-      }
+      FileCopyPasteUtil.getFileList(transferable)
+        ?.mapNotNull { virtualFileManager.findFileByNioPath(it.toPath()) }
+        ?.let {
+          project.getService(ByteCodeAnalyserOpenClassFileService::class.java)
+            .openVirtualFiles(it)
+
+          return true
+        }
     }
     catch (e: Exception) {
       NotificationUtils.notifyInternalError("Open .class files", "Failed to handle dropped files: ${e.message}.", e, project)

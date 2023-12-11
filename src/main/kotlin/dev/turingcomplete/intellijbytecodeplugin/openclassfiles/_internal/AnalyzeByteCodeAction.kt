@@ -29,13 +29,13 @@ internal class AnalyzeByteCodeAction : DumbAwareAction(TITLE, null, ByteCodePlug
   override fun update(e: AnActionEvent) {
     e.presentation.isEnabled = CommonDataKeys.PROJECT.getData(e.dataContext)?.let { project ->
       val files = CommonDataKeys.VIRTUAL_FILE_ARRAY.getData(e.dataContext)
-      if (files?.any { ClassFilesFinderService.isOpenableFile(it, project) } == true) {
+      if (files?.any { ClassFilesFinderService.fileCanBeAnalysed(it, project) } == true) {
         true
       }
       else {
         findPsiElement(project, e.dataContext).let { result ->
-          val psiElement = result.first
-          ClassFilesFinderService.isOpenableFile(psiElement?.containingFile)
+          val containingFile = result.first?.containingFile
+          if (containingFile != null) ClassFilesFinderService.fileCanBeAnalysed(containingFile) else false
         }
       }
     } ?: false
@@ -48,14 +48,13 @@ internal class AnalyzeByteCodeAction : DumbAwareAction(TITLE, null, ByteCodePlug
     val psiElement = result.first
     val editorPsiFile = result.second
     if (psiElement != null) {
-      val originalFile = CommonDataKeys.VIRTUAL_FILE.getData(e.dataContext)
-      project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openPsiElements(listOf(psiElement), editorPsiFile, originalFile)
+      project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openPsiElements(mapOf(psiElement to editorPsiFile))
       return
     }
 
     val files = CommonDataKeys.VIRTUAL_FILE_ARRAY.getData(e.dataContext)
     if (files != null) {
-      project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openFiles(files.toList())
+      project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openVirtualFiles(files.toList())
     }
   }
 

@@ -1,4 +1,4 @@
-package dev.turingcomplete.intellijbytecodeplugin.constantpool
+package dev.turingcomplete.intellijbytecodeplugin._internal.constantpool
 
 import dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase
 import dev.turingcomplete.intellijbytecodeplugin.bytecode._internal.constantpool.ConstantPool
@@ -6,7 +6,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(org.junit.runners.Parameterized::class)
-class ConstantPoolTest(testName: String, classFilePath: String) : ClassFileConsumerTestCase(classFilePath) {
+class ConstantPoolTest(@Suppress("UNUSED_PARAMETER") testName: String, classFilePath: String) : ClassFileConsumerTestCase(classFilePath) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {
@@ -22,6 +22,8 @@ class ConstantPoolTest(testName: String, classFilePath: String) : ClassFileConsu
 
   @Test
   fun testCreationOfConstantPool() {
+    // We don't have an expected result here to compare with. This test should only
+    // ensure, that there are no exceptions.
     ConstantPool.create(classFileAsVirtualFile)
   }
 

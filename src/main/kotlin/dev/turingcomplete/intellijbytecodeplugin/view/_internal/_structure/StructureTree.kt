@@ -23,6 +23,7 @@ import com.intellij.util.concurrency.InvokerSupplier
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.tree.TreeUtil
+import dev.turingcomplete.intellijbytecodeplugin._ui.ToggleActionButton
 import dev.turingcomplete.intellijbytecodeplugin._ui.CopyValueAction
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils.Table.createContextMenuMouseListener
 import dev.turingcomplete.intellijbytecodeplugin._ui.ViewValueAction
@@ -245,18 +246,18 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
       templatePresentation.icon = AllIcons.Actions.Edit
 
       TypeUtils.TypeNameRenderMode.values().forEach {
-        add(RenderOption(it.title, { context.typeNameRenderMode = it }, { context.typeNameRenderMode == it }))
+        add(ToggleActionButton(it.title, { context.typeNameRenderMode = it }, { context.typeNameRenderMode == it }))
       }
 
       addSeparator()
 
-      add(RenderOption("Show Access as Decimal", { context.showAccessAsHex = false }, { !context.showAccessAsHex }))
-      add(RenderOption("Show Access as Hex", { context.showAccessAsHex = true }, { context.showAccessAsHex }))
+      add(ToggleActionButton("Show Access as Decimal", { context.showAccessAsHex = false }, { !context.showAccessAsHex }))
+      add(ToggleActionButton("Show Access as Hex", { context.showAccessAsHex = true }, { context.showAccessAsHex }))
 
       addSeparator()
 
       MethodDeclarationUtils.MethodDescriptorRenderMode.values().forEach {
-        add(RenderOption(it.title, { context.methodDescriptorRenderMode = it }, { context.methodDescriptorRenderMode == it }))
+        add(ToggleActionButton(it.title, { context.methodDescriptorRenderMode = it }, { context.methodDescriptorRenderMode == it }))
       }
     }
   }

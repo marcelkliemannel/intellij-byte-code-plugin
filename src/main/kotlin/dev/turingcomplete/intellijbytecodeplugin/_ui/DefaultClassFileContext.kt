@@ -25,7 +25,7 @@ internal class DefaultClassFileContext(
 
   private val classReader: ClassReader = ClassReader(classFile.file.inputStream)
   private val classNode: ClassNode = readClassNode()
-  private val nestedClassFiles: List<VirtualFile> = findRelatedClassFiles()
+  private val relatedClassFiles: List<VirtualFile> = findRelatedClassFiles()
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
@@ -42,7 +42,7 @@ internal class DefaultClassFileContext(
 
   override fun classReader(): ClassReader = classReader
   
-  override fun relatedClassFiles(): List<VirtualFile> = nestedClassFiles
+  override fun relatedClassFiles(): List<VirtualFile> = relatedClassFiles
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
@@ -56,9 +56,10 @@ internal class DefaultClassFileContext(
       return emptyList()
     }
 
-    val rootClassFileNamePrefix = "${classFile.file.nameWithoutExtension.takeWhile { it != '$' }}$"
+    val rootClassFileName = classFile.file.nameWithoutExtension.takeWhile { it != '$' }
+    val rootClassFileNamePrefix = "$rootClassFileName$"
     return parentDirectory.children
-      .filter { it.extension == "class" && it.name.startsWith(rootClassFileNamePrefix) }
+      .filter { it.extension == "class" && (it.name == "$rootClassFileName.class" || it.name.startsWith(rootClassFileNamePrefix)) }
   }
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //

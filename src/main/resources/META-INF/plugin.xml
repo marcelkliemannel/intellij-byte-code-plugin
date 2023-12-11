@@ -38,6 +38,7 @@
 
   <depends>com.intellij.modules.platform</depends>
   <depends>com.intellij.java</depends>
+  <depends>org.jetbrains.kotlin</depends>
 
   <extensions defaultExtensionNs="com.intellij">
     <applicationService
@@ -88,7 +89,7 @@
     <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.AsmView$MyCreator"/>
     <byteCodeView
-            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.DecompiledView$MyCreator"/>
+            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._decompiler.DecompiledView$MyCreator"/>
     <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._constantpool.ConstantPoolView$MyCreator"/>
 

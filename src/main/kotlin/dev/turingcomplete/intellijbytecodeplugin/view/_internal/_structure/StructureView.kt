@@ -82,7 +82,7 @@ internal class StructureView(classFileContext: ClassFileContext)
 
   private fun createOpenNestedClassLink(): JComponent? {
     val relatedClassFilesToTitle = classFileContext.relatedClassFiles().map { it to it.nameWithoutExtension }
-    if (relatedClassFilesToTitle.isEmpty()) {
+    if (relatedClassFilesToTitle.size <= 1) {
       return null
     }
 

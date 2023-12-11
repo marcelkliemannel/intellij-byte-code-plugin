@@ -13,6 +13,7 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.components.BorderLayoutPanel
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
+import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile.CompilableSourceFile
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesPreparatorService
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesPreparatorService.ClassFilePreparationTask
@@ -50,7 +51,7 @@ internal class ClassFileTab(
 
   override fun reParseClassNodeContext() {
     val sourceFile = classFile.sourceFile
-    if (sourceFile != null) {
+    if (sourceFile is CompilableSourceFile) {
       val classFilePreparationTask = ClassFilePreparationTask(classFile.file.toNioPath(), sourceFile)
       project.getService(ClassFilesPreparatorService::class.java)
         .prepareClassFiles(listOf(classFilePreparationTask), centerComponentContainer) {
