@@ -128,7 +128,7 @@ class InstructionsOverviewTool : ByteCodeTool("Instructions Overview") {
     private fun readInstructionsData(): Vector<Vector<String>> {
       val dataCsv = InstructionsOverviewTool::class.java.getResourceAsStream("/dev/turingcomplete/intellijbytecodeplugin/byte-code-instructions.csv")
         ?: throw IllegalStateException("snh: byte-code-instructions.csv missing")
-      return Vector(InputStreamReader(dataCsv).useLines { it.map { line -> Vector(line.split('|').toList()) }.toList() })
+      return Vector(InputStreamReader(dataCsv,"UTF-8").useLines { it.map { line -> Vector(line.split('|').toList()) }.toList() })
     }
   }
 }
