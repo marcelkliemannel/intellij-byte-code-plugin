@@ -22,30 +22,35 @@ The plugin currently uses [ASM 9.6](https://asm.ow2.io) under the hood, supporti
 
 The heart of the tool window is the structure view of a class file. It gives a depth and human-readable insights into the individual elements of a given class file:
 
-<img src="screenshots/tool-window-structure-view.png" alt="Structure View" width="405px"/>
+<img src="screenshots/structure-view.png" alt="Structure View" width="461px"/>
 
 In addition to listing the method instructions, we can view the state of the method frames (locals and current stack) after the execution of each instruction:
 
 <img src="screenshots/show-method-frames-action.png" alt="Method Frames View" width="700px"/>
 
-### Constant Pool View
-
-This view provides insights into the constant pool entries of the class file:
-
-<img src="screenshots/constantpool-view.png" alt="Constant Pool View" width="487px"/>
-
-
 ### Plain View
 
 The plain view provides a textified representation of the byte code:
 
-<img src="screenshots/textified-view.png" alt="Plain View" width="529px"/>
+<img src="screenshots/plain-view.png" alt="Plain View" width="461px"/>
 
 ### ASM View
 
 The ASM view provides Java source code that contains all instructions to generate the class via the [ASM](https://asm.ow2.io) library:
 
-<img src="screenshots/asmified-view.png" alt="ASM View" width="667px"/>
+<img src="screenshots/asmified-view.png" alt="ASM View" width="569px"/>
+
+### Decompiled View
+
+A view that provides the result of the de-compilation of the class file using IntelliJ's built-in decompilers.
+
+<img src="screenshots/decompiled-view.png" alt="ASM View" width="461px"/>
+
+### Constant Pool View
+
+This view provides insights into the constant pool entries of the class file:
+
+<img src="screenshots/constantpool-view.png" alt="Constant Pool View" width="462px"/>
 
 ### Byte Code Tools
 

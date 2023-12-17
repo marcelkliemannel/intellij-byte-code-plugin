@@ -45,7 +45,7 @@ internal class VerifyByteCodeAction : ByteCodeAction("Verify Byte Code", null, B
 
     val onError = DataProviderUtils.getData(CommonDataKeys.ON_ERROR_DATA_KEY, e.dataContext)
 
-    val execute = {
+    val verifyByteCode = {
       val resultWriter = StringWriter()
       val printWriter = PrintWriter(resultWriter)
       CheckClassAdapter.verify(classFileContext.classReader(), true, printWriter)
@@ -54,7 +54,7 @@ internal class VerifyByteCodeAction : ByteCodeAction("Verify Byte Code", null, B
       val success = !output.contains(AnalyzerException::class.java.name)
       ClassFileContext.VerificationResult(success, output)
     }
-    AsyncUtils.runAsync(classFileContext.project(), execute, { result ->
+    AsyncUtils.runAsync(classFileContext.project(), verifyByteCode, { result ->
       ApplicationManager.getApplication().invokeLater {
         val resultPanel = VerifyByteCodeResultPanel(result)
         UiUtils.Dialog.show("Verify Byte Code Result", resultPanel, Dimension(800, 450), classFileContext.project())
