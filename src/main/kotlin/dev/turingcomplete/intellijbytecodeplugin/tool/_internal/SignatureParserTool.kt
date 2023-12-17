@@ -17,7 +17,7 @@ import dev.turingcomplete.intellijbytecodeplugin.bytecode.Access
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.signature.SignatureReader
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.TraceSignatureVisitor
 import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
-import org.apache.commons.lang.StringEscapeUtils
+import org.apache.commons.text.StringEscapeUtils
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import javax.swing.JLabel
@@ -156,7 +156,7 @@ internal class SignatureParserTool : ByteCodeTool("Signature Parser") {
         rows.forEachIndexed { index, row ->
           val topInset = if (index == 0) 0 else UIUtil.DEFAULT_VGAP
           resultContainer.add(JBLabel(row.first), bag.nextLine().next().overrideTopInset(topInset))
-          resultContainer.add(JBLabel("<html>${StringEscapeUtils.escapeHtml(row.second)}</html>").copyable(), bag.next().overrideTopInset(topInset).overrideLeftInset(UIUtil.DEFAULT_HGAP / 2).weightx(1.0).fillCellHorizontally())
+          resultContainer.add(JBLabel("<html>${StringEscapeUtils.escapeHtml4(row.second)}</html>").copyable(), bag.next().overrideTopInset(topInset).overrideLeftInset(UIUtil.DEFAULT_HGAP / 2).weightx(1.0).fillCellHorizontally())
         }
       }
 

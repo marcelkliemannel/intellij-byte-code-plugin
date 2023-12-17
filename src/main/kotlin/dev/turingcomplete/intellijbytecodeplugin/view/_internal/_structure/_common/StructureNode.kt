@@ -11,7 +11,7 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.Annotati
 import dev.turingcomplete.intellijbytecodeplugin.tool._internal.SignatureParserTool
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.GoToProvider
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureTreeContext
-import org.apache.commons.lang.StringEscapeUtils
+import org.apache.commons.text.StringEscapeUtils
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.JComponent
@@ -138,20 +138,20 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
 
     add(TextNode("Signature", AllIcons.Nodes.Type).apply {
       asyncAdd {
-        add(ValueNode("Raw:", StringEscapeUtils.escapeHtml(signature), signature))
+        add(ValueNode("Raw:", StringEscapeUtils.escapeHtml4(signature), signature))
 
         val parsingResult = SignatureParserTool.parseSignature(signature)
         if (parsingResult.error == null) {
           val parsedSignature = parsingResult.signature
           if (parsedSignature.returnType != null) {
-            add(ValueNode("Return type:", StringEscapeUtils.escapeHtml(parsedSignature.returnType), parsedSignature.returnType))
+            add(ValueNode("Return type:", StringEscapeUtils.escapeHtml4(parsedSignature.returnType), parsedSignature.returnType))
           }
           if (parsedSignature.formalTypeParameter != null) {
-            add(ValueNode("Type parameter:", StringEscapeUtils.escapeHtml(parsedSignature.formalTypeParameter), parsedSignature.formalTypeParameter))
+            add(ValueNode("Type parameter:", StringEscapeUtils.escapeHtml4(parsedSignature.formalTypeParameter), parsedSignature.formalTypeParameter))
           }
-          add(ValueNode("Declaration:", StringEscapeUtils.escapeHtml(parsedSignature.declaration), parsedSignature.declaration))
+          add(ValueNode("Declaration:", StringEscapeUtils.escapeHtml4(parsedSignature.declaration), parsedSignature.declaration))
           if (parsedSignature.exceptions != null) {
-            add(ValueNode("Exceptions:", StringEscapeUtils.escapeHtml(parsedSignature.exceptions), parsedSignature.exceptions))
+            add(ValueNode("Exceptions:", StringEscapeUtils.escapeHtml4(parsedSignature.exceptions), parsedSignature.exceptions))
           }
         }
       }

@@ -50,6 +50,7 @@ import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 import org.jetbrains.kotlin.scripting.definitions.StandardScriptDefinition.fileType
+import org.junit.Ignore
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
@@ -620,6 +621,7 @@ class ClassFilesFinderServiceTest {
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
+  @Ignore
   internal class MyExecutionTestCase : ExecutionTestCase() {
 
     private val testProjectPath = Path.of("testProject").absolute()

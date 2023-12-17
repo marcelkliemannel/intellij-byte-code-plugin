@@ -4,6 +4,16 @@
 
 ### Added
 
+### Changed
+
+### Removed
+
+### Fixed
+
+## 4.0.0 - 2023-12-17
+
+### Added
+
 - New decompiled tab (this replaces the decompile toolbar action)
 - Add Kotlin metadata overview to the structure view
 - List relates class files (e.g., nested classes for lambdas) to the structure view
@@ -14,8 +24,6 @@
 ### Changed
 
 - Complete revision of the open class file mechanism. This results in better support for nested classes and Kotlin files
-
-### Removed
 
 ### Fixed
 
