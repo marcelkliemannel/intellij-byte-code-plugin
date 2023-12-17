@@ -92,7 +92,7 @@ internal class StructureView(classFileContext: ClassFileContext)
         .setRenderer(SimpleListCellRenderer { it.asSafely<Pair<VirtualFile?, String>>()?.second ?: "" })
         .setItemChosenCallback {
           classFileContext.project().getService(ByteCodeAnalyserOpenClassFileService::class.java)
-            .openClassFiles(listOf(ClassFile(it.first, classFileContext.sourceFile())))
+            .openClassFiles(listOf(ClassFile(it.first, classFileContext.classFile().sourceFile)))
         }
         .createPopup()
     }

@@ -4,7 +4,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
-import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.ClassReader
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNode
@@ -32,9 +31,7 @@ internal class DefaultClassFileContext(
 
   override fun workAsync(): Boolean = workAsync
 
-  override fun classFile(): VirtualFile = classFile.file
-
-  override fun sourceFile(): SourceFile? = classFile.sourceFile
+  override fun classFile(): ClassFile = classFile
 
   override fun project(): Project = project
 

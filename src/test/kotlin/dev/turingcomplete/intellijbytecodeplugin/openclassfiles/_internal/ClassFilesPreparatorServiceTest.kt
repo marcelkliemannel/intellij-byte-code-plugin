@@ -33,13 +33,41 @@ internal class ClassFilesPreparatorServiceTest {
 
     @JvmStatic
     fun prepareReasonQuestionTestVectors(): List<Arguments> = listOf(
-      arguments(MISSING, mapOf("Foo.kt" to listOf("A.class")), "The class file 'A.class' for the source file 'Foo.kt' is missing. Should it be compiled?"),
-      arguments(MISSING, mapOf("Foo.kt" to listOf("A.class", "B.class")), "The class files 'A.class' and 'B.class' for the source file 'Foo.kt' are missing. Should it be compiled?"),
-      arguments(MISSING, mapOf("Foo.kt" to listOf("A.class", "B.class", "C.class")), "The class files 'A.class', 'B.class' and 'C.class' for the source file 'Foo.kt' are missing. Should it be compiled?"),
-      arguments(MISSING, mapOf("Foo.kt" to listOf("A.class"), "Bar.kt" to listOf("A.class"), "Baz.kt" to listOf("A.class")), "The class files 'A.class', 'A.class' and 'A.class' for the source files 'Foo.kt', 'Bar.kt' and 'Baz.kt' are missing. Should they be compiled?"),
-      arguments(OUT_DATED, mapOf("Foo.kt" to listOf("A.class")), "The source file 'Foo.kt' is outdated. Should it be compiled?"),
-      arguments(OUT_DATED, mapOf("Foo.kt" to listOf("A.class", "B.class")), "The source file 'Foo.kt' are outdated. Should it be compiled?"),
-      arguments(OUT_DATED, mapOf("Foo.kt" to listOf("A.class"), "Bar.kt" to listOf("A.class"), "Baz.kt" to listOf("A.class")), "The source files 'Foo.kt', 'Bar.kt' and 'Baz.kt' are outdated. Should they be compiled?"),
+      arguments(
+        MISSING,
+        mapOf("Foo.kt" to listOf("A.class")),
+        "<html> The class file 'A.class' for the source file 'Foo.kt' is missing. Should it be compiled? </html>"
+      ),
+      arguments(
+        MISSING,
+        mapOf("Foo.kt" to listOf("A.class", "B.class")),
+        "<html> The class files <ul><li>A.class</li><li>B.class</li></ul> for the source file 'Foo.kt' are missing. Should it be compiled? </html>"
+      ),
+      arguments(
+        MISSING,
+        mapOf("Foo.kt" to listOf("A.class", "B.class", "C.class")),
+        "<html> The class files <ul><li>A.class</li><li>B.class</li><li>C.class</li></ul> for the source file 'Foo.kt' are missing. Should it be compiled? </html>"
+      ),
+      arguments(
+        MISSING,
+        mapOf("Foo.kt" to listOf("A.class"), "Bar.kt" to listOf("A.class"), "Baz.kt" to listOf("A.class")),
+        "<html> The class files <ul><li>A.class</li><li>A.class</li><li>A.class</li></ul> for the source files <ul><li>Foo.kt</li><li>Bar.kt</li><li>Baz.kt</li></ul> are missing. Should they be compiled? </html>"
+      ),
+      arguments(
+        OUT_DATED,
+        mapOf("Foo.kt" to listOf("A.class")),
+        "<html> The source file 'Foo.kt' is outdated. Should it be compiled? </html>"
+      ),
+      arguments(
+        OUT_DATED,
+        mapOf("Foo.kt" to listOf("A.class", "B.class")),
+        "<html> The source file 'Foo.kt' are outdated. Should it be compiled? </html>"
+      ),
+      arguments(
+        OUT_DATED,
+        mapOf("Foo.kt" to listOf("A.class"), "Bar.kt" to listOf("A.class"), "Baz.kt" to listOf("A.class")),
+        "<html> The source files <ul><li>Foo.kt</li><li>Bar.kt</li><li>Baz.kt</li></ul> are outdated. Should they be compiled? </html>"
+      ),
     )
   }
 }

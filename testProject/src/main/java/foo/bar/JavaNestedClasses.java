@@ -1,8 +1,6 @@
 // FileTestVector{baseFqClassNames: foo.bar.JavaNestedClasses, containingFqClassNames: foo.bar.JavaNestedClasses|foo.bar.JavaNestedClasses$Nested|foo.bar.JavaNestedClasses$Inner|foo.bar.JavaNestedClasses$Inner$Record }
 package foo.bar;
 
-import java.util.stream.IntStream;
-
 public class JavaNestedClasses {
 
   void method() {

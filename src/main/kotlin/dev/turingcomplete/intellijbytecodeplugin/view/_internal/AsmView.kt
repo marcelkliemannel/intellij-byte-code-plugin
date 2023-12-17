@@ -49,7 +49,7 @@ class AsmView(classFileContext: ClassFileContext) :
     }
   }
 
-  override fun openInEditorFileName() = "${classFileContext.classFile().nameWithoutExtension}Dump.java"
+  override fun openInEditorFileName() = "${classFileContext.classFile().file.nameWithoutExtension}Dump.java"
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
   // -- Inner Type -------------------------------------------------------------------------------------------------- //

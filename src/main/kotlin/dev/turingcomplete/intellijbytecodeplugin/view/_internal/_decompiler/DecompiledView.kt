@@ -28,10 +28,10 @@ internal class DecompiledView(classFileContext: ClassFileContext)
     // decompile method bodies of Java class files.
     ApplicationManager.getApplication().invokeAndWait {
       classFileContext.project().messageBus.syncPublisher(FileEditorManagerListener.Before.FILE_EDITOR_MANAGER)
-        .beforeFileOpened(FileEditorManager.getInstance(classFileContext.project()), classFile)
+        .beforeFileOpened(FileEditorManager.getInstance(classFileContext.project()), classFile.file)
     }
 
-    val decompiledSourceCode = DecompilerUtils.decompile(classFile, classFileContext.project())
+    val decompiledSourceCode = DecompilerUtils.decompile(classFile.file, classFileContext.project())
     if (decompiledSourceCode != null) {
       onSuccess(decompiledSourceCode)
     }
@@ -47,7 +47,7 @@ internal class DecompiledView(classFileContext: ClassFileContext)
 
   override fun getData(dataId: String): Any? {
     return when {
-      CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.`is`(dataId) -> classFileContext.classFile()
+      CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.`is`(dataId) -> classFileContext.classFile().file
 
       else -> super.getData(dataId)
     }

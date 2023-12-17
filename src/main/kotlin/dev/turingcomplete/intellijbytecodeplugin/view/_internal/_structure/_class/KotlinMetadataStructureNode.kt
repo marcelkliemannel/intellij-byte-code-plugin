@@ -5,7 +5,7 @@ import com.intellij.util.asSafely
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.HtmlTextNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.TextNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.ValueNode
-import org.apache.commons.lang.StringEscapeUtils
+import org.apache.commons.text.StringEscapeUtils
 
 internal class KotlinMetadataStructureNode(
   private val fieldNameToValueList: List<Pair<Any, Any?>>

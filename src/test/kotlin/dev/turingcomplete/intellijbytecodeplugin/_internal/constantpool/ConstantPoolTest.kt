@@ -2,6 +2,7 @@ package dev.turingcomplete.intellijbytecodeplugin._internal.constantpool
 
 import dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase
 import dev.turingcomplete.intellijbytecodeplugin.bytecode._internal.constantpool.ConstantPool
+import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -24,7 +25,7 @@ class ConstantPoolTest(@Suppress("UNUSED_PARAMETER") testName: String, classFile
   fun testCreationOfConstantPool() {
     // We don't have an expected result here to compare with. This test should only
     // ensure, that there are no exceptions.
-    ConstantPool.create(classFileAsVirtualFile)
+    ConstantPool.create(ClassFile(classFileAsVirtualFile))
   }
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //

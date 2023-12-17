@@ -146,11 +146,13 @@ internal class ClassFilesPreparatorService(private val project: Project) {
             openClassFile(ClassFile(classFile, it.sourceFile))
           }
           else {
-            Messages.showErrorDialog(
-              compileContext.project,
-              "Failed to find the class file '${it.compilerOutputClassFilePath}' in the compiler output directory.",
-              "Analyse Class Files"
-            )
+            ApplicationManager.getApplication().invokeLater {
+              Messages.showErrorDialog(
+                compileContext.project,
+                "Failed to find the class file '${it.compilerOutputClassFilePath}' in the compiler output directory.",
+                "Analyse Class Files"
+              )
+            }
           }
         }
       }

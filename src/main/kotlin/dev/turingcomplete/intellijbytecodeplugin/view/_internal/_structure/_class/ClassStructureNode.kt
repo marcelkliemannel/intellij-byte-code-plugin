@@ -2,17 +2,20 @@ package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._cla
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
+import com.intellij.ide.actions.RevealFileAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.jrt.JrtFileSystem
 import com.intellij.openapi.vfs.newvfs.ArchiveFileSystem
+import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.util.text.DateFormatUtil
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.AccessGroup
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.ClassVersionUtils.toClassVersion
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.ClassVersionUtils.toMajorMinorString
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
+import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.GoToProvider
@@ -27,10 +30,14 @@ import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
 import javax.swing.Icon
 
-internal class ClassStructureNode(private val classNode: ClassNode, private val classFile: VirtualFile)
-  : ValueNode(displayValue = { cxt -> TypeUtils.toReadableName(classNode.name, cxt.typeNameRenderMode) },
-              icon = determineClassIcon(classNode),
-              goToProvider = GoToProvider.Class(classNode.name)) {
+internal class ClassStructureNode(
+  private val classNode: ClassNode,
+  private val classFile: ClassFile
+) : ValueNode(
+  displayValue = { cxt -> TypeUtils.toReadableName(classNode.name, cxt.typeNameRenderMode) },
+  icon = determineClassIcon(classNode),
+  goToProvider = GoToProvider.Class(classNode.name)
+) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
@@ -75,7 +82,8 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
       addMethodsNode()
       addRecordComponentsNode()
       addPermittedSubclassesNode()
-      addFileNode()
+      addFileNode(classFile.file, "Class file")
+      classFile.sourceFile?.let { addFileNode(it.file, "Source file") }
     }
   }
 
@@ -83,19 +91,27 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
   private fun addClassVersionNode() {
-    add(HtmlTextNode("Class version:", toMajorMinorString(classNode.version),
-                     postFix = toClassVersion(classNode.version)?.let {
-                       "<span class=\"contextHelp\">${it.specification}</span>"
-                     },
-                     icon = AllIcons.FileTypes.Java))
+    add(
+      HtmlTextNode(
+        "Class version:", toMajorMinorString(classNode.version),
+        postFix = toClassVersion(classNode.version)?.let {
+          "<span class=\"contextHelp\">${it.specification}</span>"
+        },
+        icon = AllIcons.FileTypes.Java
+      )
+    )
   }
 
   private fun addSuperNameNode() {
     classNode.superName?.let { superName ->
-      add(ValueNode("Super:",
-                    { ctx -> TypeUtils.toReadableName(superName, ctx.typeNameRenderMode) },
-                    icon = AllIcons.Hierarchy.Supertypes,
-                    goToProvider = GoToProvider.Class(superName)))
+      add(
+        ValueNode(
+          "Super:",
+          { ctx -> TypeUtils.toReadableName(superName, ctx.typeNameRenderMode) },
+          icon = AllIcons.Hierarchy.Supertypes,
+          goToProvider = GoToProvider.Class(superName)
+        )
+      )
     }
   }
 
@@ -123,17 +139,39 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
   private fun addOuterClassNode() {
     classNode.outerClass?.let { outerClass ->
-      add(ValueNode("Outer class:", { ctx -> TypeUtils.toReadableName(outerClass, ctx.typeNameRenderMode) },
-                    goToProvider = GoToProvider.Class(outerClass)))
+      add(
+        ValueNode(
+          "Outer class:", { ctx -> TypeUtils.toReadableName(outerClass, ctx.typeNameRenderMode) },
+          goToProvider = GoToProvider.Class(outerClass)
+        )
+      )
     }
   }
 
   private fun addOuterMethodNode() {
     classNode.outerMethod?.let { outerMethod ->
       add(ValueNode("Outer method:",
-                    { ctx -> MethodDeclarationUtils.toReadableDeclaration(outerMethod, classNode.outerMethodDesc ?: "", classNode.outerMethodDesc ?: "", ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, true) },
-                    { ctx -> MethodDeclarationUtils.toReadableDeclaration(outerMethod, classNode.outerMethodDesc ?: "", classNode.outerMethodDesc ?: "", ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, false) }
-                   ))
+                    { ctx ->
+                      MethodDeclarationUtils.toReadableDeclaration(
+                        outerMethod,
+                        classNode.outerMethodDesc ?: "",
+                        classNode.outerMethodDesc ?: "",
+                        ctx.typeNameRenderMode,
+                        ctx.methodDescriptorRenderMode,
+                        true
+                      )
+                    },
+                    { ctx ->
+                      MethodDeclarationUtils.toReadableDeclaration(
+                        outerMethod,
+                        classNode.outerMethodDesc ?: "",
+                        classNode.outerMethodDesc ?: "",
+                        ctx.typeNameRenderMode,
+                        ctx.methodDescriptorRenderMode,
+                        false
+                      )
+                    }
+      ))
     }
   }
 
@@ -144,14 +182,20 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
     add(TextNode("Nest", AllIcons.Actions.GroupBy).apply {
       classNode.nestHostClass?.let { nestHostClass ->
-        add(ValueNode("Nest host:",
-                      { ctx -> TypeUtils.toReadableName(nestHostClass, ctx.typeNameRenderMode) },
-                      goToProvider = GoToProvider.Class(nestHostClass)))
+        add(
+          ValueNode(
+            "Nest host:",
+            { ctx -> TypeUtils.toReadableName(nestHostClass, ctx.typeNameRenderMode) },
+            goToProvider = GoToProvider.Class(nestHostClass)
+          )
+        )
       }
 
       addTitleNodeWithElements(classNode.nestMembers, { TextNode("Nest Members") }) { _, nestMember ->
-        ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(nestMember, ctx.typeNameRenderMode) },
-                  goToProvider = GoToProvider.Class(nestMember))
+        ValueNode(
+          displayValue = { ctx -> TypeUtils.toReadableName(nestMember, ctx.typeNameRenderMode) },
+          goToProvider = GoToProvider.Class(nestMember)
+        )
       }
     })
   }
@@ -166,9 +210,11 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
   private fun addInnerClasses() {
     addTitleNodeWithElements(classNode.innerClasses, { TextNode("Inner classes", AllIcons.Nodes.Class) }) { _, innerClass ->
-      ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(innerClass.name, ctx.typeNameRenderMode) },
-                icon = AllIcons.Nodes.Class,
-                goToProvider = GoToProvider.Class(innerClass.name))
+      ValueNode(
+        displayValue = { ctx -> TypeUtils.toReadableName(innerClass.name, ctx.typeNameRenderMode) },
+        icon = AllIcons.Nodes.Class,
+        goToProvider = GoToProvider.Class(innerClass.name)
+      )
     }
   }
 
@@ -180,9 +226,11 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
   private fun addInterfacesNode() {
     addTitleNodeWithElements(classNode.interfaces, { TextNode("Interfaces", AllIcons.Nodes.Interface) }) { _, `interface` ->
-      ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(`interface`, ctx.typeNameRenderMode) },
-                icon = AllIcons.Nodes.Interface,
-                goToProvider = GoToProvider.Class(`interface`))
+      ValueNode(
+        displayValue = { ctx -> TypeUtils.toReadableName(`interface`, ctx.typeNameRenderMode) },
+        icon = AllIcons.Nodes.Interface,
+        goToProvider = GoToProvider.Class(`interface`)
+      )
     }
   }
 
@@ -208,31 +256,37 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
 
   private fun addPermittedSubclassesNode() {
     addTitleNodeWithElements(classNode.permittedSubclasses, { TextNode("Permitted subclasses", AllIcons.General.OverridingMethod) }) { _, subclass ->
-      ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(subclass, ctx.typeNameRenderMode) },
-                icon = AllIcons.General.OverridingMethod,
-                goToProvider = GoToProvider.Class(subclass))
+      ValueNode(
+        displayValue = { ctx -> TypeUtils.toReadableName(subclass, ctx.typeNameRenderMode) },
+        icon = AllIcons.General.OverridingMethod,
+        goToProvider = GoToProvider.Class(subclass)
+      )
     }
   }
 
-  private fun addFileNode() {
-    if (!classFile.isValid || !classFile.exists()) {
+  private fun addFileNode(virtualFile: VirtualFile, title: String) {
+    if (!virtualFile.isValid || !virtualFile.exists()) {
       return
     }
 
-    val isEntryInArchive = classFile.fileSystem is ArchiveFileSystem
-    val nioPath = classFile.fileSystem.getNioPath(classFile)
+    val isEntryInArchive = virtualFile.fileSystem is ArchiveFileSystem
+    val nioPath = virtualFile.fileSystem.getNioPath(virtualFile)
     if (!isEntryInArchive && nioPath == null) {
       return
     }
 
-    add(TextNode("File", AllIcons.FileTypes.Any_type).apply {
+    add(TextNode(title, AllIcons.FileTypes.Any_type).apply {
       asyncAdd(true) {
-        var parentDirectory = classFile.parent
+        add(virtualFile.toNioPathOrNull()?.let {
+          HyperLinkNode(virtualFile.name) { _, _ -> RevealFileAction.openFile(it) }
+        } ?: TextNode(virtualFile.name))
+
+        var parentDirectory = virtualFile.parent
 
         if (isEntryInArchive) {
-          val archive = (classFile.fileSystem as ArchiveFileSystem).getLocalByEntry(classFile)
+          val archive = (virtualFile.fileSystem as ArchiveFileSystem).getLocalByEntry(virtualFile)
           parentDirectory = archive?.parent
-          val archiveTypeName = when (classFile.fileSystem) {
+          val archiveTypeName = when (virtualFile.fileSystem) {
             is JarFileSystem -> "JAR"
             is JrtFileSystem -> "Java Runtime Image"
             else -> "archive"
@@ -265,8 +319,7 @@ internal class ClassStructureNode(private val classNode: ClassNode, private val 
       val writableValue = if (writable) "File is writeable" else "File is readonly"
       val writableIcon = if (writable) AllIcons.Ide.Readwrite else AllIcons.Ide.Readonly
       add(ValueNode(displayValue = writableValue, icon = writableIcon))
-    }
-    catch (e: IOException) {
+    } catch (e: IOException) {
       LOG.warn("Failed to read parameters of file: $nioPath", e)
       add(TextNode("Failed to read file parameters: ${e.message}"))
     }

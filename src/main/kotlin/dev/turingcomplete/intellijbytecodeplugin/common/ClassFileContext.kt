@@ -18,9 +18,7 @@ interface ClassFileContext {
 
   fun project(): Project
 
-  fun classFile(): VirtualFile
-  
-  fun sourceFile(): SourceFile?
+  fun classFile(): ClassFile
 
   fun classNode(): ClassNode
 

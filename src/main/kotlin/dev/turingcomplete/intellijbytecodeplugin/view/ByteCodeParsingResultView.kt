@@ -109,7 +109,7 @@ abstract class ByteCodeParsingResultView(
     }
   }
 
-  protected open fun openInEditorFileName(): String = "${classFileContext.classFile().nameWithoutExtension}.txt"
+  protected open fun openInEditorFileName(): String = "${classFileContext.classFile().file.nameWithoutExtension}.txt"
 
   protected open fun additionalToolBarActions(): ActionGroup? = null
 
