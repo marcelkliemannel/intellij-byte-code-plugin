@@ -10,6 +10,25 @@
 
 ### Fixed
 
+## 4.0.0 - 2023-12-17
+
+### Added
+
+- New decompiled tab (this replaces the decompile toolbar action)
+- Add Kotlin metadata overview to the structure view
+- List relates class files (e.g., nested classes for lambdas) to the structure view
+- New option to build the whole project if a class file is outdated or missing
+- Add option to re-compile the class file in the "Re-Parse Class File" action if the class file is outdated or missing
+- Add source file information to the structure view
+
+### Changed
+
+- Complete revision of the open class file mechanism. This results in better support for nested classes and Kotlin files
+
+### Fixed
+
+- Fix "Re-Parse Class File" action may work on an outdated cached version
+
 ## 3.2.0 - 2023-11-07
 
 ### Added

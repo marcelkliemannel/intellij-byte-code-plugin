@@ -6,6 +6,7 @@ import com.intellij.util.ui.GridBag
 import com.intellij.util.ui.JBFont
 import com.intellij.util.ui.JBUI
 import java.awt.Color
+import java.awt.Dimension
 import java.awt.Font
 import java.awt.GridBagConstraints
 import javax.swing.JComponent
@@ -88,6 +89,13 @@ fun JTable.getMaxRowWith(column: Int): Int {
   }
 
   return width
+}
+
+fun JComponent.widthStrictWidth(width: Int): JComponent {
+  this.maximumSize = Dimension(width, this.maximumSize.height)
+  this.preferredSize = Dimension(width, this.preferredSize.height)
+  this.minimumSize = Dimension(width, this.minimumSize.height)
+  return this
 }
 
 // -- Private Methods ----------------------------------------------------------------------------------------------- //

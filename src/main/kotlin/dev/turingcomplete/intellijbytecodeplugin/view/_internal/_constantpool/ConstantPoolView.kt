@@ -1,7 +1,12 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._constantpool
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionUpdateThread
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DataProvider
+import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAwareToggleAction
 import com.intellij.openapi.ui.SimpleToolWindowPanel
@@ -18,7 +23,7 @@ import javax.swing.JComponent
 import javax.swing.SwingConstants
 
 class ConstantPoolView(classFileContext: ClassFileContext)
-  : ByteCodeView(classFileContext, "Constant Pool", AllIcons.Nodes.Constant), DataProvider {
+  : ByteCodeView(classFileContext, "Constant Pool"), DataProvider {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
   // -- Properties -------------------------------------------------------------------------------------------------- //
 

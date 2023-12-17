@@ -1,0 +1,2 @@
+// FileTestVector{baseFqClassNames: KotlinEmptyFileKt, containingFqClassNames:, sourceFileOnly: true, emptyKotlinFile: true }
+// PsiElementTestVector{reference: BEGIN_OF_FILE, baseFqClassName: KotlinEmptyfile, expectedFqClassNames: , sourceFileOnly: true}

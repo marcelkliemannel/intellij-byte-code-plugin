@@ -24,7 +24,7 @@ import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodFramesUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
-import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.RenderOption
+import dev.turingcomplete.intellijbytecodeplugin._ui.ToggleActionButton
 import java.awt.Component
 import javax.swing.JComponent
 import javax.swing.JTable
@@ -78,7 +78,7 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
         templatePresentation.icon = AllIcons.Actions.Edit
 
         TypeUtils.TypeNameRenderMode.values().forEach {
-          add(RenderOption(it.title, { stacksAndLocalsModel.typeNameRenderMode = it; }, { stacksAndLocalsModel.typeNameRenderMode == it }))
+          add(ToggleActionButton(it.title, { stacksAndLocalsModel.typeNameRenderMode = it; }, { stacksAndLocalsModel.typeNameRenderMode == it }))
         }
       }
     }

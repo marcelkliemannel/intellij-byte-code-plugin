@@ -1,6 +1,6 @@
 package dev.turingcomplete.intellijbytecodeplugin.bytecode._internal.constantpool
 
-import com.intellij.openapi.vfs.VirtualFile
+import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import java.io.DataInputStream
 
 internal class ConstantPool(val entries: List<ConstantPoolInfo>) {
@@ -28,8 +28,8 @@ internal class ConstantPool(val entries: List<ConstantPoolInfo>) {
             Pair(19) { dataInputStream -> ModuleInfo(dataInputStream) },
             Pair(20) { dataInputStream -> PackageInfo(dataInputStream) })
 
-    fun create(classFile: VirtualFile): ConstantPool {
-      DataInputStream(classFile.inputStream).use { dataInputStream ->
+    fun create(classFile: ClassFile): ConstantPool {
+      DataInputStream(classFile.file.inputStream).use { dataInputStream ->
         // Validate magic bytes
         val magicBytes = dataInputStream.readInt().toUInt()
         if (magicBytes != MAGIC_BYTES) {

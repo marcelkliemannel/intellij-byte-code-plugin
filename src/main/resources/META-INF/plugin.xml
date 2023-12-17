@@ -13,9 +13,10 @@
 <h3>Class File Views</h3>
 <ul>
   <li>The <b>Structure View</b> gives depth and human-readable insights into the individual elements of a given class file.</li>
-  <li>The <b>Constant Pool View</b> provides insights into the constant pool entries.</li>
   <li>The <b>Plain View</b> gives a textified representation of the byte code.</li>
   <li>The <b>ASM View</b> provides Java source code that contains all instructions to generate the class via the <a href="https://asm.ow2.io">ASM library</a>.</li>
+  <li>The <b>Decompiled View</b> that provides the result of the de-compilation of the class file using IntelliJ's built-in decompilers.</li>
+  <li>The <b>Constant Pool View</b> provides insights into the constant pool entries.</li>
 </ul>
 
 <h3>Byte Code Tools</h3>
@@ -38,6 +39,7 @@
 
   <depends>com.intellij.modules.platform</depends>
   <depends>com.intellij.java</depends>
+  <depends>org.jetbrains.kotlin</depends>
 
   <extensions defaultExtensionNs="com.intellij">
     <applicationService
@@ -88,10 +90,11 @@
     <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.AsmView$MyCreator"/>
     <byteCodeView
+            implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._decompiler.DecompiledView$MyCreator"/>
+    <byteCodeView
             implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal._constantpool.ConstantPoolView$MyCreator"/>
 
     <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.ReParseByteCodeAction"/>
-    <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.DecompileByteCodeAction"/>
     <byteCodeAction implementation="dev.turingcomplete.intellijbytecodeplugin.view._internal.VerifyByteCodeAction"/>
   </extensions>
 

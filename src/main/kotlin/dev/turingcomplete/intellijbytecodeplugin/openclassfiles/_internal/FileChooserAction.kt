@@ -22,7 +22,7 @@ internal class FileChooserAction : OpenClassFilesToolWindowAction("Open Class Fi
     val dialog = FileChooserDialogImpl(descriptor, project)
     val startPath = project.guessProjectDir() ?: VfsUtil.getUserHomeDir()
     val classFilesToOpen = dialog.choose(project, startPath).filter { it.isValid }.toList()
-    project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openFiles(classFilesToOpen)
+    project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openVirtualFiles(classFilesToOpen)
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //

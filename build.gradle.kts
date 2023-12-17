@@ -13,7 +13,7 @@ fun properties(key: String) = project.findProperty(key).toString()
 plugins {
   java
   // See bundled version: https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
-  kotlin("jvm") version "1.8.20"
+  kotlin("jvm") version "1.9.10"
   id("org.jetbrains.intellij") version "1.16.0"
   id("com.github.johnrengelman.shadow") version "8.1.1"
   id("org.jetbrains.changelog") version "2.2.0"
@@ -46,6 +46,13 @@ dependencies {
   asm("org.ow2.asm:asm-commons:$asmVersion")
 
   testImplementation("org.assertj:assertj-core:3.24.2")
+
+  val jUnit5Version = "5.10.1"
+  testImplementation("org.junit.jupiter:junit-jupiter-api:$jUnit5Version")
+  testImplementation("org.junit.jupiter:junit-jupiter-params:$jUnit5Version")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jUnit5Version")
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine:$jUnit5Version")
+  testImplementation("junit:junit:4.13.2")
 
   // Used for test data
   testImplementation("org.codehaus.groovy:groovy:3.0.16")
@@ -97,7 +104,6 @@ tasks {
     val jetbrainsDir = File(System.getProperty("user.home"), ".jetbrains")
     certificateChain.set(project.provider { File(jetbrainsDir, "plugin-sign-chain.crt").readText() })
     privateKey.set(project.provider { File(jetbrainsDir, "plugin-sign-private-key.pem").readText() })
-
     password.set(project.provider { properties("jetbrains.sign-plugin.password") })
   }
 
@@ -106,5 +112,9 @@ tasks {
       freeCompilerArgs = listOf("-Xjsr305=strict")
       jvmTarget = "17"
     }
+  }
+
+  withType<Test> {
+    useJUnitPlatform()
   }
 }

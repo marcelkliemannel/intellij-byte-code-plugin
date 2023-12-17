@@ -15,7 +15,6 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.openapi.wm.ToolWindowManager
@@ -28,6 +27,7 @@ import com.intellij.util.ui.EmptyIcon
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.AnalyzeByteCodeAction
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
+import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
 import java.awt.dnd.DropTarget
 import javax.swing.Icon
@@ -41,7 +41,6 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
     const val TOOL_WINDOW_ID = "Byte Code"
     const val PLUGIN_NAME = "Byte Code Analyzer"
     const val TOOLBAR_PLACE_PREFIX = "dev.turingcomplete.intellijbytecodeplugin.toolbar"
-    const val POPUPMENU_PLACE_PREFIX = "dev.turingcomplete.intellijbytecodeplugin.popupmenu"
 
     fun <T> getData(dataProvider: DataProvider, dataKey: DataKey<T>): Any? {
       val project = dataProvider.getData(PROJECT.name) as? Project ?: return null
@@ -56,16 +55,16 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
       }
     }
 
-    fun openClassFile(classFile: VirtualFile, toolWindow: ToolWindow, project: Project) {
-      assert(classFile.extension == "class")
-
+    fun openClassFile(classFile: ClassFile, toolWindow: ToolWindow, project: Project) {
       ApplicationManager.getApplication().invokeLater {
         val newClassFileTab = ClassFileTab(project, classFile)
         Disposer.register(toolWindow.disposable, newClassFileTab)
         val contentManager = toolWindow.contentManager
-        val content = contentManager.factory.createContent(newClassFileTab.createComponent(true),
-                                                           classFile.nameWithoutExtension,
-                                                           true)
+        val content = contentManager.factory.createContent(
+          newClassFileTab.createComponent(true),
+          classFile.file.nameWithoutExtension,
+          true
+        )
         content.putUserData(ClassFileTab.CLASS_FILE_TAB_KEY, newClassFileTab)
         contentManager.addContent(content)
         toolWindow.show {
@@ -108,8 +107,7 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
         else {
           contentManager.component.dropTarget = DropTarget(contentManager.component, FilesDropHandler(project))
         }
-      }
-      catch (e: Exception) {
+      } catch (e: Exception) {
         // This method sometimes throws exceptions, because the UI is in an
         // invalid state. For example:
         // - `ContentManager#getComponent()` -> `NullPointerException` -> "because "this.myUI" is null"
@@ -188,7 +186,7 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
   private class OpenClassFilesOptionsAction(project: Project, private val contentManager: ContentManager)
-    : DefaultActionGroup("Open Class Files",  null, AllIcons.General.Add) {
+    : DefaultActionGroup("Open Class Files", null, AllIcons.General.Add) {
 
     init {
       OpenClassFilesToolWindowAction.EP.extensions.forEach { add(it.createAsEmbeddedAction(project)) }
@@ -215,10 +213,12 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
 
   private class ByteCodeRelatedLinksActionsGroup : DefaultActionGroup("Byte Code Related Links", true) {
 
-    val links = mapOf(Pair("Oracle: Java Language and Virtual Machine Specifications", "https://docs.oracle.com/javase/specs/index.html"),
-                      Pair("Wikipedia: Java class file", "https://en.wikipedia.org/wiki/Java_class_file"),
-                      Pair("Wikipedia: Java bytecode instruction listings", "https://en.wikipedia.org/wiki/Java_bytecode_instruction_listings"),
-                      Pair("ASM: Java bytecode manipulation and analysis framework", "https://asm.ow2.io"))
+    val links = mapOf(
+      Pair("Oracle: Java Language and Virtual Machine Specifications", "https://docs.oracle.com/javase/specs/index.html"),
+      Pair("Wikipedia: Java class file", "https://en.wikipedia.org/wiki/Java_class_file"),
+      Pair("Wikipedia: Java bytecode instruction listings", "https://en.wikipedia.org/wiki/Java_bytecode_instruction_listings"),
+      Pair("ASM: Java bytecode manipulation and analysis framework", "https://asm.ow2.io")
+    )
 
     init {
       links.forEach { (title, link) -> add(createLinkAction(title, link)) }

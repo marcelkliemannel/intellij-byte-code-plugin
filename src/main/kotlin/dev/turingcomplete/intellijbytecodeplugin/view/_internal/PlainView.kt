@@ -1,6 +1,5 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal
 
-import com.intellij.icons.AllIcons
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TraceUtils.traceVisit
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.Textifier
@@ -8,7 +7,7 @@ import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeParsingResultView
 
 
 internal class PlainView(classFileContext: ClassFileContext)
-  : ByteCodeParsingResultView(classFileContext, "Plain", AllIcons.FileTypes.JavaClass, METHOD_LINE_REGEX) {
+  : ByteCodeParsingResultView(classFileContext, "Plain", METHOD_LINE_REGEX) {
 
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
