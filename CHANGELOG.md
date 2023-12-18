@@ -23,7 +23,7 @@
 
 ### Changed
 
-- Complete revision of the open class file mechanism. This results in better support for nested classes and Kotlin files
+- Complete revision of the open class file mechanism. This results in better support for nested, local and anonymous classes and Kotlin files
 
 ### Fixed
 
