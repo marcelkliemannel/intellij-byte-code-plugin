@@ -44,6 +44,7 @@ import org.jetbrains.kotlin.idea.base.util.sdk
 import org.jetbrains.kotlin.idea.k2.codeinsight.structuralsearch.visitor.KotlinRecursiveElementVisitor
 import org.jetbrains.kotlin.idea.util.isJavaFileType
 import org.jetbrains.kotlin.idea.util.isKotlinFileType
+import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtEnumEntry
@@ -60,7 +61,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.ArgumentsProvider
 import org.junit.jupiter.params.provider.ArgumentsSource
-import java.net.URI
 import java.nio.file.FileSystems
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
@@ -525,6 +525,7 @@ class ClassFilesFinderServiceTest {
       visitFile(
         psiFile = psiFile,
         visitKotlinElement = { element ->
+          println(element::class.simpleName + ": " + if (element is KtNamedFunction) element.name else (if (element is KtClass) element.name else ""))
           if (element is KtNamedFunction && element.name == methodName && containingClassNames == findContainingClassNames(element)) {
             assertThat(result).isNull()
             result = element
@@ -689,16 +690,14 @@ class ClassFilesFinderServiceTest {
     }
 
     fun getSourceFileFromLibrary(relativeSourceFilePath: Path): VirtualFile {
-      val fileInSourceJar =
-        VfsUtil.findFileByURL(URI.create("jar:" + sourcesJar.toNioPath().toUri().toString() + "!/" + relativeSourceFilePath.toString()).toURL())
+      val fileInSourceJar = JarFileSystem.getInstance().getJarRootForLocalFile(sourcesJar)?.findFile(relativeSourceFilePath.toString())
       assertThat(fileInSourceJar).describedAs(relativeSourceFilePath.toString()).isNotNull()
       assertThat(LibraryUtil.findLibraryEntry(fileInSourceJar!!, project)).isNotNull()
       return fileInSourceJar
     }
 
     fun getClassFileFromLibrary(relativeClassFilePath: Path): VirtualFile {
-      val fileInClassesJar =
-        VfsUtil.findFileByURL(URI.create("jar:" + classesJar.toNioPath().toUri().toString() + "!/" + relativeClassFilePath.toString()).toURL())
+      val fileInClassesJar = JarFileSystem.getInstance().getJarRootForLocalFile(classesJar)?.findFile(relativeClassFilePath.toString())
       assertThat(fileInClassesJar).describedAs(relativeClassFilePath.toString()).isNotNull()
       assertThat(LibraryUtil.findLibraryEntry(fileInClassesJar!!, project)).isNotNull()
       return fileInClassesJar
@@ -836,11 +835,11 @@ class ClassFilesFinderServiceTest {
 
     private fun MatchResult.parseTestVectorMarker(): Map<String, String> {
       val testVectorMarker = this.groupValues[1]
-        .replace("[", "").replace("]", "").replace(" ", "")
+        .replace("[", "").replace("]", "")
         .split(",")
         .associate {
           val (key, value) = it.split(":")
-          key to value
+          key.trim() to value.trim()
         }
       return testVectorMarker
     }

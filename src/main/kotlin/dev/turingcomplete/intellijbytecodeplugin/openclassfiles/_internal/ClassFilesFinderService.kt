@@ -1,7 +1,7 @@
 package dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal
 
+import com.intellij.debugger.engine.JVMNameUtil
 import com.intellij.ide.highlighter.JavaClassFileType
-import com.intellij.ide.util.JavaAnonymousClassesHelper
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.serviceOrNull
@@ -12,7 +12,6 @@ import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.findFile
-import com.intellij.psi.PsiAnonymousClass
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassOwner
 import com.intellij.psi.PsiCompiledFile
@@ -25,8 +24,9 @@ import com.intellij.psi.PsiTypeParameter
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.compiled.ClsClassImpl
 import com.intellij.psi.impl.light.LightMethod
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.ClassUtil
-import com.intellij.psi.util.PsiUtil
+import com.intellij.psi.util.findParentOfType
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile
 import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile.CompilableSourceFile
@@ -34,7 +34,9 @@ import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassF
 import org.jetbrains.kotlin.analysis.decompiler.psi.file.KtDecompiledFile
 import org.jetbrains.kotlin.fileClasses.javaFileFacadeFqName
 import org.jetbrains.kotlin.idea.base.psi.classIdIfNonLocal
+import org.jetbrains.kotlin.idea.debugger.core.ClassNameProvider
 import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KotlinDeclarationNavigationPolicy
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtEnumEntry
@@ -49,6 +51,13 @@ internal class ClassFilesFinderService(private val project: Project) {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
   private val projectFileIndex by lazy { ProjectFileIndex.getInstance(project) }
+  private val classNameProvider by lazy {
+    ClassNameProvider(
+      project,
+      GlobalSearchScope.allScope(project),
+      ClassNameProvider.Configuration.DEFAULT.copy(alwaysReturnLambdaParentClass = false)
+    )
+  }
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
@@ -196,12 +205,6 @@ internal class ClassFilesFinderService(private val project: Project) {
     workingFile: WorkingFile,
     knowingRelativeClassFilePath: Path? = null
   ): Result {
-    //    var originalElementContainingFile: PsiFile? = psiElement.originalElement?.containingFile
-    //    if (originalElementContainingFile?.virtualFile == null) {
-    //      // Opening an element from a library which does not have a source JAR, may
-    //      // lead
-    //      originalElementContainingFile = psiElement.getContainingClass()?.originalElement?.containingFile
-    //    }
     if (projectFileIndex.isInLibrary(workingFile.virtualFile)) {
       // The relative class file path may be a nested class in the `workingFile.virtualFile`
       val relativeClassFilePath = psiElement.findRelativeClassFilePathFromContainingClass() ?: knowingRelativeClassFilePath
@@ -225,18 +228,11 @@ internal class ClassFilesFinderService(private val project: Project) {
     return Result.empty()
   }
 
-  private fun PsiClass.getFqClassName(): String? {
-    if (this !is PsiAnonymousClass) {
-      return ClassUtil.getJVMClassName(this)
-    }
-
-    val containingClass = this.getParentOfType<PsiClass>(false) ?: return null
-    return "${containingClass.getFqClassName()}${JavaAnonymousClassesHelper.getName(this)}"
-  }
+  private fun PsiClass.getFqClassName(): String? = JVMNameUtil.getClassVMName(this)
 
   private fun PsiElement.findRelativeClassFilePathFromContainingClass(): Path? =
     if (containingFile is KtFile) {
-      findNonLocalParentKtClassOrObject()?.let { classId ->
+      findContainingClassName()?.let { classId ->
         val packagePath = Paths.get("", *classId.packageFqName.pathSegments().map { it.asStringStripSpecialMarkers() }.toTypedArray())
         val fileName = classId.relativeClassName.pathSegments().joinToString(separator = "$", postfix = ".class") { it.asStringStripSpecialMarkers() }
         return packagePath.resolve(fileName)
@@ -293,18 +289,6 @@ internal class ClassFilesFinderService(private val project: Project) {
 
     if (containingClass == null) {
       return findClassFilesFromPsiFile(workingFile.psiFile, workingFile)
-    }
-
-    // Check for local or anonymous class
-    if (PsiUtil.isLocalOrAnonymousClass(containingClass)) {
-      // We can't get the class file name for a local or anonymous class. Therefore,
-      // we have to use the next containing class.
-      return if (containingClass.parent != null) {
-        findClassFilesFromContainingClass(containingClass.parent, workingFile)
-      }
-      else {
-        Result.withErrorNoContainingFileForElement()
-      }
     }
 
     return findClassFilesFromPsiClass(containingClass, workingFile)
@@ -383,7 +367,8 @@ internal class ClassFilesFinderService(private val project: Project) {
   }
 
   private fun findClassFilesFromPsiClass(psiClass: PsiClass, workingFile: WorkingFile): Result {
-    val fqClassName = psiClass.getFqClassName() ?: throw IllegalStateException("TODO")
+    val fqClassName = psiClass.getFqClassName()
+      ?: return Result.withError("Unable to determine class name.")
 
     // If the `PsiClass` is an inner class in a class file, the `containingFile`
     // would return the file of the outermost class file.
@@ -428,17 +413,31 @@ internal class ClassFilesFinderService(private val project: Project) {
     }
   }
 
-  private fun PsiElement.findNonLocalParentKtClassOrObject(): ClassId? {
-    var parentKtClassOrObject = getParentOfType<KtClassOrObject>(false)
+  private fun PsiElement.findContainingClassName(): ClassId? {
+    var parentKtClassOrObject: KtClassOrObject? = getParentOfType<KtClassOrObject>(false)
+      ?:
+      // If `this` is an element outside a class or object, the `classNameProvider`
+      // will do a fallback and uses the file name as a "*Kt" class name. But this
+      // is not a desired behaviour at this point.
+      return null
+
     // `KtEnumEntry` is a value in an enum and is also a `KtClass` but it can't
     // be reference as a standalone class file. Therefore, we use the actual
     // enum as a parent class. Note the change in the `strict` parameter.
+    val elementToUse = this.findParentOfType<KtEnumEntry>(false)?.parent ?: this
+    val candidatesForElement = classNameProvider.getCandidatesForElement(elementToUse)
+    if (candidatesForElement.isNotEmpty()) {
+      return candidatesForElement.first().let { ClassId.topLevel(FqName(it)) }
+    }
+
+    // This is a simple fall back logic which will find a parent
+    // non-local/anonymous class
     if (parentKtClassOrObject is KtEnumEntry) {
       parentKtClassOrObject = parentKtClassOrObject.getParentOfType<KtClassOrObject>(true)
     }
 
     if (parentKtClassOrObject != null && parentKtClassOrObject.classIdIfNonLocal == null) {
-      return parentKtClassOrObject.parent.findNonLocalParentKtClassOrObject()
+      return parentKtClassOrObject.parent.findContainingClassName()
     }
 
     return parentKtClassOrObject?.classIdIfNonLocal
