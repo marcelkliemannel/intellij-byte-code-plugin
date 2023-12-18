@@ -22,6 +22,7 @@ class ByteCodeAnalyserOpenClassFileService(val project: Project) {
   fun openPsiFiles(psiFiles: List<PsiFile>) {
     project.getService(ClassFilesFinderService::class.java)
       .findByPsiFiles(psiFiles)
+      .let { handleResult(it) }
   }
 
   fun openPsiElements(psiElements: Map<PsiElement, PsiFile?>) {
