@@ -126,9 +126,53 @@ class InstructionsOverviewTool : ByteCodeTool("Instructions Overview") {
     override fun isCellEditable(row: Int, column: Int) = false
 
     private fun readInstructionsData(): Vector<Vector<String>> {
+      val quotechar = '"'
+      val separator = '|'
       val dataCsv = InstructionsOverviewTool::class.java.getResourceAsStream("/dev/turingcomplete/intellijbytecodeplugin/byte-code-instructions.csv")
         ?: throw IllegalStateException("snh: byte-code-instructions.csv missing")
-      return Vector(InputStreamReader(dataCsv,"UTF-8").useLines { it.map { line -> Vector(line.split('|').toList()) }.toList() })
+      return Vector(InputStreamReader(dataCsv, "UTF-8").useLines {
+        it.map { line ->
+          //Part of the code comes from https://github.com/JetBrains/intellij-community/blob/master/platform/platform-util-io/src/com/intellij/execution/process/impl/CSVReader.java
+          val tokensOnThisLine: MutableList<String> = ArrayList()
+          var sb = StringBuilder()
+          var inQuotes = false
+          var i = 0
+          while (i < line.length) {
+            val c = line[i]
+            if (c == quotechar) {
+              // this gets complex... the quote may end a quoted block, or escape another quote.
+              // do a 1-char lookahead:
+              if ( // there is indeed another character to check.
+                inQuotes && line.length > i + 1 && line[i + 1] == quotechar) { // ..and that char. is a quote also.
+                // we have two quote chars in a row == one quote char, so consume them both and
+                // put one on the token. we do *not* exit the quoted text.
+                sb.append(line[i + 1])
+                i++
+              }
+              else {
+                inQuotes = !inQuotes
+                // the tricky case of an embedded quote in the middle: a,bc"d"ef,g
+                if ( //not at the begining of an escape sequence
+                  (i > 2 && line[i - 1] != separator) && line.length > (i + 1) && line[i + 1] != separator //not at the     end of an escape sequence
+                ) {
+                  sb.append(c)
+                }
+              }
+            }
+            else if (c == separator && !inQuotes) {
+              tokensOnThisLine.add(sb.toString())
+              sb = StringBuilder() // start work on next token
+            }
+            else {
+              sb.append(c)
+            }
+            i++
+
+          }
+          tokensOnThisLine.add(sb.toString())
+          Vector(tokensOnThisLine)
+        }.toList()
+      })
     }
   }
 }
