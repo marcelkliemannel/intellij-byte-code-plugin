@@ -6,7 +6,7 @@ aload_0|42||→ objectref|Load a reference onto the stack from local variable 0
 aload_1|43||→ objectref|Load a reference onto the stack from local variable 1
 aload_2|44||→ objectref|Load a reference onto the stack from local variable 2
 aload_3|45||→ objectref|Load a reference onto the stack from local variable 3
-anewarray|189|2: indexbyte1, indexbyte2|count → arrayref|Create a new array of references of length count and component type identified by the class reference index (indexbyte1 << 8 | indexbyte2) in the constant pool
+anewarray|189|2: indexbyte1, indexbyte2|count → arrayref|"Create a new array of references of length count and component type identified by the class reference index (indexbyte1 << 8 | indexbyte2) in the constant pool"
 areturn|176||objectref → [empty]|Return a reference from a method
 arraylength|190||arrayref → length|Get the length of an array
 astore|58|1: index|objectref →|Store a reference into a local variable #index
@@ -21,7 +21,7 @@ bipush|16|1: byte|→ value|Push a byte onto the stack as an integer value
 breakpoint|202|||Reserved for breakpoints in Java debuggers; should not appear in any class file
 caload|52||arrayref, index → value|Load a char from an array
 castore|85||arrayref, index, value →|Store a char into an array
-checkcast|192|2: indexbyte1, indexbyte2|objectref → objectref|Checks whether an objectref is of a certain type, the class reference of which is in the constant pool at index (indexbyte1 << 8 | indexbyte2)
+checkcast|192|2: indexbyte1, indexbyte2|objectref → objectref|"Checks whether an objectref is of a certain type, the class reference of which is in the constant pool at index (indexbyte1 << 8 | indexbyte2)"
 d2f|144||value → result|Convert a double to a float
 d2i|142||value → result|Convert a double to an int
 d2l|143||value → result|Convert a double to a long
@@ -81,10 +81,10 @@ fstore_1|68||value →|Store a float value into local variable 1
 fstore_2|69||value →|Store a float value into local variable 2
 fstore_3|70||value →|Store a float value into local variable 3
 fsub|102||value1, value2 → result|Subtract two floats
-getfield|180|2: indexbyte1, indexbyte2|objectref → value|Get a field value of an object objectref, where the field is identified by field reference in the constant pool index (indexbyte1 << 8 | indexbyte2)
-getstatic|178|2: indexbyte1, indexbyte2|→ value|Get a static field value of a class, where the field is identified by field reference in the constant pool index (indexbyte1 << 8 | indexbyte2)
-goto|167|2: branchbyte1, branchbyte2|[no change]|Goes to another instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-goto_w|200|4: branchbyte1, branchbyte2, branchbyte3, branchbyte4|[no change]|Goes to another instruction at branchoffset (signed int constructed from unsigned bytes branchbyte1 << 24 | branchbyte2 << 16 | branchbyte3 << 8 | branchbyte4)
+getfield|180|2: indexbyte1, indexbyte2|objectref → value|"Get a field value of an object objectref, where the field is identified by field reference in the constant pool index (indexbyte1 << 8 | indexbyte2)"
+getstatic|178|2: indexbyte1, indexbyte2|→ value|"Get a static field value of a class, where the field is identified by field reference in the constant pool index (indexbyte1 << 8 | indexbyte2)"
+goto|167|2: branchbyte1, branchbyte2|[no change]|"Goes to another instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+goto_w|200|4: branchbyte1, branchbyte2, branchbyte3, branchbyte4|[no change]|"Goes to another instruction at branchoffset (signed int constructed from unsigned bytes branchbyte1 << 24 | branchbyte2 << 16 | branchbyte3 << 8 | branchbyte4)"
 i2b|145||value → result|Convert an int into a byte
 i2c|146||value → result|Convert an int into a character
 i2d|135||value → result|Convert an int into a double
@@ -103,22 +103,22 @@ iconst_3|6||→ 3|Load the int value 3 onto the stack
 iconst_4|7||→ 4|Load the int value 4 onto the stack
 iconst_5|8||→ 5|Load the int value 5 onto the stack
 idiv|108||value1, value2 → result|Divide two integers
-if_acmpeq|165|2: branchbyte1, branchbyte2|value1, value2 →|If references are equal, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-if_acmpne|166|2: branchbyte1, branchbyte2|value1, value2 →|If references are not equal, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-if_icmpeq|159|2: branchbyte1, branchbyte2|value1, value2 →|If ints are equal, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-if_icmpge|162|2: branchbyte1, branchbyte2|value1, value2 →|If value1 is greater than or equal to value2, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-if_icmpgt|163|2: branchbyte1, branchbyte2|value1, value2 →|If value1 is greater than value2, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-if_icmple|164|2: branchbyte1, branchbyte2|value1, value2 →|If value1 is less than or equal to value2, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-if_icmplt|161|2: branchbyte1, branchbyte2|value1, value2 →|If value1 is less than value2, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-if_icmpne|160|2: branchbyte1, branchbyte2|value1, value2 →|If ints are not equal, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-ifeq|153|2: branchbyte1, branchbyte2|value →|If value is 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-ifge|156|2: branchbyte1, branchbyte2|value →|If value is greater than or equal to 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-ifgt|157|2: branchbyte1, branchbyte2|value →|If value is greater than 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-ifle|158|2: branchbyte1, branchbyte2|value →|If value is less than or equal to 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-iflt|155|2: branchbyte1, branchbyte2|value →|If value is less than 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-ifne|154|2: branchbyte1, branchbyte2|value →|If value is not 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-ifnonnull|199|2: branchbyte1, branchbyte2|value →|If value is not null, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
-ifnull|198|2: branchbyte1, branchbyte2|value →|If value is null, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)
+if_acmpeq|165|2: branchbyte1, branchbyte2|value1, value2 →|"If references are equal, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+if_acmpne|166|2: branchbyte1, branchbyte2|value1, value2 →|"If references are not equal, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+if_icmpeq|159|2: branchbyte1, branchbyte2|value1, value2 →|"If ints are equal, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+if_icmpge|162|2: branchbyte1, branchbyte2|value1, value2 →|"If value1 is greater than or equal to value2, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+if_icmpgt|163|2: branchbyte1, branchbyte2|value1, value2 →|"If value1 is greater than value2, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+if_icmple|164|2: branchbyte1, branchbyte2|value1, value2 →|"If value1 is less than or equal to value2, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+if_icmplt|161|2: branchbyte1, branchbyte2|value1, value2 →|"If value1 is less than value2, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+if_icmpne|160|2: branchbyte1, branchbyte2|value1, value2 →|"If ints are not equal, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+ifeq|153|2: branchbyte1, branchbyte2|value →|"If value is 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+ifge|156|2: branchbyte1, branchbyte2|value →|"If value is greater than or equal to 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+ifgt|157|2: branchbyte1, branchbyte2|value →|"If value is greater than 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+ifle|158|2: branchbyte1, branchbyte2|value →|"If value is less than or equal to 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+iflt|155|2: branchbyte1, branchbyte2|value →|"If value is less than 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+ifne|154|2: branchbyte1, branchbyte2|value →|"If value is not 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+ifnonnull|199|2: branchbyte1, branchbyte2|value →|"If value is not null, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
+ifnull|198|2: branchbyte1, branchbyte2|value →|"If value is null, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2)"
 iinc|132|2: index, const|[No change]|Increment local variable #index by signed byte const
 iload|21|1: index|→ value|Load an int value from a local variable #index
 iload_0|26||→ value|Load an int value from local variable 0
@@ -129,12 +129,12 @@ impdep1|254|||Reserved for implementation-dependent operations within debuggers;
 impdep2|255|||Reserved for implementation-dependent operations within debuggers; should not appear in any class file
 imul|104||value1, value2 → result|Multiply two integers
 ineg|116||value → result|Negate int
-instanceof|193|2: indexbyte1, indexbyte2|objectref → result|Determines if an object objectref is of a given type, identified by class reference index in constant pool (indexbyte1 << 8 | indexbyte2)
-invokedynamic|186|4: indexbyte1, indexbyte2, 0, 0|[arg1, arg2, ...] → result|Invokes a dynamic method and puts the result on the stack (might be void); the method is identified by method reference index in constant pool (indexbyte1 << 8 | indexbyte2)
-invokeinterface|185|4: indexbyte1, indexbyte2, count, 0|objectref, [arg1, arg2, ...] → result|Invokes an interface method on object objectref and puts the result on the stack (might be void); the interface method is identified by method reference index in constant pool (indexbyte1 << 8 | indexbyte2)
-invokespecial|183|2: indexbyte1, indexbyte2|objectref, [arg1, arg2, ...] → result|Invoke instance method on object objectref and puts the result on the stack (might be void); the method is identified by method reference index in constant pool (indexbyte1 << 8 | indexbyte2)
-invokestatic|184|2: indexbyte1, indexbyte2|[arg1, arg2, ...] → result|Invoke a static method and puts the result on the stack (might be void); the method is identified by method reference index in constant pool (indexbyte1 << 8 | indexbyte2)
-invokevirtual|182|2: indexbyte1, indexbyte2|objectref, [arg1, arg2, ...] → result|Invoke virtual method on object objectref and puts the result on the stack (might be void); the method is identified by method reference index in constant pool (indexbyte1 << 8 | indexbyte2)
+instanceof|193|2: indexbyte1, indexbyte2|objectref → result|"Determines if an object objectref is of a given type, identified by class reference index in constant pool (indexbyte1 << 8 | indexbyte2)"
+invokedynamic|186|4: indexbyte1, indexbyte2, 0, 0|[arg1, arg2, ...] → result|"Invokes a dynamic method and puts the result on the stack (might be void); the method is identified by method reference index in constant pool (indexbyte1 << 8 | indexbyte2)"
+invokeinterface|185|4: indexbyte1, indexbyte2, count, 0|objectref, [arg1, arg2, ...] → result|"Invokes an interface method on object objectref and puts the result on the stack (might be void); the interface method is identified by method reference index in constant pool (indexbyte1 << 8 | indexbyte2)"
+invokespecial|183|2: indexbyte1, indexbyte2|objectref, [arg1, arg2, ...] → result|"Invoke instance method on object objectref and puts the result on the stack (might be void); the method is identified by method reference index in constant pool (indexbyte1 << 8 | indexbyte2)"
+invokestatic|184|2: indexbyte1, indexbyte2|[arg1, arg2, ...] → result|"Invoke a static method and puts the result on the stack (might be void); the method is identified by method reference index in constant pool (indexbyte1 << 8 | indexbyte2)"
+invokevirtual|182|2: indexbyte1, indexbyte2|objectref, [arg1, arg2, ...] → result|"Invoke virtual method on object objectref and puts the result on the stack (might be void); the method is identified by method reference index in constant pool (indexbyte1 << 8 | indexbyte2)"
 ior|128||value1, value2 → result|Bitwise int OR
 irem|112||value1, value2 → result|Logical int remainder
 ireturn|172||value → [empty]|Return an integer from a method
@@ -148,8 +148,8 @@ istore_3|62||value →|Store int value into variable 3
 isub|100||value1, value2 → result|Int subtract
 iushr|124||value1, value2 → result|Int logical shift right
 ixor|130||value1, value2 → result|Int xor
-jsr|168|2: branchbyte1, branchbyte2|→ address|Jump to subroutine at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2) and place the return address on the stack
-jsr_w|201|4: branchbyte1, branchbyte2, branchbyte3, branchbyte4|→ address|Jump to subroutine at branchoffset (signed int constructed from unsigned bytes branchbyte1 << 24 | branchbyte2 << 16 | branchbyte3 << 8 | branchbyte4) and place the return address on the stack
+jsr|168|2: branchbyte1, branchbyte2|→ address|"Jump to subroutine at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 | branchbyte2) and place the return address on the stack"
+jsr_w|201|4: branchbyte1, branchbyte2, branchbyte3, branchbyte4|→ address|"Jump to subroutine at branchoffset (signed int constructed from unsigned bytes branchbyte1 << 24 | branchbyte2 << 16 | branchbyte3 << 8 | branchbyte4) and place the return address on the stack"
 l2d|138||value → result|Convert a long to a double
 l2f|137||value → result|Convert a long to a float
 l2i|136||value → result|Convert a long to a int
@@ -161,8 +161,8 @@ lcmp|148||value1, value2 → result|Push 0 if the two longs are the same, 1 if v
 lconst_0|9||→ 0L|Push 0L (the number zero with type long) onto the stack
 lconst_1|10||→ 1L|Push 1L (the number one with type long) onto the stack
 ldc|18|1: index|→ value|Push a constant #index from a constant pool (String, int, float, Class, java.lang.invoke.MethodType, java.lang.invoke.MethodHandle, or a dynamically-computed constant) onto the stack
-ldc_w|19|2: indexbyte1, indexbyte2|→ value|Push a constant #index from a constant pool (String, int, float, Class, java.lang.invoke.MethodType, java.lang.invoke.MethodHandle, or a dynamically-computed constant) onto the stack (wide index is constructed as indexbyte1 << 8 | indexbyte2)
-ldc2_w|20|2: indexbyte1, indexbyte2|→ value|Push a constant #index from a constant pool (double, long, or a dynamically-computed constant) onto the stack (wide index is constructed as indexbyte1 << 8 | indexbyte2)
+ldc_w|19|2: indexbyte1, indexbyte2|→ value|"Push a constant #index from a constant pool (String, int, float, Class, java.lang.invoke.MethodType, java.lang.invoke.MethodHandle, or a dynamically-computed constant) onto the stack (wide index is constructed as indexbyte1 << 8 | indexbyte2)"
+ldc2_w|20|2: indexbyte1, indexbyte2|→ value|"Push a constant #index from a constant pool (double, long, or a dynamically-computed constant) onto the stack (wide index is constructed as indexbyte1 << 8 | indexbyte2)"
 ldiv|109||value1, value2 → result|Divide two longs
 lload|22|1: index|→ value|Load a long value from a local variable #index
 lload_0|30||→ value|Load a long value from a local variable 0
@@ -187,14 +187,14 @@ lushr|125||value1, value2 → result|Bitwise shift right of a long value1 by int
 lxor|131||value1, value2 → result|Bitwise XOR of two longs
 monitorenter|194||objectref →|"Enter monitor for object (\""grab the lock\"" – start of synchronized() section)"""
 monitorexit|195||objectref →|"Exit monitor for object exit monitor for object (\""release the lock\"" – end of synchronized() section)"
-multianewarray|197|3: indexbyte1, indexbyte2, dimensions|count1, [count2, ...] → arrayref|Create a new array of dimensions dimensions of type identified by class reference in constant pool index (indexbyte1 << 8 | indexbyte2); the sizes of each dimension is identified by count1, [count2, etc.]
-new|187|2: indexbyte1, indexbyte2|→ objectref|Create new object of type identified by class reference in constant pool index (indexbyte1 << 8 | indexbyte2)
+multianewarray|197|3: indexbyte1, indexbyte2, dimensions|count1, [count2, ...] → arrayref|"Create a new array of dimensions dimensions of type identified by class reference in constant pool index (indexbyte1 << 8 | indexbyte2); the sizes of each dimension is identified by count1, [count2, etc.]"
+new|187|2: indexbyte1, indexbyte2|→ objectref|"Create new object of type identified by class reference in constant pool index (indexbyte1 << 8 | indexbyte2)"
 newarray|188|1: atype|count → arrayref|Create new array with count elements of primitive type identified by atype
 nop|0||[No change]|Perform no operation
 pop|87||value →|Discard the top value on the stack
 pop2|88||{value2, value1} →|Discard the top two values on the stack (or one value, if it is a double or long)
-putfield|181|2: indexbyte1, indexbyte2|objectref, value →|Set field to value in an object objectref, where the field is identified by a field reference index in constant pool (indexbyte1 << 8 | indexbyte2)
-putstatic|179|2: indexbyte1, indexbyte2|value →|Set static field to value in a class, where the field is identified by a field reference index in constant pool (indexbyte1 << 8 | indexbyte2)
+putfield|181|2: indexbyte1, indexbyte2|objectref, value →|"Set field to value in an object objectref, where the field is identified by a field reference index in constant pool (indexbyte1 << 8 | indexbyte2)"
+putstatic|179|2: indexbyte1, indexbyte2|value →|"Set static field to value in a class, where the field is identified by a field reference index in constant pool (indexbyte1 << 8 | indexbyte2)"
 ret|169|1: index|[No change]|Continue execution from address taken from a local variable #index (the asymmetry with jsr is intentional)
 return|177||→ [empty]|Return void from method
 saload|53||arrayref, index → value|Load short from array
