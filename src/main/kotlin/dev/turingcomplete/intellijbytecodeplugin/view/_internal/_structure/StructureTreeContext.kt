@@ -3,7 +3,7 @@ package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure
 import com.intellij.openapi.project.Project
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils.MethodDescriptorRenderMode
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils.TypeNameRenderMode
-import dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeAnalyserSettingsService
+import dev.turingcomplete.intellijbytecodeplugin.settings.ByteCodeAnalyserSettingsService
 import kotlin.properties.Delegates
 
 internal class StructureTreeContext(val project: Project, private val syncStructure: () -> Unit) {

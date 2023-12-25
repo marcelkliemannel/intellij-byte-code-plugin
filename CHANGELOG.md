@@ -6,6 +6,9 @@
 
 ### Changed
 
+- For lambda classes, a fallback to the parent class is now made if the lambda class file is not found. This is necessary because, for example, the Kotlin compiler often optimises lambda code and does not create an extra class.
+- The Open Class Files mechanism has been optimised for performance by using read access to the PSI data model (IntelliJ's source code model) only when it is actually needed.
+
 ### Removed
 
 ### Fixed

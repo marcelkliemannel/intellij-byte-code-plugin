@@ -37,7 +37,7 @@ import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory.C
 import dev.turingcomplete.intellijbytecodeplugin._ui.SimpleListCellRenderer
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideLeftInset
 import dev.turingcomplete.intellijbytecodeplugin._ui.withCommonsDefaults
-import dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeAnalyserSettingsService
+import dev.turingcomplete.intellijbytecodeplugin.settings.ByteCodeAnalyserSettingsService
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils.runAsync
