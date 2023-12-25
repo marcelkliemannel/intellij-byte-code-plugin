@@ -43,7 +43,7 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <applicationService
-            serviceImplementation="dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeAnalyserSettingsService"/>
+            serviceImplementation="dev.turingcomplete.intellijbytecodeplugin.settings.ByteCodeAnalyserSettingsService"/>
   </extensions>
 
   <extensionPoints>

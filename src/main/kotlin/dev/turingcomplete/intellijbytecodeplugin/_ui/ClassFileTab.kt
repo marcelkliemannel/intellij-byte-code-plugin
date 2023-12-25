@@ -15,6 +15,7 @@ import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile.CompilableSourceFile
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFileCandidates
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesPreparatorService
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesPreparatorService.ClassFilePreparationTask
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeView
@@ -52,7 +53,8 @@ internal class ClassFileTab(
   override fun reParseClassNodeContext() {
     val sourceFile = classFile.sourceFile
     if (sourceFile is CompilableSourceFile) {
-      val classFilePreparationTask = ClassFilePreparationTask(classFile.file.toNioPath(), sourceFile)
+      val classFileCandidates = ClassFileCandidates.fromAbsolutePaths(classFile.file.toNioPath())
+      val classFilePreparationTask = ClassFilePreparationTask(classFileCandidates, sourceFile)
       project.getService(ClassFilesPreparatorService::class.java)
         .prepareClassFiles(listOf(classFilePreparationTask), centerComponentContainer) {
           classFile = it
@@ -135,19 +137,16 @@ internal class ClassFileTab(
   private class ByteCodeViewTabs(classFileContext: ClassFileContext, parentDisposable: Disposable)
     : TabbedPaneWrapper(parentDisposable) {
 
-    private val byteCodeViews: List<ByteCodeView>
-    var selectedByteCodeViewIndex: Int
+    private val byteCodeViews: List<ByteCodeView> = ByteCodeView.EP.extensions.mapIndexed { index, byteCodeViewCreator ->
+      val selected = index == 0
+      val classFileView = byteCodeViewCreator.create(classFileContext)
+      addTab(classFileView.title, null, classFileView.createComponent(selected), null)
+      Disposer.register(parentDisposable, classFileView)
+      classFileView
+    }
+    var selectedByteCodeViewIndex: Int = 0
 
     init {
-      byteCodeViews = ByteCodeView.EP.extensions.mapIndexed { index, byteCodeViewCreator ->
-        val selected = index == 0
-        val classFileView = byteCodeViewCreator.create(classFileContext)
-        addTab(classFileView.title, null, classFileView.createComponent(selected), null)
-        Disposer.register(parentDisposable, classFileView)
-        classFileView
-      }
-      selectedByteCodeViewIndex = 0
-
       addChangeListener {
         if (selectedByteCodeViewIndex != selectedIndex) {
           selectedByteCodeViewIndex = selectedIndex

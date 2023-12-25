@@ -17,8 +17,8 @@ import com.intellij.ui.dsl.builder.panel
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile.CompilableSourceFile
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFileCandidates.AbsoluteClassFileCandidates
 import org.jsoup.internal.StringUtil.StringJoiner
-import java.nio.file.Path
 import javax.swing.Action
 import javax.swing.Icon
 import javax.swing.JComponent
@@ -45,7 +45,7 @@ internal class ClassFilesPreparatorService(private val project: Project) {
     val missingClassFiles = mutableListOf<ClassFilePreparationTask>()
 
     preparationTasks.forEach { classFilePreparationContext ->
-      val classFile = VirtualFileManager.getInstance().findFileByNioPath(classFilePreparationContext.compilerOutputClassFilePath)
+      val classFile = VirtualFileManager.getInstance().findFileByNioPath(classFilePreparationContext.compilerOutputClassFileCandidates.primaryPath)
       if (classFile == null) {
         missingClassFiles.add(classFilePreparationContext)
         return@forEach
@@ -105,7 +105,7 @@ internal class ClassFilesPreparatorService(private val project: Project) {
       PrepareMode.USE_DIRECTLY -> {
         assert(prepareReason == PrepareReason.OUT_DATED)
         classFiles.forEach {
-          val classFile = VirtualFileManager.getInstance().findFileByNioPath(it.compilerOutputClassFilePath)
+          val classFile = VirtualFileManager.getInstance().findFileByNioPath(it.compilerOutputClassFileCandidates.primaryPath)
           if (classFile != null) {
             openClassFile(ClassFile(classFile, it.sourceFile))
           }
@@ -120,7 +120,10 @@ internal class ClassFilesPreparatorService(private val project: Project) {
   // -- Private Methods --------------------------------------------------------------------------------------------- //
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
-  internal data class ClassFilePreparationTask(val compilerOutputClassFilePath: Path, val sourceFile: CompilableSourceFile)
+  internal data class ClassFilePreparationTask(
+    val compilerOutputClassFileCandidates: AbsoluteClassFileCandidates,
+    val sourceFile: CompilableSourceFile
+  )
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
@@ -140,18 +143,20 @@ internal class ClassFilesPreparatorService(private val project: Project) {
 
       ApplicationManager.getApplication().executeOnPooledThread {
         val virtualFileManager = VirtualFileManager.getInstance()
-        classFilesNeedingPreparation.forEach {
-          val classFile = virtualFileManager.refreshAndFindFileByNioPath(it.compilerOutputClassFilePath)
-          if (classFile != null && classFile.isValid) {
-            openClassFile(ClassFile(classFile, it.sourceFile))
+        classFilesNeedingPreparation.forEach { task ->
+          val classVirtualFile = task.compilerOutputClassFileCandidates
+            .allPaths()
+            .firstNotNullOfOrNull { path ->
+              virtualFileManager.refreshAndFindFileByNioPath(path)?.takeIf { it.isValid }
+            }
+          if (classVirtualFile != null) {
+            openClassFile(ClassFile(classVirtualFile, task.sourceFile))
           }
           else {
             ApplicationManager.getApplication().invokeLater {
-              Messages.showErrorDialog(
-                compileContext.project,
-                "Failed to find the class file '${it.compilerOutputClassFilePath}' in the compiler output directory.",
-                "Analyse Class Files"
-              )
+              val errorMessage = task.compilerOutputClassFileCandidates
+                .formatNotFoundError("cannot be found in the compiler output directory of module '${task.sourceFile.module.name}'.", compileContext.project)
+              Messages.showErrorDialog(compileContext.project, errorMessage, "Analyse Class Files")
             }
           }
         }
@@ -236,7 +241,8 @@ internal class ClassFilesPreparatorService(private val project: Project) {
     // There could be multiple `ClassFilePreparationTask`s for the same source
     // file. For example, this could be the case for a Kotlin file with two
     // top-level classes.
-    private val sourceFileNamesToClassFilesNames = classFiles.groupBy({ it.sourceFile.file.name }) { it.compilerOutputClassFilePath.fileName.toString() }
+    private val sourceFileNamesToClassFilesNames =
+      classFiles.groupBy({ it.sourceFile.file.name }) { it.compilerOutputClassFileCandidates.primaryPath.fileName.toString() }
     private val useSingular = sourceFileNamesToClassFilesNames.size == 1
 
     init {

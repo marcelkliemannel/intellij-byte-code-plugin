@@ -1,5 +1,6 @@
 package dev.turingcomplete.intellijbytecodeplugin.common
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
@@ -20,32 +21,27 @@ class ByteCodeAnalyserOpenClassFileService(val project: Project) {
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
   fun openPsiFiles(psiFiles: List<PsiFile>) {
-    project.getService(ClassFilesFinderService::class.java)
-      .findByPsiFiles(psiFiles)
-      .let { handleResult(it) }
+    run { service -> service.findByPsiFiles(psiFiles) }
   }
 
-  fun openPsiElements(psiElements: Map<PsiElement, PsiFile?>) {
-    psiElements.map { (psiElement, psiElementOriginPsiFile) ->
-      project.getService(ClassFilesFinderService::class.java)
-        .findByPsiElement(psiElement, psiElementOriginPsiFile)
-        .let { handleResult(it) }
-    }
+  fun openPsiElements(psiElementToPsiElementOriginPsiFile: Map<PsiElement, PsiFile?>) {
+    run { service -> service.findByPsiElements(psiElementToPsiElementOriginPsiFile) }
   }
 
   fun openVirtualFiles(files: List<VirtualFile>) {
-    project.getService(ClassFilesFinderService::class.java)
-      .findByVirtualFiles(files)
-      .let { handleResult(it) }
+    run { service -> service.findByVirtualFiles(files) }
   }
 
   internal fun openClassFiles(classFiles: List<ClassFile>) {
-    project.getService(ClassFilesFinderService::class.java)
-      .findByClassFiles(classFiles)
-      .let { handleResult(it) }
+    run { service -> service.findByClassFiles(classFiles) }
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
+
+  private fun run(findBy: (ClassFilesFinderService) -> Result) {
+    val result = findBy(project.getService(ClassFilesFinderService::class.java))
+    handleResult(result)
+  }
 
   private fun handleResult(result: Result) {
     val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(ByteCodeToolWindowFactory.TOOL_WINDOW_ID)
@@ -69,7 +65,9 @@ class ByteCodeAnalyserOpenClassFileService(val project: Project) {
       else {
         "The following errors occurred: ${result.errors.joinToString(prefix = "<ul>", postfix = "</ul>") { "<li>$it</li>" }}"
       }
-      Messages.showErrorDialog(project, errorMessage, "Analyse Class Files")
+      ApplicationManager.getApplication().invokeLater {
+        Messages.showErrorDialog(project, errorMessage, "Analyse Class Files")
+      }
     }
   }
 

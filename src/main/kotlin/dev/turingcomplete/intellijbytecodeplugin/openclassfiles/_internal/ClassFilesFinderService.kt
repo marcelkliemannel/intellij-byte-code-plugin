@@ -2,7 +2,7 @@ package dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal
 
 import com.intellij.debugger.engine.JVMNameUtil
 import com.intellij.ide.highlighter.JavaClassFileType
-import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.serviceOrNull
 import com.intellij.openapi.fileTypes.FileTypeRegistry
@@ -21,15 +21,16 @@ import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiJavaModule
 import com.intellij.psi.PsiManager
 import com.intellij.psi.PsiTypeParameter
-import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.compiled.ClsClassImpl
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.ClassUtil
-import com.intellij.psi.util.findParentOfType
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile
 import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile.CompilableSourceFile
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFileCandidates.Companion.fromAbsolutePaths
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFileCandidates.Companion.fromRelativePaths
+import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFileCandidates.RelativeClassFileCandidates
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassFilesPreparatorService.ClassFilePreparationTask
 import org.jetbrains.kotlin.analysis.decompiler.psi.file.KtDecompiledFile
 import org.jetbrains.kotlin.fileClasses.javaFileFacadeFqName
@@ -55,7 +56,7 @@ internal class ClassFilesFinderService(private val project: Project) {
     ClassNameProvider(
       project,
       GlobalSearchScope.allScope(project),
-      ClassNameProvider.Configuration.DEFAULT.copy(alwaysReturnLambdaParentClass = false)
+      ClassNameProvider.Configuration.DEFAULT.copy(alwaysReturnLambdaParentClass = true)
     )
   }
 
@@ -76,7 +77,7 @@ internal class ClassFilesFinderService(private val project: Project) {
         return@mapNotNull Result.withErrorDumbMode()
       }
 
-      val psiFile = PsiManagerEx.getInstance(project).findFile(virtualFile)
+      val psiFile = runReadAction { PsiManager.getInstance(project).findFile(virtualFile) }
         ?: return@mapNotNull Result.withErrorNoContainingFileForElement()
       findByPsiFiles(listOf(psiFile))
     }.reduce()
@@ -98,6 +99,8 @@ internal class ClassFilesFinderService(private val project: Project) {
         )
       }
 
+      // In dumb mode, the `workingFile.psiFile` may not be a `PsiJavaFile`
+      // or `PsiClassOwner`, which may lead to incorrect results.
       if (DumbService.isDumb(project)) {
         return@map Result.withErrorDumbMode()
       }
@@ -106,46 +109,45 @@ internal class ClassFilesFinderService(private val project: Project) {
         // package-info.java
         if (workingFile.psiFile.name == "package-info.java") {
           // Only exists in sources
-          return Result.empty()
+          return@map Result.withErrorNotProcessableFile(workingFile.psiFile)
         }
 
         // module-info.java
-        val moduleDeclaration = workingFile.psiFile.moduleDeclaration
+        val moduleDeclaration = runReadAction { workingFile.psiFile.moduleDeclaration }
         if (moduleDeclaration != null) {
-          return@map findByPsiElement(moduleDeclaration, workingFile)
+          return@map findByPsiElements(moduleDeclaration, workingFile)
         }
       }
 
-      if (workingFile.psiFile is PsiClassOwner) {
-        val psiClasses = workingFile.psiFile.classes
-        if (psiClasses.isNotEmpty()) {
-          return psiClasses
-            .map {
-              findClassFilesFromPsiClass(it, workingFile)
-            }
-            .reduceOrNull { a, b -> a.addResult(b) } ?: Result.empty()
-        }
+      val psiClasses = if (workingFile.psiFile is PsiClassOwner) runReadAction { workingFile.psiFile.classes } else emptyArray<PsiClass>()
+      if (psiClasses.isNotEmpty()) {
+        return@map psiClasses
+          .map { findClassFilesFromPsiClass(it, workingFile) }
+          .reduce()
       }
 
       // Kotlin file without a class
-      if (workingFile.psiFile is KtFile && workingFile.psiFile.classes.isEmpty()) {
-        return workingFile.toResult(workingFile.psiFile.javaFileFacadeFqName.asString().toRelativeClassFilePath())
+      if (workingFile.psiFile is KtFile) {
+        val javaFileFacadeFqName = runReadAction { workingFile.psiFile.javaFileFacadeFqName }
+        return@map workingFile.toResult(fromRelativePaths(javaFileFacadeFqName.asString().toRelativeClassFilePath()))
       }
 
-      Result.withErrorNotProcessableFile(workingFile.psiFile)
+      return@map Result.withErrorNotProcessableFile(workingFile.psiFile)
     }.reduce()
   }
 
-  fun findByPsiElement(psiElement: PsiElement, psiElementOriginPsiFile: PsiFile?): Result {
-    val workingFile = WorkingFile.fromPsiElement(psiElement, psiElementOriginPsiFile)
-      ?: return Result.withErrorNoContainingFileForElement()
-    return findByPsiElement(psiElement, workingFile)
-  }
+  fun findByPsiElements(psiElementToPsiElementOriginPsiFile: Map<PsiElement, PsiFile?>): Result =
+    psiElementToPsiElementOriginPsiFile.map { (psiElement, psiElementOriginPsiFile) ->
+      WorkingFile.fromPsiElement(psiElement, psiElementOriginPsiFile)
+        ?.let { workingFile -> findByPsiElements(psiElement, workingFile) }
+        ?: Result.withErrorNoContainingFileForElement()
+    }.reduce()
 
   fun findByClassFiles(classFiles: List<ClassFile>): Result {
     return classFiles.map { classFile ->
       if (classFile.sourceFile is CompilableSourceFile) {
-        Result.withClassFileToPrepare(ClassFilePreparationTask(classFile.file.toNioPath(), classFile.sourceFile))
+        val compilerOutputClassFilePath = fromAbsolutePaths(classFile.file.toNioPath())
+        Result.withClassFileToPrepare(ClassFilePreparationTask(compilerOutputClassFilePath, classFile.sourceFile))
       }
       else {
         Result.withClassFileToOpen(classFile)
@@ -155,7 +157,7 @@ internal class ClassFilesFinderService(private val project: Project) {
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
 
-  private fun findByPsiElement(psiElement: PsiElement, workingFile: WorkingFile): Result {
+  private fun findByPsiElements(psiElement: PsiElement, workingFile: WorkingFile): Result {
     if (DumbService.isDumb(project)) {
       return if (workingFile.virtualFile.isClassFile()) {
         // Fallback to the original file
@@ -183,17 +185,19 @@ internal class ClassFilesFinderService(private val project: Project) {
     // the `psiElement.originalElement?.containingFile` should point to that
     // source file but not the original class file. Since we can't compile
     // this file, we have to get the original class file.
-    val libraryResult: Result = findClassFilesIfOriginalElementIsInLibrary(psiElement, workingFile)
-    if (libraryResult.isNotEmpty()) {
-      return libraryResult
+    if (isInLibrary(workingFile.virtualFile)) {
+      val libraryResult: Result = findClassFilesIfOriginalElementIsInLibrary(psiElement, workingFile, failWithError = false)
+      if (libraryResult.isNotEmpty()) {
+        return libraryResult
+      }
     }
 
     // Module descriptor
-    val containingModule = psiElement.getParentOfType<PsiJavaModule>(false)
+    val containingModule = runReadAction { psiElement.getParentOfType<PsiJavaModule>(false) }
     if (containingModule != null) {
       // A module descriptor does not have nested classes. Therefore, we can
       // directly consume the containing file.
-      return workingFile.toResult(Path.of("module-info.class"))
+      return workingFile.toResult(fromRelativePaths(Path.of("module-info.class")))
     }
 
     // Element in a class
@@ -203,47 +207,80 @@ internal class ClassFilesFinderService(private val project: Project) {
   private fun findClassFilesIfOriginalElementIsInLibrary(
     psiElement: PsiElement,
     workingFile: WorkingFile,
-    knowingRelativeClassFilePath: Path? = null
+    alternativeRelativeClassFilePathCandidates: ClassFileCandidates? = null,
+    failWithError: Boolean = true
   ): Result {
-    if (projectFileIndex.isInLibrary(workingFile.virtualFile)) {
-      // The relative class file path may be a nested class in the `workingFile.virtualFile`
-      val relativeClassFilePath = psiElement.findRelativeClassFilePathFromContainingClass() ?: knowingRelativeClassFilePath
-      if (relativeClassFilePath != null) {
-        // If a file of a library gets opened, the `originalElementContainingFile`
-        // will be a source file. One of the elements in that file, probably the
-        // first class element, will be linked to the `originalElement` of the
-        // class file.
-        val classVirtualFile = workingFile.psiFile.children
-          .firstNotNullOfOrNull {
-            val containingVirtualFile = it.originalElement.containingFile.virtualFile
-            if (containingVirtualFile?.isClassFile() == true) containingVirtualFile else null
-          }
-          ?.parent?.findFile(relativeClassFilePath.fileName.toString())
+    assert(isInLibrary(workingFile.virtualFile))
+
+    // The relative class file path may be a nested class in the `workingFile.virtualFile`
+    val relativeClassFilePathCandidates = psiElement.findRelativeClassFilePathFromContainingClass()
+      ?: alternativeRelativeClassFilePathCandidates
+    if (relativeClassFilePathCandidates != null) {
+      // If a file of a library gets opened, the `originalElementContainingFile`
+      // will be a source file. One of the elements in that file, probably the
+      // first class element, will be linked to the `originalElement` of the
+      // class file.
+      val searchDirectory = runReadAction { workingFile.psiFile.children }
+        .firstNotNullOfOrNull {
+          val containingVirtualFile = runReadAction { it.originalElement.containingFile.virtualFile }
+          if (containingVirtualFile?.isClassFile() == true) containingVirtualFile else null
+        }
+        ?.parent
+      if (searchDirectory != null) {
+        val classVirtualFile = relativeClassFilePathCandidates.allPaths()
+          .firstNotNullOfOrNull { searchDirectory.findFile(it.fileName.toString()) }
         if (classVirtualFile != null) {
           val sourceFile = findSource(if (!workingFile.virtualFile.isClassFile()) workingFile.virtualFile else classVirtualFile)
           return findByClassFiles(listOf(ClassFile(file = classVirtualFile, sourceFile = sourceFile)))
         }
+        else if (failWithError) {
+          relativeClassFilePathCandidates.formatNotFoundError("cannot be found in directory '${searchDirectory.path}'.", project)
+        }
+      }
+      else if (failWithError) {
+        relativeClassFilePathCandidates.formatNotFoundError("cannot be found.", project)
       }
     }
-    return Result.empty()
-  }
 
-  private fun PsiClass.getFqClassName(): String? = JVMNameUtil.getClassVMName(this)
-
-  private fun PsiElement.findRelativeClassFilePathFromContainingClass(): Path? =
-    if (containingFile is KtFile) {
-      findContainingClassName()?.let { classId ->
-        val packagePath = Paths.get("", *classId.packageFqName.pathSegments().map { it.asStringStripSpecialMarkers() }.toTypedArray())
-        val fileName = classId.relativeClassName.pathSegments().joinToString(separator = "$", postfix = ".class") { it.asStringStripSpecialMarkers() }
-        return packagePath.resolve(fileName)
-      }
+    return if (failWithError && psiElement is PsiFile) {
+      Result.withErrorNotProcessableFile(psiElement)
     }
-    else if (containingFile.name.substringBefore(".") == "module-info") {
-      Path.of("module-info.class")
+    else if (failWithError) {
+      Result.withErrorNoContainingFileForElement()
     }
     else {
-      getParentOfType<PsiClass>(false)?.getFqClassName()?.toRelativeClassFilePath()
+      Result.empty()
     }
+  }
+
+  private fun isInLibrary(virtualFile: VirtualFile) = runReadAction {
+    projectFileIndex.isInLibrary(virtualFile)
+  }
+
+  private fun PsiClass.getFqClassName(): String? = runReadAction {
+    JVMNameUtil.getClassVMName(this)
+  }
+
+  private fun PsiElement.findRelativeClassFilePathFromContainingClass(): RelativeClassFileCandidates? {
+    val containingFile = runReadAction { containingFile }
+    return if (containingFile is KtFile) {
+      val relativeClassFilePaths = findContainingClassNameCandidates()
+        .map { classId ->
+          val packagePath = Paths.get("", *classId.packageFqName.pathSegments().map { it.asStringStripSpecialMarkers() }.toTypedArray())
+          val fileName = classId.relativeClassName.pathSegments().joinToString(separator = "$", postfix = ".class") { it.asStringStripSpecialMarkers() }
+          packagePath.resolve(fileName)
+        }
+      if (relativeClassFilePaths.isNotEmpty()) fromRelativePaths(*relativeClassFilePaths.toTypedArray()) else null
+    }
+    else if (containingFile.name.substringBefore(".") == "module-info") {
+      fromRelativePaths(Path.of("module-info.class"))
+    }
+    else {
+      runReadAction { getParentOfType<PsiClass>(false)?.getFqClassName() }
+        ?.toRelativeClassFilePath()
+        ?.let { fromRelativePaths(it) }
+    }
+  }
 
   /**
    * If we are in a local class, we can't determine the class file name
@@ -254,9 +291,9 @@ internal class ClassFilesFinderService(private val project: Project) {
   private fun findClassFilesFromContainingClass(psiElement: PsiElement, workingFile: WorkingFile): Result {
     // Kotlin code
     if (workingFile.psiFile is KtFile) {
-      val relativeClassFilePath = psiElement.findRelativeClassFilePathFromContainingClass()
-      if (relativeClassFilePath != null) {
-        return workingFile.toResult(relativeClassFilePath)
+      val relativeClassFilePathCandidates = psiElement.findRelativeClassFilePathFromContainingClass()
+      if (relativeClassFilePathCandidates != null) {
+        return workingFile.toResult(relativeClassFilePathCandidates)
       }
 
       // Fallback to the containing file
@@ -269,22 +306,25 @@ internal class ClassFilesFinderService(private val project: Project) {
       else {
         // The containing file is a source file. Therefore, we do not have an
         // unambiguous JVM class based on the selected element.
-        findClassFilesFromPsiFile(psiElement.containingFile.originalFile, workingFile)
+        findClassFilesFromPsiFile(runReadAction { psiElement.containingFile.originalFile }, workingFile)
       }
     }
 
     // Continue with generic PSI module
 
     // A light method is a synthetic method in an inner enum or record.
-    val lightMethod = psiElement.getParentOfType<LightMethod>(false)
-    var containingClass = lightMethod?.containingClass
+    val containingClass: PsiClass? = runReadAction {
+      var containingClass = psiElement.getParentOfType<LightMethod>(false)?.containingClass
 
-    if (containingClass == null) {
-      containingClass = psiElement.getParentOfType<PsiClass>(false)
-    }
+      if (containingClass == null) {
+        containingClass = psiElement.getParentOfType<PsiClass>(false)
+      }
 
-    while (containingClass is PsiTypeParameter) {
-      containingClass = containingClass.getParentOfType<PsiClass>(false)
+      while (containingClass is PsiTypeParameter) {
+        containingClass = containingClass.getParentOfType<PsiClass>(false)
+      }
+
+      return@runReadAction containingClass
     }
 
     if (containingClass == null) {
@@ -294,21 +334,19 @@ internal class ClassFilesFinderService(private val project: Project) {
     return findClassFilesFromPsiClass(containingClass, workingFile)
   }
 
-  private fun WorkingFile.toResult(relativeClassFilePath: Path): Result {
+  private fun WorkingFile.toResult(relativeClassFilePathCandidates: RelativeClassFileCandidates): Result {
     return if (isClassFile) {
-      val classVirtualFile = virtualFile.parent.findFileByRelativePath(relativeClassFilePath.fileName.toString())
-      if (classVirtualFile != null) {
-        Result.withClassFileToOpen(ClassFile(file = classVirtualFile, sourceFile = findSource(virtualFile)))
-      }
-      else {
-        Result.withError("Unable to find class file: $relativeClassFilePath")
-      }
+      relativeClassFilePathCandidates.allPaths().firstNotNullOfOrNull { relativeClassFilePathCandidate ->
+        virtualFile.parent.findFileByRelativePath(relativeClassFilePathCandidate.fileName.toString())?.let { classVirtualFile ->
+          Result.withClassFileToOpen(ClassFile(file = classVirtualFile, sourceFile = findSource(virtualFile)))
+        }
+      } ?: Result.withError(relativeClassFilePathCandidates.formatNotFoundError("cannot be found in directory '${virtualFile.parent.path}'.", project))
     }
-    else if (projectFileIndex.isInLibrary(virtualFile)) {
-      return findClassFilesIfOriginalElementIsInLibrary(psiFile, this, relativeClassFilePath)
+    else if (isInLibrary(virtualFile)) {
+      findClassFilesIfOriginalElementIsInLibrary(psiFile, this, relativeClassFilePathCandidates, failWithError = true)
     }
     else {
-      findClassFileInCompilerOutputDirOfSourceFile(relativeClassFilePath, virtualFile)
+      findClassFileInCompilerOutputDirOfSourceFile(relativeClassFilePathCandidates, virtualFile)
     }
   }
 
@@ -322,26 +360,28 @@ internal class ClassFilesFinderService(private val project: Project) {
       // The `FileSwapper`s in the next step will not find the source file for
       // a nested class file. For this case, we have to work with the containing
       // class file.
-      classVirtualFileToUse = virtualFile.parent?.findFile("${virtualFile.name.substringBefore('$')}.class")
+      classVirtualFileToUse = virtualFile.parent
+        ?.findFile("${virtualFile.name.substringBefore('$')}.class")
         ?: virtualFile
     }
 
-    val psiFile = PsiManager.getInstance(project).findFile(classVirtualFileToUse)
+    val psiFile = runReadAction { PsiManager.getInstance(project).findFile(classVirtualFileToUse) }
     return if (psiFile is PsiCompiledFile && psiFile is PsiClassOwner) {
       // See `JavaEditorFileSwapper#findSourceFile`
       // Only `ClsClassImpl` have a `sourceMirrorClass` which will lead to the
       // real source file (if it exists). All other `Cls*` instance, for example
       // a module descriptor just have a `mirror` that is not bound to the real
       // source file, only the virtual decompiled PSI file.
-      (psiFile as PsiClassOwner).classes
+      runReadAction { (psiFile as PsiClassOwner).classes }
         .takeIf { classes -> classes.isNotEmpty() && classes[0] is ClsClassImpl }
-        ?.let { classes -> (classes[0] as ClsClassImpl).sourceMirrorClass?.containingFile?.virtualFile }
+        ?.let { classes -> runReadAction { (classes[0] as ClsClassImpl).sourceMirrorClass?.containingFile?.virtualFile } }
         ?.let { SourceFile.NonCompilableSourceFile(it) }
     }
     else if (psiFile is KtDecompiledFile) {
       // See `KotlinEditorFileSwapper#getSourcesLocation`
-      psiFile.declarations.firstOrNull()?.let { declaration ->
-        serviceOrNull<KotlinDeclarationNavigationPolicy>()?.getNavigationElement(declaration)
+      runReadAction { psiFile.declarations }.firstOrNull()?.let { declaration ->
+        val kotlinDeclarationNavigationPolicy = serviceOrNull<KotlinDeclarationNavigationPolicy>()
+        runReadAction { kotlinDeclarationNavigationPolicy?.getNavigationElement(declaration) }
           ?.takeIf { it != declaration }
           ?.containingFile
           ?.takeIf { it.isValid }
@@ -361,7 +401,7 @@ internal class ClassFilesFinderService(private val project: Project) {
       return Result.withErrorNotProcessableFile(psiFile)
     }
 
-    return psiFile.classes
+    return runReadAction { psiFile.classes }
       .map { findClassFilesFromPsiClass(it, workingFile) }
       .reduce()
   }
@@ -372,7 +412,7 @@ internal class ClassFilesFinderService(private val project: Project) {
 
     // If the `PsiClass` is an inner class in a class file, the `containingFile`
     // would return the file of the outermost class file.
-    var potentialClassFile: VirtualFile? = psiClass.originalElement?.containingFile?.virtualFile
+    var potentialClassFile: VirtualFile? = runReadAction { psiClass.originalElement?.containingFile?.virtualFile }
     val simpleClassName = ClassUtil.extractClassName(fqClassName)
     potentialClassFile = potentialClassFile?.parent?.findFile("$simpleClassName.class")
     if (potentialClassFile != null && potentialClassFile.isClassFile()) {
@@ -380,28 +420,33 @@ internal class ClassFilesFinderService(private val project: Project) {
       return Result.withClassFileToOpen(ClassFile(file = potentialClassFile, sourceFile = sourceFile))
     }
 
-    return workingFile.toResult(fqClassName.toRelativeClassFilePath())
+    return workingFile.toResult(fromRelativePaths(fqClassName.toRelativeClassFilePath()))
   }
 
   private fun String.toRelativeClassFilePath(): Path =
     FileSystems.getDefault().getPath("${this.replace('.', '/')}.class")
 
   private fun findClassFileInCompilerOutputDirOfSourceFile(
-    relativeClassFilePath: Path,
+    relativeClassFilePathCandidates: RelativeClassFileCandidates,
     sourceFilePath: VirtualFile
-  ): Result = ReadAction.compute<Result, Throwable> {
-    assert(relativeClassFilePath.fileName.toString().endsWith(".class"))
-
-    val module = projectFileIndex.getModuleForFile(sourceFilePath)
+  ): Result {
+    val module = runReadAction { projectFileIndex.getModuleForFile(sourceFilePath) }
     if (module != null) {
       val sourceFile = CompilableSourceFile(sourceFilePath, module)
-      val expectedClassFilePath: Path? = determineFullClassFilePathInCompilerOutputOfSourceFile(relativeClassFilePath, sourceFile)
-      if (expectedClassFilePath != null) {
-        return@compute Result.withClassFileToPrepare(ClassFilePreparationTask(expectedClassFilePath, sourceFile))
+      val compilerOutputClassFilePaths = relativeClassFilePathCandidates
+        .allPaths()
+        .mapNotNull { determineFullClassFilePathInCompilerOutputOfSourceFile(it, sourceFile) }
+      if (compilerOutputClassFilePaths.isNotEmpty()) {
+        return Result.withClassFileToPrepare(
+          ClassFilePreparationTask(
+            compilerOutputClassFileCandidates = fromAbsolutePaths(*compilerOutputClassFilePaths.toTypedArray()),
+            sourceFile = sourceFile
+          )
+        )
       }
     }
 
-    return@compute if (DumbService.isDumb(project)) {
+    return if (DumbService.isDumb(project)) {
       Result.withErrorDumbMode()
     }
     else {
@@ -413,21 +458,21 @@ internal class ClassFilesFinderService(private val project: Project) {
     }
   }
 
-  private fun PsiElement.findContainingClassName(): ClassId? {
+  private fun PsiElement.findContainingClassNameCandidates(): List<ClassId> = runReadAction {
     var parentKtClassOrObject: KtClassOrObject? = getParentOfType<KtClassOrObject>(false)
       ?:
       // If `this` is an element outside a class or object, the `classNameProvider`
       // will do a fallback and uses the file name as a "*Kt" class name. But this
       // is not a desired behaviour at this point.
-      return null
+      return@runReadAction emptyList()
 
     // `KtEnumEntry` is a value in an enum and is also a `KtClass` but it can't
     // be reference as a standalone class file. Therefore, we use the actual
     // enum as a parent class. Note the change in the `strict` parameter.
-    val elementToUse = this.findParentOfType<KtEnumEntry>(false)?.parent ?: this
+    val elementToUse = this.getParentOfType<KtEnumEntry>(false)?.parent ?: this
     val candidatesForElement = classNameProvider.getCandidatesForElement(elementToUse)
     if (candidatesForElement.isNotEmpty()) {
-      return candidatesForElement.first().let { ClassId.topLevel(FqName(it)) }
+      return@runReadAction candidatesForElement.map { ClassId.topLevel(FqName(it)) }
     }
 
     // This is a simple fall back logic which will find a parent
@@ -437,15 +482,15 @@ internal class ClassFilesFinderService(private val project: Project) {
     }
 
     if (parentKtClassOrObject != null && parentKtClassOrObject.classIdIfNonLocal == null) {
-      return parentKtClassOrObject.parent.findContainingClassName()
+      return@runReadAction parentKtClassOrObject.parent.findContainingClassNameCandidates()
     }
 
-    return parentKtClassOrObject?.classIdIfNonLocal
+    return@runReadAction parentKtClassOrObject?.classIdIfNonLocal?.let { listOf(it) } ?: emptyList()
   }
 
   private fun determineFullClassFilePathInCompilerOutputOfSourceFile(relativeClassFilePath: Path, sourceFile: CompilableSourceFile): Path? {
     val compiler = CompilerModuleExtension.getInstance(sourceFile.module) ?: return null
-    val isTest = projectFileIndex.isInTestSourceContent(sourceFile.file)
+    val isTest = runReadAction { projectFileIndex.isInTestSourceContent(sourceFile.file) }
     // Don't use 'compilerOutputPath' here because if there is a compiler output
     // path but nothing was compiled yet (and therefore the directory does not
     // exist), it returns null.
@@ -453,8 +498,6 @@ internal class ClassFilesFinderService(private val project: Project) {
     return Paths.get(classRoot.presentableUrl).resolve(relativeClassFilePath)
   }
 
-  private fun List<Result>.reduce() =
-    this.reduceOrNull { a, b -> a.addResult(b) } ?: Result.empty()
 
   // -- Inner Type -------------------------------------------------------------------------------------------------- //
 
@@ -463,7 +506,7 @@ internal class ClassFilesFinderService(private val project: Project) {
     companion object {
 
       fun fromPsiElement(psiElement: PsiElement, psiElementOriginPsiFile: PsiFile?): WorkingFile? {
-        val psiFile = (psiElement.originalElement.containingFile ?: psiElementOriginPsiFile) ?: return null
+        val psiFile = runReadAction { psiElement.originalElement?.containingFile } ?: psiElementOriginPsiFile ?: return null
         val virtualFile = psiFile.originalFile.virtualFile
         val isClassFile = virtualFile.isClassFile()
         return WorkingFile(psiFile, virtualFile, isClassFile)
@@ -493,13 +536,13 @@ internal class ClassFilesFinderService(private val project: Project) {
       fun withError(error: String) = Result(errors = mutableListOf(error))
 
       fun withErrorDumbMode() =
-        Result(errors = mutableListOf("Analyse byte code is not available while indices are updating."))
+        Result(errors = mutableListOf("Analyse byte code is not available while indexes are being updated."))
 
       fun withErrorNoContainingFileForElement() =
         Result(errors = mutableListOf("Unable to determine a source or class file for the selected element."))
 
       fun withErrorNotProcessableFile(psiFile: PsiFile) =
-        Result(errors = mutableListOf("The file '${psiFile.name}' is not a processable source or class file."))
+        Result(errors = mutableListOf("File '${psiFile.name}' is not a processable source or class file."))
 
       fun withClassFileToPrepare(classFileToPrepare: ClassFilePreparationTask) =
         Result(classFilesToPrepare = mutableListOf(classFileToPrepare))
@@ -525,7 +568,7 @@ internal class ClassFilesFinderService(private val project: Project) {
         return true
       }
 
-      val psiFile = PsiManagerEx.getInstance(project).findFile(file)
+      val psiFile = runReadAction { PsiManager.getInstance(project).findFile(file) }
       return psiFile != null && fileCanBeAnalysed(psiFile)
     }
 
@@ -537,6 +580,9 @@ internal class ClassFilesFinderService(private val project: Project) {
 
       return psiFile is PsiClassOwner
     }
+
+    fun List<Result>.reduce() =
+      this.reduceOrNull { a, b -> a.addResult(b) } ?: Result.empty()
 
     fun VirtualFile.isClassFile(): Boolean =
       FileTypeRegistry.getInstance().isFileOfType(this, JavaClassFileType.INSTANCE)

@@ -1,4 +1,4 @@
-package dev.turingcomplete.intellijbytecodeplugin.common
+package dev.turingcomplete.intellijbytecodeplugin.settings
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
