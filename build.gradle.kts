@@ -45,6 +45,9 @@ dependencies {
   asm("org.ow2.asm:asm-util:$asmVersion")
   asm("org.ow2.asm:asm-commons:$asmVersion")
 
+  implementation("org.apache.commons:commons-text:1.11.0")
+
+
   testImplementation("org.assertj:assertj-core:3.24.2")
 
   val jUnit5Version = "5.10.1"

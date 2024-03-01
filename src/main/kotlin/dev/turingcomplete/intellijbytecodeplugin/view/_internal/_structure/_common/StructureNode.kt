@@ -68,17 +68,23 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
         // No children to load
         false
       }
+
       asyncAddChildrenInExecution.getAndSet(true) -> {
         // Already in progress
         true
       }
+
       else -> {
         // Load children
         if (workAsync) {
           ApplicationManager.getApplication().executeOnPooledThread {
-            asyncAddChildren!!()
-            asyncAddChildren = null
-            asyncAddChildrenInExecution.set(false)
+            try {
+              asyncAddChildren!!()
+            }
+            finally {
+              asyncAddChildren = null
+              asyncAddChildrenInExecution.set(false)
+            }
           }
           true
         }
@@ -125,10 +131,14 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
   }
 
   fun addAccessNode(access: Int, accessGroup: AccessGroup) {
-    add(HtmlTextNode("Access:",
-                     { ctx -> if (ctx.showAccessAsHex) "0x${Integer.toHexString(access).uppercase(Locale.getDefault())}" else access.toString() },
-                     postFix = "<span class=\"contextHelp\">${accessGroup.toReadableAccess(access).joinToString(", ")}</span>",
-                     icon = AllIcons.Nodes.RwAccess))
+    add(
+      HtmlTextNode(
+        "Access:",
+        { ctx -> if (ctx.showAccessAsHex) "0x${Integer.toHexString(access).uppercase(Locale.getDefault())}" else access.toString() },
+        postFix = "<span class=\"contextHelp\">${accessGroup.toReadableAccess(access).joinToString(", ")}</span>",
+        icon = AllIcons.Nodes.RwAccess
+      )
+    )
   }
 
   fun addSignatureNode(signature: String?) {
@@ -179,14 +189,16 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
   private fun createAnnotationNode(annotation: AnnotationNode, postFix: String? = null): StructureNode {
     val values = annotation.values?.let { values ->
       generateSequence(0) { if ((it + 2) < values.size) it + 2 else null }
-              .map { "${values[it]} = ${formatAnnotationValue(values[it + 1])}" }
-              .joinToString(", ", prefix = "(", postfix = ")")
+        .map { "${values[it]} = ${formatAnnotationValue(values[it + 1])}" }
+        .joinToString(", ", prefix = "(", postfix = ")")
     } ?: ""
     val internalName = Type.getType(annotation.desc).internalName
-    return HtmlTextNode(displayValue = { ctx -> TypeUtils.toReadableName(internalName, ctx.typeNameRenderMode) + values },
-                        postFix = postFix,
-                        icon = AllIcons.Nodes.Annotationtype,
-                        goToProvider = GoToProvider.Class(internalName))
+    return HtmlTextNode(
+      displayValue = { ctx -> TypeUtils.toReadableName(internalName, ctx.typeNameRenderMode) + values },
+      postFix = postFix,
+      icon = AllIcons.Nodes.Annotationtype,
+      goToProvider = GoToProvider.Class(internalName)
+    )
   }
 
   private fun formatAnnotationValue(value: Any?): String {

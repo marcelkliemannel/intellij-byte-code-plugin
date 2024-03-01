@@ -23,8 +23,8 @@ import com.intellij.util.concurrency.InvokerSupplier
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.tree.TreeUtil
-import dev.turingcomplete.intellijbytecodeplugin._ui.ToggleActionButton
 import dev.turingcomplete.intellijbytecodeplugin._ui.CopyValueAction
+import dev.turingcomplete.intellijbytecodeplugin._ui.ToggleActionButton
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils.Table.createContextMenuMouseListener
 import dev.turingcomplete.intellijbytecodeplugin._ui.ViewValueAction
 import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
@@ -157,7 +157,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
     BaseTreeModel<TreeNode>(), InvokerSupplier {
 
     var rootNode: ClassStructureNode? = null
-    private val myInvoker = Invoker.forBackgroundThreadWithoutReadAction(this)
+    private val invoker = Invoker.forBackgroundThreadWithoutReadAction(this)
 
     override fun getRoot(): ClassStructureNode {
       if (rootNode == null) {
@@ -181,7 +181,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
       treeStructureChanged(null, null, null)
     }
 
-    override fun getInvoker(): Invoker = myInvoker
+    override fun getInvoker(): Invoker = invoker
 
     private fun createRootNode(): ClassStructureNode {
       return ClassStructureNode(classFileContext.classNode(), classFileContext.classFile())
@@ -198,7 +198,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
     }
 
     override fun getTreeCellRendererComponent(tree: JTree, value: Any, selected: Boolean, expanded: Boolean, leaf: Boolean, row: Int, hasFocus: Boolean): Component {
-      tree.rowHeight = 0 // Will use height of component
+      tree.rowHeight = 0 // Will use the height of component
 
       return when (value) {
         is LoadingNode -> loadingNodeLabel
@@ -245,7 +245,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
     init {
       templatePresentation.icon = AllIcons.Actions.Edit
 
-      TypeUtils.TypeNameRenderMode.values().forEach {
+      TypeUtils.TypeNameRenderMode.entries.forEach {
         add(ToggleActionButton(it.title, { context.typeNameRenderMode = it }, { context.typeNameRenderMode == it }))
       }
 
@@ -256,7 +256,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
 
       addSeparator()
 
-      MethodDeclarationUtils.MethodDescriptorRenderMode.values().forEach {
+      MethodDeclarationUtils.MethodDescriptorRenderMode.entries.forEach {
         add(ToggleActionButton(it.title, { context.methodDescriptorRenderMode = it }, { context.methodDescriptorRenderMode == it }))
       }
     }

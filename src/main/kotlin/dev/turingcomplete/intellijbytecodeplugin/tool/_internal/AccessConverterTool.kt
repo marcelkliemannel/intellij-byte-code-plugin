@@ -113,7 +113,7 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
     return JPanel(GridBagLayout()).apply {
       border = IdeBorderFactory.createTitledBorder("Access Calculators")
 
-      val accessGroups = AccessGroup.values()
+      val accessGroups = AccessGroup.entries.toTypedArray()
 
       val bag = GridBag().withCommonsDefaults()
         .setDefaultFill(GridBagConstraints.BOTH)

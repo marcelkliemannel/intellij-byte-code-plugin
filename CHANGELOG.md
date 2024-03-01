@@ -6,6 +6,8 @@
 
 ### Changed
 
+- Lower minimum IntelliJ version to 2023.2 to support Android Studio
+
 ### Removed
 
 ### Fixed
