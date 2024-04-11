@@ -6,7 +6,6 @@ import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.INVALID_P
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.MISSING_DEPENDENCIES
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.NON_EXTENDABLE_API_USAGES
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.OVERRIDE_ONLY_API_USAGES
-import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.SCHEDULED_FOR_REMOVAL_API_USAGES
 
 fun properties(key: String) = project.findProperty(key).toString()
 
@@ -27,6 +26,7 @@ repositories {
 }
 
 val asm: Configuration by configurations.creating
+val asmVersion = "9.7"
 
 val shadowAsmJar = tasks.create("shadowAsmJar", com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar::class) {
   group = "shadow"
@@ -34,16 +34,20 @@ val shadowAsmJar = tasks.create("shadowAsmJar", com.github.jengelman.gradle.plug
   configurations = listOf(asm)
   archiveClassifier.set("asm")
   exclude { file -> file.name == "module-info.class" }
+  manifest {
+    attributes("Asm-Version" to asmVersion)
+  }
 }
 
 dependencies {
   api(shadowAsmJar.outputs.files)
 
-  val asmVersion = "9.6"
   asm("org.ow2.asm:asm:$asmVersion")
   asm("org.ow2.asm:asm-analysis:$asmVersion")
   asm("org.ow2.asm:asm-util:$asmVersion")
   asm("org.ow2.asm:asm-commons:$asmVersion")
+
+  implementation("org.apache.commons:commons-text:1.11.0")
 
   testImplementation("org.assertj:assertj-core:3.24.2")
 
@@ -88,8 +92,7 @@ tasks {
     failureLevel.set(
       listOf(
         COMPATIBILITY_PROBLEMS, INTERNAL_API_USAGES, NON_EXTENDABLE_API_USAGES,
-        OVERRIDE_ONLY_API_USAGES, MISSING_DEPENDENCIES, SCHEDULED_FOR_REMOVAL_API_USAGES,
-        INVALID_PLUGIN
+        OVERRIDE_ONLY_API_USAGES, MISSING_DEPENDENCIES, INVALID_PLUGIN
       )
     )
   }

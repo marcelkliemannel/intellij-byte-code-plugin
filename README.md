@@ -14,7 +14,7 @@ Class files can be opened directly from the tool window or the "Analyze Byte Cod
 
 If the editor is the origin of the action execution, the analyzer will pick the class relative to the current cursor position. With this, it is easy to analyze inner, locale, or anonymous classes.
 
-The plugin currently uses [ASM 9.6](https://asm.ow2.io) under the hood, supporting JVM class files up to version 22.
+The plugin currently uses [ASM 9.7](https://asm.ow2.io) under the hood, supporting JVM class files up to version 23.
 
 ## Features
 
@@ -91,8 +91,8 @@ If you want to contribute something, please follow the code style in the `.edito
 To update the bundled ASM library:
 
 - Set the new version in the main `build.gradle.kts`. (The new bundled ASM library should automatically be created or execute the Gradle task `shadowAsmJar`.)
-- Update the globally defined ASM API version in: `dev.turingcomplete.intellijbytecodeplugin._ui.DefaultClassFileContext.ASM_API`.
-- Set the new version in the description block of the `plugin.xml` and in the `README.md`.
+- Update the globally defined ASM API version in `dev.turingcomplete.intellijbytecodeplugin._ui.DefaultClassFileContext.ASM_API` to the highest available version.
+- Set the new ASM version and latest supported Java version in the description block of the `plugin.xml` and in the `README.md`.
 - New supported Java versions must be added to the field: `dev.turingcomplete.intellijbytecodeplugin.bytecode.ClassVersionUtils.CLASS_VERSIONS`.
 
 ### Extension Points
@@ -133,7 +133,7 @@ Some tests are testing the parsing of the structure tree and the constant pool a
 
 ## License
 
-Copyright (c) 2022 Marcel Kliemannel
+Copyright (c) 2024 Marcel Kliemannel
 
 Licensed under the **Apache License, Version 2.0** (the "License"); you may not use this file except in compliance with the License.
 
