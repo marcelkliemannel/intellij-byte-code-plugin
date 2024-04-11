@@ -27,6 +27,7 @@ repositories {
 }
 
 val asm: Configuration by configurations.creating
+val asmVersion = "9.7"
 
 val shadowAsmJar = tasks.create("shadowAsmJar", com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar::class) {
   group = "shadow"
@@ -34,12 +35,14 @@ val shadowAsmJar = tasks.create("shadowAsmJar", com.github.jengelman.gradle.plug
   configurations = listOf(asm)
   archiveClassifier.set("asm")
   exclude { file -> file.name == "module-info.class" }
+  manifest {
+    attributes("Asm-Version" to asmVersion)
+  }
 }
 
 dependencies {
   api(shadowAsmJar.outputs.files)
 
-  val asmVersion = "9.6"
   asm("org.ow2.asm:asm:$asmVersion")
   asm("org.ow2.asm:asm-analysis:$asmVersion")
   asm("org.ow2.asm:asm-util:$asmVersion")
