@@ -4,6 +4,8 @@
 
 ### Added
 
+- Support for Java 23 with ASM 9.7
+
 ### Changed
 
 - Lower minimum IntelliJ version to 2023.2 to support Android Studio

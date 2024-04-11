@@ -50,7 +50,6 @@ dependencies {
 
   implementation("org.apache.commons:commons-text:1.11.0")
 
-
   testImplementation("org.assertj:assertj-core:3.24.2")
 
   val jUnit5Version = "5.10.1"
