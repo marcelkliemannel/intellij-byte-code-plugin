@@ -6,7 +6,6 @@ import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.INVALID_P
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.MISSING_DEPENDENCIES
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.NON_EXTENDABLE_API_USAGES
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.OVERRIDE_ONLY_API_USAGES
-import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.SCHEDULED_FOR_REMOVAL_API_USAGES
 
 fun properties(key: String) = project.findProperty(key).toString()
 
@@ -93,8 +92,7 @@ tasks {
     failureLevel.set(
       listOf(
         COMPATIBILITY_PROBLEMS, INTERNAL_API_USAGES, NON_EXTENDABLE_API_USAGES,
-        OVERRIDE_ONLY_API_USAGES, MISSING_DEPENDENCIES, SCHEDULED_FOR_REMOVAL_API_USAGES,
-        INVALID_PLUGIN
+        OVERRIDE_ONLY_API_USAGES, MISSING_DEPENDENCIES, INVALID_PLUGIN
       )
     )
   }
