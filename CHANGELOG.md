@@ -6,6 +6,8 @@
 
 ### Changed
 
+- The "Analyze Byte Code" action in the context menu is now only visible if the file is analysable
+
 ### Removed
 
 ### Fixed

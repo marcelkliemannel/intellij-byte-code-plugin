@@ -27,7 +27,7 @@ internal class AnalyzeByteCodeAction : DumbAwareAction(TITLE, null, ByteCodePlug
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
   override fun update(e: AnActionEvent) {
-    e.presentation.isEnabled = CommonDataKeys.PROJECT.getData(e.dataContext)?.let { project ->
+    e.presentation.isEnabledAndVisible = CommonDataKeys.PROJECT.getData(e.dataContext)?.let { project ->
       val files = CommonDataKeys.VIRTUAL_FILE_ARRAY.getData(e.dataContext)
       if (files?.any { ClassFilesFinderService.fileCanBeAnalysed(it, project) } == true) {
         true
