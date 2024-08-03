@@ -80,6 +80,11 @@ changelog {
 }
 
 tasks {
+  runIde {
+    // Enable to test Kotlin K2 beta mode
+    // systemProperty("idea.kotlin.plugin.use.k2", "true")
+  }
+
   patchPluginXml {
     version.set(properties("pluginVersion"))
     sinceBuild.set(properties("pluginSinceBuild"))
