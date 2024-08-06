@@ -54,7 +54,7 @@ dependencies {
     pluginVerifier()
     zipSigner()
 
-    testFramework(TestFrameworkType.Platform)
+    testFramework(TestFrameworkType.Bundled)
   }
 
   api(shadowAsmJar.outputs.files)
