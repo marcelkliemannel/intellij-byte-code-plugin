@@ -48,7 +48,7 @@ object CommonDataKeys {
   class ClassFileContextDataRule : GetDataRule {
 
     override fun getData(dataProvider: DataProvider): Any? {
-      return dataProvider.getData(CLASS_FILE_CONTEXT_DATA_KEY.name)
+      return CLASS_FILE_CONTEXT_DATA_KEY.getData(dataProvider)
              ?: ByteCodeToolWindowFactory.getData(dataProvider, CLASS_FILE_CONTEXT_DATA_KEY)
     }
   }
@@ -58,7 +58,7 @@ object CommonDataKeys {
   class ClassFileTabDataRule : GetDataRule {
 
     override fun getData(dataProvider: DataProvider): Any? {
-      return dataProvider.getData(CLASS_FILE_TAB_DATA_KEY.name)
+      return CLASS_FILE_TAB_DATA_KEY.getData(dataProvider)
              ?: ByteCodeToolWindowFactory.getData(dataProvider, CLASS_FILE_TAB_DATA_KEY)
     }
   }
@@ -68,8 +68,8 @@ object CommonDataKeys {
   class OnErrorDataRule : GetDataRule {
 
     override fun getData(dataProvider: DataProvider): Any? {
-      return dataProvider.getData(ON_ERROR_DATA_KEY.name)
-             ?: ByteCodeToolWindowFactory.getData(dataProvider, ON_ERROR_DATA_KEY)
+      return ON_ERROR_DATA_KEY.getData(dataProvider)
+        ?: ByteCodeToolWindowFactory.getData(dataProvider, ON_ERROR_DATA_KEY)
     }
   }
 
@@ -78,8 +78,8 @@ object CommonDataKeys {
   class OpenInEditorDataRule : GetDataRule {
 
     override fun getData(dataProvider: DataProvider): Any? {
-      return dataProvider.getData(OPEN_IN_EDITOR_DATA_KEY.name)
-             ?: ByteCodeToolWindowFactory.getData(dataProvider, OPEN_IN_EDITOR_DATA_KEY)
+      return OPEN_IN_EDITOR_DATA_KEY.getData(dataProvider)
+        ?: ByteCodeToolWindowFactory.getData(dataProvider, OPEN_IN_EDITOR_DATA_KEY)
     }
   }
 }

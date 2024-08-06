@@ -17,13 +17,13 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
+import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.NlsActions
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.ui.ColorUtil
-import com.intellij.ui.DumbAwareActionButton
 import com.intellij.ui.components.DropDownLink
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.DocumentUtil
@@ -37,12 +37,12 @@ import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory.C
 import dev.turingcomplete.intellijbytecodeplugin._ui.SimpleListCellRenderer
 import dev.turingcomplete.intellijbytecodeplugin._ui.overrideLeftInset
 import dev.turingcomplete.intellijbytecodeplugin._ui.withCommonsDefaults
-import dev.turingcomplete.intellijbytecodeplugin.settings.ByteCodeAnalyserSettingsService
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils.runAsync
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.ClassReader
+import dev.turingcomplete.intellijbytecodeplugin.settings.ByteCodeAnalyserSettingsService
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction.Companion.addAllByteCodeActions
 import dev.turingcomplete.intellijbytecodeplugin.view.common.OpenInEditorAction
 import java.awt.GridBagConstraints
@@ -314,15 +314,15 @@ abstract class ByteCodeParsingResultView(
 
   private inner class ToggleParsingOptionAction(@NlsActions.ActionText text: String,
                                                 private val isSelected: () -> Boolean,
-                                                private val toggleSelected: () -> Unit) : DumbAwareActionButton(text) {
+                                                private val toggleSelected: () -> Unit) : DumbAwareAction(text) {
+
+    override fun update(e: AnActionEvent) {
+      e.presentation.icon = if (isSelected()) PlatformIcons.CHECK_ICON else EmptyIcon.create(PlatformIcons.CHECK_ICON)
+    }
 
     override fun actionPerformed(e: AnActionEvent) {
       toggleSelected()
       asyncParseByteCode()
-    }
-
-    override fun updateButton(e: AnActionEvent) {
-      e.presentation.icon = if (isSelected()) PlatformIcons.CHECK_ICON else EmptyIcon.create(PlatformIcons.CHECK_ICON)
     }
 
     override fun getActionUpdateThread() = ActionUpdateThread.EDT

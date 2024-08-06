@@ -24,10 +24,10 @@ import com.intellij.ui.LayeredIcon
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.content.ContentManager
 import com.intellij.util.ui.EmptyIcon
+import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.AnalyzeByteCodeAction
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
-import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
 import java.awt.dnd.DropTarget
 import javax.swing.Icon
@@ -43,7 +43,7 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
     const val TOOLBAR_PLACE_PREFIX = "dev.turingcomplete.intellijbytecodeplugin.toolbar"
 
     fun <T> getData(dataProvider: DataProvider, dataKey: DataKey<T>): Any? {
-      val project = dataProvider.getData(PROJECT.name) as? Project ?: return null
+      val project = PROJECT.getData(dataProvider) ?: return null
       val byteCodeToolWindow = ToolWindowManager.getInstance(project).getToolWindow(TOOL_WINDOW_ID) ?: return null
 
       val classFileTab = byteCodeToolWindow.contentManager.selectedContent?.getUserData(ClassFileTab.CLASS_FILE_TAB_KEY)

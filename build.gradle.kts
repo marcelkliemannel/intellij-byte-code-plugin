@@ -1,11 +1,12 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.date
-import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.COMPATIBILITY_PROBLEMS
-import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.INTERNAL_API_USAGES
-import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.INVALID_PLUGIN
-import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.MISSING_DEPENDENCIES
-import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.NON_EXTENDABLE_API_USAGES
-import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.OVERRIDE_ONLY_API_USAGES
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS
+import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel.INTERNAL_API_USAGES
+import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel.INVALID_PLUGIN
+import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel.MISSING_DEPENDENCIES
+import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel.NON_EXTENDABLE_API_USAGES
+import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel.OVERRIDE_ONLY_API_USAGES
 
 fun properties(key: String) = project.findProperty(key).toString()
 
@@ -13,7 +14,7 @@ plugins {
   java
   // See bundled version: https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
   kotlin("jvm") version "1.9.10"
-  id("org.jetbrains.intellij") version "1.16.0"
+  id("org.jetbrains.intellij.platform") version "2.0.0"
   id("com.github.johnrengelman.shadow") version "8.1.1"
   id("org.jetbrains.changelog") version "2.2.0"
 }
@@ -23,6 +24,10 @@ version = properties("pluginVersion")
 
 repositories {
   mavenCentral()
+
+  intellijPlatform {
+    defaultRepositories()
+  }
 }
 
 val asm: Configuration by configurations.creating
@@ -40,6 +45,18 @@ val shadowAsmJar = tasks.create("shadowAsmJar", com.github.jengelman.gradle.plug
 }
 
 dependencies {
+  intellijPlatform {
+    create(properties("platform"), properties("platformVersion"))
+
+    bundledPlugins(properties("platformBundledPlugins").split(','))
+
+    instrumentationTools()
+    pluginVerifier()
+    zipSigner()
+
+    testFramework(TestFrameworkType.Platform)
+  }
+
   api(shadowAsmJar.outputs.files)
 
   asm("org.ow2.asm:asm:$asmVersion")
@@ -64,12 +81,41 @@ dependencies {
   testImplementation("org.apache.commons:commons-lang3:3.12.0")
 }
 
-intellij {
-  version.set(properties("platformVersion"))
-  type.set(properties("platformType"))
-  downloadSources.set(properties("platformDownloadSources").toBoolean())
-  updateSinceUntilBuild.set(true)
-  plugins.set(properties("platformPlugins").split(',').map(String::trim).filter(String::isNotEmpty))
+intellijPlatform {
+  pluginConfiguration {
+    version = providers.gradleProperty("pluginVersion")
+    ideaVersion {
+      sinceBuild = properties("pluginSinceBuild")
+      untilBuild = provider { null }
+    }
+    changeNotes.set(provider { changelog.renderItem(changelog.get(project.version as String), Changelog.OutputType.HTML) })
+  }
+
+  signing {
+    val jetbrainsDir = File(System.getProperty("user.home"), ".jetbrains")
+    certificateChain.set(project.provider { File(jetbrainsDir, "plugin-sign-chain.crt").readText() })
+    privateKey.set(project.provider { File(jetbrainsDir, "plugin-sign-private-key.pem").readText() })
+    password.set(project.provider { properties("jetbrains.sign-plugin.password") })
+  }
+
+  publishing {
+    //        dependsOn("patchChangelog")
+    token.set(project.provider { properties("jetbrains.marketplace.token") })
+    channels.set(listOf(properties("pluginVersion").split('-').getOrElse(1) { "default" }.split('.').first()))
+  }
+
+  pluginVerification {
+    failureLevel.set(
+      listOf(
+        COMPATIBILITY_PROBLEMS, INTERNAL_API_USAGES, NON_EXTENDABLE_API_USAGES,
+        OVERRIDE_ONLY_API_USAGES, MISSING_DEPENDENCIES, INVALID_PLUGIN
+      )
+    )
+
+    ides {
+      recommended()
+    }
+  }
 }
 
 changelog {
@@ -83,36 +129,6 @@ tasks {
   runIde {
     // Enable to test Kotlin K2 beta mode
     // systemProperty("idea.kotlin.plugin.use.k2", "true")
-  }
-
-  patchPluginXml {
-    version.set(properties("pluginVersion"))
-    sinceBuild.set(properties("pluginSinceBuild"))
-    untilBuild.set(properties("pluginUntilBuild"))
-    changeNotes.set(provider { changelog.renderItem(changelog.get(project.version as String), Changelog.OutputType.HTML) })
-  }
-
-  runPluginVerifier {
-    ideVersions.set(properties("pluginVerifierIdeVersions").split(',').map(String::trim).filter(String::isNotEmpty))
-    failureLevel.set(
-      listOf(
-        COMPATIBILITY_PROBLEMS, INTERNAL_API_USAGES, NON_EXTENDABLE_API_USAGES,
-        OVERRIDE_ONLY_API_USAGES, MISSING_DEPENDENCIES, INVALID_PLUGIN
-      )
-    )
-  }
-
-  publishPlugin {
-    dependsOn("patchChangelog")
-    token.set(project.provider { properties("jetbrains.marketplace.token") })
-    channels.set(listOf(properties("pluginVersion").split('-').getOrElse(1) { "default" }.split('.').first()))
-  }
-
-  signPlugin {
-    val jetbrainsDir = File(System.getProperty("user.home"), ".jetbrains")
-    certificateChain.set(project.provider { File(jetbrainsDir, "plugin-sign-chain.crt").readText() })
-    privateKey.set(project.provider { File(jetbrainsDir, "plugin-sign-private-key.pem").readText() })
-    password.set(project.provider { properties("jetbrains.sign-plugin.password") })
   }
 
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
