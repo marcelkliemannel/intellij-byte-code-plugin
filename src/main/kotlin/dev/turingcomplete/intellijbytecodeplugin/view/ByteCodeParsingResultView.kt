@@ -70,14 +70,14 @@ abstract class ByteCodeParsingResultView(
   private val goToMethods = mutableListOf<Pair<Int, String>>()
   private val goToMethodsLink: DropDownLink<Pair<Int, String>> by lazy { createGoToMethodsLink() }
 
-  private var skipDebug by Delegates.observable(ByteCodeAnalyserSettingsService.skipDebug) { _, _, new ->
-    ByteCodeAnalyserSettingsService.skipDebug = new
+  private var skipDebug by Delegates.observable(ByteCodeAnalyserSettingsService.instance.skipDebug) { _, _, new ->
+    ByteCodeAnalyserSettingsService.instance.skipDebug = new
   }
-  private var skipCode by Delegates.observable(ByteCodeAnalyserSettingsService.skipCode) { _, _, new ->
-    ByteCodeAnalyserSettingsService.skipCode = new
+  private var skipCode by Delegates.observable(ByteCodeAnalyserSettingsService.instance.skipCode) { _, _, new ->
+    ByteCodeAnalyserSettingsService.instance.skipCode = new
   }
-  private var skipFrame by Delegates.observable(ByteCodeAnalyserSettingsService.skipFrame) { _, _, new ->
-    ByteCodeAnalyserSettingsService.skipFrame = new
+  private var skipFrame by Delegates.observable(ByteCodeAnalyserSettingsService.instance.skipFrame) { _, _, new ->
+    ByteCodeAnalyserSettingsService.instance.skipFrame = new
   }
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //

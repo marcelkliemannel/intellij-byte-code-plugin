@@ -14,32 +14,32 @@ import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils.TypeNameRend
 internal class ByteCodeAnalyserSettingsService : PersistentStateComponent<ByteCodeAnalyserSettingsService.State> {
   // -- Properties -------------------------------------------------------------------------------------------------- //
 
-  val typeNameRenderMode = AtomicProperty(DEFAULT_TYPE_NAME_RENDER_MODE)
-  val methodDescriptorRenderMode = AtomicProperty(DEFAULT_METHOD_DESCRIPTOR_RENDER_MODE)
-  val showAccessAsHex = AtomicBooleanProperty(DEFAULT_SHOW_ACCESS_AS_HEX)
-  val skipDebug = AtomicBooleanProperty(DEFAULT_SKIP_DEBUG)
-  val skipCode = AtomicBooleanProperty(DEFAULT_SKIP_CODE)
-  val skipFrame = AtomicBooleanProperty(DEFAULT_SKIP_FRAME)
+  var typeNameRenderMode by AtomicProperty(DEFAULT_TYPE_NAME_RENDER_MODE)
+  var methodDescriptorRenderMode by AtomicProperty(DEFAULT_METHOD_DESCRIPTOR_RENDER_MODE)
+  var showAccessAsHex by AtomicBooleanProperty(DEFAULT_SHOW_ACCESS_AS_HEX)
+  var skipDebug by AtomicBooleanProperty(DEFAULT_SKIP_DEBUG)
+  var skipCode by AtomicBooleanProperty(DEFAULT_SKIP_CODE)
+  var skipFrame by AtomicBooleanProperty(DEFAULT_SKIP_FRAME)
 
   // -- Initialization ---------------------------------------------------------------------------------------------- //
   // -- Exposed Methods --------------------------------------------------------------------------------------------- //
 
   override fun getState() = State(
-    typeNameRenderMode = typeNameRenderMode.get().name,
-    methodDescriptorRenderMode = methodDescriptorRenderMode.get().name,
-    showAccessAsHex = showAccessAsHex.get(),
-    skipDebug = skipDebug.get(),
-    skipCode = skipCode.get(),
-    skipFrame = skipFrame.get()
+    typeNameRenderMode = typeNameRenderMode.name,
+    methodDescriptorRenderMode = methodDescriptorRenderMode.name,
+    showAccessAsHex = showAccessAsHex,
+    skipDebug = skipDebug,
+    skipCode = skipCode,
+    skipFrame = skipFrame
   )
 
   override fun loadState(state: State) {
-    typeNameRenderMode.set(state.typeNameRenderMode?.let { TypeNameRenderMode.valueOf(it) } ?: DEFAULT_TYPE_NAME_RENDER_MODE)
-    methodDescriptorRenderMode.set(state.methodDescriptorRenderMode?.let { MethodDescriptorRenderMode.valueOf(it) } ?: DEFAULT_METHOD_DESCRIPTOR_RENDER_MODE)
-    showAccessAsHex.set(state.showAccessAsHex ?: DEFAULT_SHOW_ACCESS_AS_HEX)
-    skipDebug.set(state.skipDebug ?: DEFAULT_SKIP_DEBUG)
-    skipCode.set(state.skipCode ?: DEFAULT_SKIP_CODE)
-    skipFrame.set(state.skipFrame ?: DEFAULT_SKIP_FRAME)
+    typeNameRenderMode = state.typeNameRenderMode?.let { TypeNameRenderMode.valueOf(it) } ?: DEFAULT_TYPE_NAME_RENDER_MODE
+    methodDescriptorRenderMode = state.methodDescriptorRenderMode?.let { MethodDescriptorRenderMode.valueOf(it) } ?: DEFAULT_METHOD_DESCRIPTOR_RENDER_MODE
+    showAccessAsHex = state.showAccessAsHex ?: DEFAULT_SHOW_ACCESS_AS_HEX
+    skipDebug = state.skipDebug ?: DEFAULT_SKIP_DEBUG
+    skipCode = state.skipCode ?: DEFAULT_SKIP_CODE
+    skipFrame = state.skipFrame ?: DEFAULT_SKIP_FRAME
   }
 
   // -- Private Methods --------------------------------------------------------------------------------------------- //
@@ -73,12 +73,5 @@ internal class ByteCodeAnalyserSettingsService : PersistentStateComponent<ByteCo
 
     val instance: ByteCodeAnalyserSettingsService
       get() = ApplicationManager.getApplication().getService(ByteCodeAnalyserSettingsService::class.java)
-
-    var typeNameRenderMode by instance.typeNameRenderMode
-    var methodDescriptorRenderMode by instance.methodDescriptorRenderMode
-    var showAccessAsHex by instance.showAccessAsHex
-    var skipDebug by instance.skipDebug
-    var skipCode by instance.skipCode
-    var skipFrame by instance.skipFrame
   }
 }

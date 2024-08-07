@@ -46,7 +46,8 @@ val shadowAsmJar = tasks.create("shadowAsmJar", com.github.jengelman.gradle.plug
 
 dependencies {
   intellijPlatform {
-    create(properties("platform"), properties("platformVersion"))
+    val platformVersion = properties("platformVersion")
+    create(properties("platform"), platformVersion, platformVersion == "LATEST-EAP-SNAPSHOT")
 
     bundledPlugins(properties("platformBundledPlugins").split(','))
 
