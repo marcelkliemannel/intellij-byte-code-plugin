@@ -41,9 +41,9 @@
   <depends>com.intellij.java</depends>
   <depends>org.jetbrains.kotlin</depends>
 
-  <extensions defaultExtensionNs="com.intellij">
-    <applicationService
-            serviceImplementation="dev.turingcomplete.intellijbytecodeplugin.settings.ByteCodeAnalyserSettingsService"/>
+  <extensions defaultExtensionNs="org.jetbrains.kotlin">
+    <supportsKotlinPluginMode supportsK2="true"/>
+    <supportsKotlinK2Mode/>
   </extensions>
 
   <extensionPoints>
@@ -57,6 +57,9 @@
   </extensionPoints>
 
   <extensions defaultExtensionNs="com.intellij">
+    <applicationService
+            serviceImplementation="dev.turingcomplete.intellijbytecodeplugin.settings.ByteCodeAnalyserSettingsService"/>
+
     <toolWindow id="Byte Code" factoryClass="dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory"
                 anchor="right" canCloseContents="true" secondary="true" icon="/icons/toolwindow.svg"/>
 
