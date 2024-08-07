@@ -4,16 +4,22 @@
 
 ### Added
 
+### Changed
+
+### Removed
+
+### Fixed
+
+## [4.2.1] - 2024-08-07
+
+### Added
+
 - Add support for Kotlin K2 compiler beta mode 
 
 ### Changed
 
 - The "Analyze Byte Code" action in the context menu is now only visible if the file is analysable
 - Set minimum IntelliJ Version to 2024.1
-
-### Removed
-
-### Fixed
 
 ## 4.2.0 - 2024-04-11
 
