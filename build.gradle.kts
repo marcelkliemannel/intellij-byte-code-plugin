@@ -31,7 +31,7 @@ repositories {
 }
 
 val asm: Configuration by configurations.creating
-val asmVersion = "9.7"
+val asmVersion = "9.7.1"
 
 val shadowAsmJar = tasks.create("shadowAsmJar", com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar::class) {
   group = "shadow"
