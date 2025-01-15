@@ -1,3 +1,5 @@
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.date
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
@@ -12,11 +14,10 @@ fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
   java
-  // See bundled version: https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
-  kotlin("jvm") version "1.9.10"
-  id("org.jetbrains.intellij.platform") version "2.0.0"
-  id("com.github.johnrengelman.shadow") version "8.1.1"
-  id("org.jetbrains.changelog") version "2.2.0"
+  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.intellij.platform)
+  alias(libs.plugins.changelog)
+  alias(libs.plugins.shadow)
 }
 
 group = properties("pluginGroup")
@@ -31,16 +32,18 @@ repositories {
 }
 
 val asm: Configuration by configurations.creating
-val asmVersion = "9.7.1"
+val asmSource: Configuration by configurations.creating
+val testData: Configuration by configurations.creating
+configurations.named("testRuntimeOnly").get().extendsFrom(testData)
 
-val shadowAsmJar = tasks.create("shadowAsmJar", com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar::class) {
+val shadowAsmJar = tasks.register<ShadowJar>("shadowAsmJar") {
   group = "shadow"
   relocate("org.objectweb.asm", "dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm")
-  configurations = listOf(asm)
+  configurations = listOf(asm, asmSource)
   archiveClassifier.set("asm")
   exclude { file -> file.name == "module-info.class" }
   manifest {
-    attributes("Asm-Version" to asmVersion)
+    attributes("Asm-Version" to libs.versions.asm.get())
   }
 }
 
@@ -58,28 +61,21 @@ dependencies {
     testFramework(TestFrameworkType.Bundled)
   }
 
-  api(shadowAsmJar.outputs.files)
+  api(shadowAsmJar.get().outputs.files)
+  asm(libs.bundles.asm)
+  asm.dependencies.forEach {
+    asmSource("${it.group}:${it.name}:${it.version}:sources")
+  }
 
-  asm("org.ow2.asm:asm:$asmVersion")
-  asm("org.ow2.asm:asm-analysis:$asmVersion")
-  asm("org.ow2.asm:asm-util:$asmVersion")
-  asm("org.ow2.asm:asm-commons:$asmVersion")
+  implementation(libs.commons.text)
 
-  implementation("org.apache.commons:commons-text:1.11.0")
+  testImplementation(libs.assertj.core)
+  testImplementation(libs.bundles.junit.implementation)
+  testRuntimeOnly(libs.bundles.junit.runtime)
 
-  testImplementation("org.assertj:assertj-core:3.24.2")
-
-  val jUnit5Version = "5.10.1"
-  testImplementation("org.junit.jupiter:junit-jupiter-api:$jUnit5Version")
-  testImplementation("org.junit.jupiter:junit-jupiter-params:$jUnit5Version")
-  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jUnit5Version")
-  testRuntimeOnly("org.junit.vintage:junit-vintage-engine:$jUnit5Version")
-  testImplementation("junit:junit:4.13.2")
-
-  // Used for test data
-  testImplementation("org.codehaus.groovy:groovy:3.0.16")
-  testImplementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.10")
-  testImplementation("org.apache.commons:commons-lang3:3.12.0")
+  testData(libs.groovy)
+  testData(libs.kotlin.stdlib)
+  testData(libs.commons.lang3)
 }
 
 intellijPlatform {
@@ -122,7 +118,7 @@ intellijPlatform {
 changelog {
   val projectVersion = project.version as String
   version.set(projectVersion)
-  header.set("[$projectVersion] - ${date()}")
+  header.set("$projectVersion - ${date()}")
   groups.set(listOf("Added", "Changed", "Removed", "Fixed"))
 }
 
