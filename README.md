@@ -130,13 +130,3 @@ Byte code actions (e.g., the decompile action) will be added to each byte code v
 ### Tests
 
 Some tests are testing the parsing of the structure tree and the constant pool and the opening of files with all class files from the java base module and the `groovy-all` and `kotlin-stdlib` libraries. Since this involves tens of thousands of files, these tests take a lot of time. Therefore, execution in `dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase.LIMIT_CLASSES` is limited to 800 classes per library. This value should be increased significantly for at least one test run before a new version gets released.
-
-## License
-
-Copyright (c) 2024 Marcel Kliemannel
-
-Licensed under the **Apache License, Version 2.0** (the "License"); you may not use this file except in compliance with the License.
-
-You may obtain a copy of the License at <https://www.apache.org/licenses/LICENSE-2.0>.
-
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the [LICENSE](./LICENSE) for the specific language governing permissions and limitations under the License.
