@@ -4,6 +4,8 @@
 
 ### Added
 
+- Support for Java 24 using ASM 9.7.1
+
 ### Changed
 
 ### Removed
