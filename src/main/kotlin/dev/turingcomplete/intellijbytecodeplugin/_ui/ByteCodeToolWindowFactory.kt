@@ -1,7 +1,6 @@
 package dev.turingcomplete.intellijbytecodeplugin._ui
 
 import com.intellij.icons.AllIcons
-import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -25,6 +24,7 @@ import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.content.ContentManager
 import com.intellij.util.ui.EmptyIcon
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
+import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.AnalyzeByteCodeAction
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.FilesDropHandler
@@ -205,7 +205,7 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
   private class ReportAnIssueAction : DumbAwareAction("Report an Issue") {
 
     override fun actionPerformed(e: AnActionEvent) {
-      BrowserUtil.browse("https://github.com/marcelkliemannel/intellij-byte-code-plugin/issues")
+      AsyncUtils.browseAsync(e.project, "https://github.com/marcelkliemannel/intellij-byte-code-plugin/issues")
     }
   }
 
@@ -227,7 +227,7 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
     private fun createLinkAction(title: String, link: String): AnAction = object : DumbAwareAction(title) {
 
       override fun actionPerformed(e: AnActionEvent) {
-        BrowserUtil.browse(link)
+        AsyncUtils.browseAsync(e.project, link)
       }
     }
   }

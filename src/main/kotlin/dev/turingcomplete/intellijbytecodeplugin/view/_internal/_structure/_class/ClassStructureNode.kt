@@ -1,7 +1,6 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._class
 
 import com.intellij.icons.AllIcons
-import com.intellij.ide.BrowserUtil
 import com.intellij.ide.actions.RevealFileAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.JarFileSystem
@@ -16,6 +15,7 @@ import dev.turingcomplete.intellijbytecodeplugin.bytecode.ClassVersionUtils.toMa
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
+import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.GoToProvider
@@ -297,7 +297,9 @@ internal class ClassStructureNode(
         addNioPathNodes(nioPath)
 
         if (parentDirectory != null && parentDirectory.isInLocalFileSystem) {
-          add(HyperLinkNode("Open enclosing directory") { _, _ -> BrowserUtil.browse(parentDirectory) })
+          add(HyperLinkNode("Open enclosing directory") { _, _ ->
+            AsyncUtils.browseAsync(null, parentDirectory.toNioPath())
+          })
         }
       }
     })

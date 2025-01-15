@@ -123,6 +123,10 @@ changelog {
 }
 
 tasks {
+  named("publishPlugin") {
+    dependsOn("check")
+  }
+
   runIde {
     // Enable to test Kotlin K2 beta mode
     // systemProperty("idea.kotlin.plugin.use.k2", "true")
