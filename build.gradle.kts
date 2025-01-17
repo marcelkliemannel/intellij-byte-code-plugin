@@ -9,6 +9,8 @@ import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLeve
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel.MISSING_DEPENDENCIES
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel.NON_EXTENDABLE_API_USAGES
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel.OVERRIDE_ONLY_API_USAGES
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun properties(key: String) = project.findProperty(key).toString()
 
@@ -54,11 +56,12 @@ dependencies {
 
     bundledPlugins(properties("platformBundledPlugins").split(','))
 
-    instrumentationTools()
     pluginVerifier()
     zipSigner()
 
-    testFramework(TestFrameworkType.Bundled)
+    testFramework(TestFrameworkType.Platform)
+    testFramework(TestFrameworkType.JUnit5)
+    testFramework(TestFrameworkType.Plugin.Java)
   }
 
   api(shadowAsmJar.get().outputs.files)
@@ -115,6 +118,12 @@ intellijPlatform {
   }
 }
 
+java {
+  toolchain {
+    languageVersion.set(JavaLanguageVersion.of(21))
+  }
+}
+
 changelog {
   val projectVersion = project.version as String
   version.set(projectVersion)
@@ -123,19 +132,15 @@ changelog {
 }
 
 tasks {
-  named("publishPlugin") {
-    dependsOn("check")
-  }
-
   runIde {
     // Enable to test Kotlin K2 beta mode
     // systemProperty("idea.kotlin.plugin.use.k2", "true")
   }
 
-  withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
+  withType<KotlinCompile> {
+    compilerOptions {
       freeCompilerArgs = listOf("-Xjsr305=strict")
-      jvmTarget = "17"
+      jvmTarget.set(JvmTarget.JVM_21)
     }
   }
 

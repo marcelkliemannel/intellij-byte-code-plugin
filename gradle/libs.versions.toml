@@ -7,8 +7,8 @@ junit4 = "4.13.2"
 groovy = "3.0.16"
 commons-lang3 = "3.12.0"
 # See bundled version: https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
-kotlin = "1.9.10"
-intellij-platform = "2.0.0"
+kotlin = "1.9.24"
+intellij-platform = "2.2.1"
 changelog = "2.2.0"
 shadow = "8.1.1"
 
