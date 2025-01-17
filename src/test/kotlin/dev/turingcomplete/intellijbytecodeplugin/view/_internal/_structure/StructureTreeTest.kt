@@ -19,7 +19,7 @@ import javax.swing.tree.TreeNode
  * `kotlin-stdlib` into a [StructureTree].
  */
 @RunWith(org.junit.runners.Parameterized::class)
-class StructureTreeTest(testName: String, classFilePath: String)  : ClassFileConsumerTestCase(classFilePath) {
+class StructureTreeTest(@Suppress("unused") testName: String, classFilePath: String)  : ClassFileConsumerTestCase(classFilePath) {
   // -- Companion Object -------------------------------------------------------------------------------------------- //
 
   companion object {

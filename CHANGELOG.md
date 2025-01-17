@@ -10,7 +10,17 @@
 
 ### Fixed
 
-## [4.2.1] - 2024-08-07
+## 4.3.0 - 2025-01-15
+
+### Added
+
+- Support for Java 24 using ASM 9.7.1
+
+### Changed
+
+- Raise minimum IntelliJ version to 2024.2
+
+## 4.2.1 - 2024-08-07
 
 ### Added
 
