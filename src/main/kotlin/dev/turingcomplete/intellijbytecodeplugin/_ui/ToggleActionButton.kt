@@ -9,7 +9,7 @@ import com.intellij.util.ui.EmptyIcon
 internal class ToggleActionButton(
   title: String,
   private val setValue: () -> Unit,
-  private val isSelected: () -> Boolean
+  private val isSelected: () -> Boolean,
 ) : DumbAwareAction(title) {
 
   // -- Properties ---------------------------------------------------------- //

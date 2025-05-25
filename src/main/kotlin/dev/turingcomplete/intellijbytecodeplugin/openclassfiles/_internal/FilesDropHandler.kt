@@ -17,7 +17,8 @@ import java.awt.dnd.DropTargetListener
 import javax.swing.JComponent
 import javax.swing.TransferHandler
 
-internal class FilesDropHandler(private val project: Project) : TransferHandler(), EditorDropHandler, DropTargetListener {
+internal class FilesDropHandler(private val project: Project) :
+  TransferHandler(), EditorDropHandler, DropTargetListener {
   // -- Companion Object ---------------------------------------------------- //
   // -- Properties ---------------------------------------------------------- //
   // -- Initialization ------------------------------------------------------ //
@@ -36,7 +37,11 @@ internal class FilesDropHandler(private val project: Project) : TransferHandler(
     handleDrop0(event.transferable)
   }
 
-  override fun handleDrop(transferable: Transferable, project: Project?, editorWindow: EditorWindow?) {
+  override fun handleDrop(
+    transferable: Transferable,
+    project: Project?,
+    editorWindow: EditorWindow?,
+  ) {
     handleDrop0(transferable)
   }
 
@@ -72,12 +77,11 @@ internal class FilesDropHandler(private val project: Project) : TransferHandler(
       if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
         val transferData = transferable.getTransferData(DataFlavor.javaFileListFlavor)
         if (transferData is TransferableWrapper) {
-          transferData.psiElements
-            ?.map { it to null }
-            ?.toMap()
+          transferData.psiElements?.associate { it to null }
             ?.takeIf { it.isNotEmpty() }
             ?.let {
-              project.getService(ByteCodeAnalyserOpenClassFileService::class.java)
+              project
+                .getService(ByteCodeAnalyserOpenClassFileService::class.java)
                 .openPsiElements(it)
             }
 
@@ -90,14 +94,17 @@ internal class FilesDropHandler(private val project: Project) : TransferHandler(
       FileCopyPasteUtil.getFileList(transferable)
         ?.mapNotNull { virtualFileManager.findFileByNioPath(it.toPath()) }
         ?.let {
-          project.getService(ByteCodeAnalyserOpenClassFileService::class.java)
-            .openVirtualFiles(it)
+          project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openVirtualFiles(it)
 
           return true
         }
-    }
-    catch (e: Exception) {
-      NotificationUtils.notifyInternalError("Open .class files", "Failed to handle dropped files: ${e.message}.", e, project)
+    } catch (e: Exception) {
+      NotificationUtils.notifyInternalError(
+        "Open .class files",
+        "Failed to handle dropped files: ${e.message}.",
+        e,
+        project,
+      )
     }
 
     return false

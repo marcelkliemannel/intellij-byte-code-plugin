@@ -18,9 +18,22 @@ internal object AsyncUtils {
   // -- Exposed Methods ----------------------------------------------------- //
 
   fun runAsync(project: Project?, execute: Runnable, onError: (Throwable) -> Unit) =
-    runAsync(project, { execute.run(); null }, {}, onError)
+    runAsync(
+      project,
+      {
+        execute.run()
+        null
+      },
+      {},
+      onError,
+    )
 
-  fun <V> runAsync(project: Project?, execute: Callable<V>, onSuccess: (V) -> Unit, onError: (Throwable) -> Unit) {
+  fun <V> runAsync(
+    project: Project?,
+    execute: Callable<V>,
+    onSuccess: (V) -> Unit,
+    onError: (Throwable) -> Unit,
+  ) {
     ApplicationManager.getApplication().executeOnPooledThread {
       try {
         if (project?.isDisposed == true) {
@@ -28,8 +41,7 @@ internal object AsyncUtils {
         }
 
         onSuccess(execute.call())
-      }
-      catch (e: Throwable) {
+      } catch (e: Throwable) {
         onError(e)
       }
     }
@@ -49,7 +61,11 @@ internal object AsyncUtils {
     runAsync(project, runnable) { e ->
       log.warn("Could not open: $target", e)
       ApplicationManager.getApplication().invokeLater {
-        Messages.showErrorDialog(project, "Could not open '$target': ${e.message ?: "Unknown error"}", PLUGIN_NAME)
+        Messages.showErrorDialog(
+          project,
+          "Could not open '$target': ${e.message ?: "Unknown error"}",
+          PLUGIN_NAME,
+        )
       }
     }
   }

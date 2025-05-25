@@ -7,13 +7,14 @@ import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.view._internal.ErrorStateHandler
 
-abstract class ByteCodeView(val classFileContext: ClassFileContext, val title: String)
-  : ErrorStateHandler(), Disposable, DataProvider {
+abstract class ByteCodeView(val classFileContext: ClassFileContext, val title: String) :
+  ErrorStateHandler(), Disposable, DataProvider {
 
   // -- Companion Object ---------------------------------------------------- //
 
   companion object {
-    val EP: ExtensionPointName<Creator> = ExtensionPointName.create("dev.turingcomplete.intellijbytecodeplugin.byteCodeView")
+    val EP: ExtensionPointName<Creator> =
+      ExtensionPointName.create("dev.turingcomplete.intellijbytecodeplugin.byteCodeView")
   }
 
   // -- Properties ---------------------------------------------------------- //
@@ -33,11 +34,14 @@ abstract class ByteCodeView(val classFileContext: ClassFileContext, val title: S
     // Override if needed
   }
 
-  override fun getData(dataId: String): Any? = when {
-    CommonDataKeys.CLASS_FILE_CONTEXT_DATA_KEY.`is`(dataId) -> classFileContext
-    CommonDataKeys.ON_ERROR_DATA_KEY.`is`(dataId) -> { message: String, cause: Throwable -> onError(message, cause) }
-    else -> null
-  }
+  override fun getData(dataId: String): Any? =
+    when {
+      CommonDataKeys.CLASS_FILE_CONTEXT_DATA_KEY.`is`(dataId) -> classFileContext
+      CommonDataKeys.ON_ERROR_DATA_KEY.`is`(dataId) -> { message: String, cause: Throwable ->
+          onError(message, cause)
+        }
+      else -> null
+    }
 
   // -- Private Methods ----------------------------------------------------- //
   // -- Inner Type ---------------------------------------------------------- //

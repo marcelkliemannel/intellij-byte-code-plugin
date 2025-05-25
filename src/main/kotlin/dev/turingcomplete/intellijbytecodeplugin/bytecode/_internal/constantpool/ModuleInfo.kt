@@ -2,8 +2,8 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode._internal.constantpoo
 
 import java.io.DataInputStream
 
-internal class ModuleInfo(dataInputStream: DataInputStream)
-  : ConstantPoolInfo("Module_info", readValues(dataInputStream)) {
+internal class ModuleInfo(dataInputStream: DataInputStream) :
+  ConstantPoolInfo("Module_info", readValues(dataInputStream)) {
 
   // -- Companion Object ---------------------------------------------------- //
 

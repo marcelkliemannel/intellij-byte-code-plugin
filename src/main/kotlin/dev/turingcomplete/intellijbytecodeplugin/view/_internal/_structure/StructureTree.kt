@@ -37,7 +37,6 @@ import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._clas
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.InteractiveNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.StructureNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.ValueNode
-import org.jetbrains.annotations.TestOnly
 import java.awt.Component
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
@@ -49,6 +48,7 @@ import javax.swing.JTree
 import javax.swing.tree.TreeCellEditor
 import javax.swing.tree.TreeCellRenderer
 import javax.swing.tree.TreeNode
+import org.jetbrains.annotations.TestOnly
 
 internal class StructureTree(classFileContext: ClassFileContext, parent: Disposable) :
   Tree(AsyncTreeModel(StructureTreeModel(classFileContext), true, parent)), DataProvider {
@@ -64,26 +64,28 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
     setCellEditor(StructureTreeCellEditor())
     setCellRenderer(StructureTreeCellRenderer())
     isEditable = true
-    addMouseListener(createContextMenuMouseListener(StructureTree::class.java.simpleName) { event ->
-      val valueNode = getClosestPathForLocation(event.x, event.y)
-        ?.takeIf { it.lastPathComponent is ValueNode }
-        ?.let { it.lastPathComponent as ValueNode }
+    addMouseListener(
+      createContextMenuMouseListener(StructureTree::class.java.simpleName) { event ->
+        val valueNode =
+          getClosestPathForLocation(event.x, event.y)
+            ?.takeIf { it.lastPathComponent is ValueNode }
+            ?.let { it.lastPathComponent as ValueNode }
 
-      if (valueNode != null) {
-        DefaultActionGroup().apply {
-          valueNode.goToProvider?.let {
-            add(it.goToAction())
-            addSeparator()
+        if (valueNode != null) {
+          DefaultActionGroup().apply {
+            valueNode.goToProvider?.let {
+              add(it.goToAction())
+              addSeparator()
+            }
+
+            add(CopyValueAction())
+            add(ViewValueAction())
           }
-
-          add(CopyValueAction())
-          add(ViewValueAction())
+        } else {
+          null
         }
       }
-      else {
-        null
-      }
-    })
+    )
     transferHandler = FilesDropHandler(classFileContext.project())
 
     Disposer.register(parent, structureTreeModel)
@@ -120,7 +122,8 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
   }
 
   override fun getData(dataId: String): Any? {
-    val selectedStructureNode = selectionModel.selectionPath?.lastPathComponent as? StructureNode ?: return null
+    val selectedStructureNode =
+      selectionModel.selectionPath?.lastPathComponent as? StructureNode ?: return null
 
     return when {
       PlatformDataKeys.PREDEFINED_TEXT.`is`(dataId) -> selectedStructureNode.goToProvider?.value
@@ -134,10 +137,15 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
   // -- Private Methods ----------------------------------------------------- //
 
   private fun installSearchHandler() {
-    TreeUIHelper.getInstance().installTreeSpeedSearch(this, { treePath ->
-      val lastPathComponent = treePath.lastPathComponent
-      if (lastPathComponent is StructureNode) lastPathComponent.searchText(context) else null
-    }, true)
+    TreeUIHelper.getInstance()
+      .installTreeSpeedSearch(
+        this,
+        { treePath ->
+          val lastPathComponent = treePath.lastPathComponent
+          if (lastPathComponent is StructureNode) lastPathComponent.searchText(context) else null
+        },
+        true,
+      )
   }
 
   private fun syncTree(): () -> Unit = {
@@ -172,7 +180,8 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
 
     override fun getChildren(parent: Any): List<TreeNode>? {
       val structureNode = parent as StructureNode
-      val asyncLoadChildrenInProgress = structureNode.asyncLoadChildren(classFileContext.workAsync())
+      val asyncLoadChildrenInProgress =
+        structureNode.asyncLoadChildren(classFileContext.workAsync())
       return if (asyncLoadChildrenInProgress) null else structureNode.children().toList()
     }
 
@@ -192,12 +201,21 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
 
   private inner class StructureTreeCellRenderer : TreeCellRenderer {
 
-    private val loadingNodeLabel = JLabel(LoadingNode.getText()).apply {
-      foreground = UIUtil.getInactiveTextColor()
-      icon = JBUIScale.scaleIcon(EmptyIcon.create(8, 16))
-    }
+    private val loadingNodeLabel =
+      JLabel(LoadingNode.getText()).apply {
+        foreground = UIUtil.getInactiveTextColor()
+        icon = JBUIScale.scaleIcon(EmptyIcon.create(8, 16))
+      }
 
-    override fun getTreeCellRendererComponent(tree: JTree, value: Any, selected: Boolean, expanded: Boolean, leaf: Boolean, row: Int, hasFocus: Boolean): Component {
+    override fun getTreeCellRendererComponent(
+      tree: JTree,
+      value: Any,
+      selected: Boolean,
+      expanded: Boolean,
+      leaf: Boolean,
+      row: Int,
+      hasFocus: Boolean,
+    ): Component {
       tree.rowHeight = 0 // Will use the height of component
 
       return when (value) {
@@ -210,7 +228,8 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
 
   // -- Inner Type ---------------------------------------------------------- //
 
-  private inner class StructureTreeCellEditor : AbstractCellEditor(), TreeCellEditor, ActionListener {
+  private inner class StructureTreeCellEditor :
+    AbstractCellEditor(), TreeCellEditor, ActionListener {
 
     override fun getCellEditorValue(): Any? {
       return null
@@ -218,19 +237,35 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
 
     override fun isCellEditable(mouseEvent: EventObject?): Boolean {
       if (mouseEvent is MouseEvent) {
-        return getClosestPathForLocation(mouseEvent.x, mouseEvent.y)?.let { it.lastPathComponent is InteractiveNode }
-               ?: false
+        return getClosestPathForLocation(mouseEvent.x, mouseEvent.y)?.let {
+          it.lastPathComponent is InteractiveNode
+        } ?: false
       }
 
       return false
     }
 
-    override fun getTreeCellEditorComponent(tree: JTree, value: Any, selected: Boolean, expanded: Boolean, leaf: Boolean, row: Int): Component {
+    override fun getTreeCellEditorComponent(
+      tree: JTree,
+      value: Any,
+      selected: Boolean,
+      expanded: Boolean,
+      leaf: Boolean,
+      row: Int,
+    ): Component {
       if (value !is InteractiveNode) {
         throw IllegalArgumentException("Value type ${value::class.java} is not interactive.")
       }
 
-      return cellRenderer.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, true)
+      return cellRenderer.getTreeCellRendererComponent(
+        tree,
+        value,
+        selected,
+        expanded,
+        leaf,
+        row,
+        true,
+      )
     }
 
     override fun actionPerformed(e: ActionEvent?) {
@@ -240,26 +275,50 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
 
   // -- Inner Type ---------------------------------------------------------- //
 
-  private inner class RenderOptionsGroup : DefaultActionGroup("Render Options", true), Toggleable, DumbAware {
+  private inner class RenderOptionsGroup :
+    DefaultActionGroup("Render Options", true), Toggleable, DumbAware {
 
     init {
       templatePresentation.icon = AllIcons.Actions.Edit
 
       TypeUtils.TypeNameRenderMode.entries.forEach {
-        add(ToggleActionButton(it.title, { context.typeNameRenderMode = it }, { context.typeNameRenderMode == it }))
+        add(
+          ToggleActionButton(
+            it.title,
+            { context.typeNameRenderMode = it },
+            { context.typeNameRenderMode == it },
+          )
+        )
       }
 
       addSeparator()
 
-      add(ToggleActionButton("Show Access as Decimal", { context.showAccessAsHex = false }, { !context.showAccessAsHex }))
-      add(ToggleActionButton("Show Access as Hex", { context.showAccessAsHex = true }, { context.showAccessAsHex }))
+      add(
+        ToggleActionButton(
+          "Show Access as Decimal",
+          { context.showAccessAsHex = false },
+          { !context.showAccessAsHex },
+        )
+      )
+      add(
+        ToggleActionButton(
+          "Show Access as Hex",
+          { context.showAccessAsHex = true },
+          { context.showAccessAsHex },
+        )
+      )
 
       addSeparator()
 
       MethodDeclarationUtils.MethodDescriptorRenderMode.entries.forEach {
-        add(ToggleActionButton(it.title, { context.methodDescriptorRenderMode = it }, { context.methodDescriptorRenderMode == it }))
+        add(
+          ToggleActionButton(
+            it.title,
+            { context.methodDescriptorRenderMode = it },
+            { context.methodDescriptorRenderMode == it },
+          )
+        )
       }
     }
   }
 }
-

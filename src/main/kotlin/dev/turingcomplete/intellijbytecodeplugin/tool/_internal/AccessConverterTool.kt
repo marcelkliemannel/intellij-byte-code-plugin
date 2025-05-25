@@ -22,7 +22,6 @@ import dev.turingcomplete.intellijbytecodeplugin._ui.toMonospace
 import dev.turingcomplete.intellijbytecodeplugin._ui.withCommonsDefaults
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.AccessGroup
 import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
-import org.jdesktop.swingx.HorizontalLayout
 import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
@@ -37,8 +36,10 @@ import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 import javax.swing.table.DefaultTableModel
 import javax.swing.table.TableModel
+import org.jdesktop.swingx.HorizontalLayout
 
-internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.Nodes.RwAccess), DocumentListener, ActionListener {
+internal class AccessConverterTool :
+  ByteCodeTool("Access Converter", AllIcons.Nodes.RwAccess), DocumentListener, ActionListener {
   // -- Companion Object ---------------------------------------------------- //
 
   companion object {
@@ -51,9 +52,7 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
 
   private val accessType = ComboBox(EnumComboBoxModel(AccessGroup::class.java))
   private val accessField = IntegerField(null, 0, 99999)
-  private val resultLabel = JBLabel().apply {
-    font = JBFont.label().toMonospace()
-  }.copyable()
+  private val resultLabel = JBLabel().apply { font = JBFont.label().toMonospace() }.copyable()
 
   // -- Initialization ------------------------------------------------------ //
   // -- Exposed Methods ----------------------------------------------------- //
@@ -67,18 +66,52 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
     accessField.document.addDocumentListener(this)
     accessField.text = "1028"
 
-    UiUtils.Dialog.show("Access Converter", ScrollPaneFactory.createScrollPane(JPanel(GridBagLayout()).apply {
-      val bag = GridBag().withCommonsDefaults().setDefaultAnchor(GridBagConstraints.WEST)
+    UiUtils.Dialog.show(
+      "Access Converter",
+      ScrollPaneFactory.createScrollPane(
+        JPanel(GridBagLayout()).apply {
+          val bag = GridBag().withCommonsDefaults().setDefaultAnchor(GridBagConstraints.WEST)
 
-      add(JLabel("Access:"), bag.nextLine().next())
-      add(accessField, bag.next().overrideLeftInset(UIUtil.DEFAULT_HGAP / 2).weightx(1.0).fillCellHorizontally())
-      add(accessType, bag.next().overrideLeftInset(UIUtil.DEFAULT_HGAP / 2))
+          add(JLabel("Access:"), bag.nextLine().next())
+          add(
+            accessField,
+            bag
+              .next()
+              .overrideLeftInset(UIUtil.DEFAULT_HGAP / 2)
+              .weightx(1.0)
+              .fillCellHorizontally(),
+          )
+          add(accessType, bag.next().overrideLeftInset(UIUtil.DEFAULT_HGAP / 2))
 
-      add(JLabel("Plain text:"), bag.nextLine().next().overrideTopInset(UIUtil.DEFAULT_VGAP))
-      add(resultLabel, bag.next().overrideLeftInset(UIUtil.DEFAULT_HGAP / 2).coverLine().overrideTopInset(UIUtil.DEFAULT_VGAP).weightx(1.0).fillCellHorizontally())
+          add(JLabel("Plain text:"), bag.nextLine().next().overrideTopInset(UIUtil.DEFAULT_VGAP))
+          add(
+            resultLabel,
+            bag
+              .next()
+              .overrideLeftInset(UIUtil.DEFAULT_HGAP / 2)
+              .coverLine()
+              .overrideTopInset(UIUtil.DEFAULT_VGAP)
+              .weightx(1.0)
+              .fillCellHorizontally(),
+          )
 
-      add(createAccessCalculatorsComponent(), bag.nextLine().next().coverLine().fillCell().weightx(1.0).weighty(1.0).overrideTopInset(UIUtil.LARGE_VGAP))
-    }, true), Dimension(700, 600), project)
+          add(
+            createAccessCalculatorsComponent(),
+            bag
+              .nextLine()
+              .next()
+              .coverLine()
+              .fillCell()
+              .weightx(1.0)
+              .weighty(1.0)
+              .overrideTopInset(UIUtil.LARGE_VGAP),
+          )
+        },
+        true,
+      ),
+      Dimension(700, 600),
+      project,
+    )
   }
 
   override fun actionPerformed(e: ActionEvent?) {
@@ -101,12 +134,12 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
 
   private fun calculateResult() {
     val text = accessField.text
-    resultLabel.text = if (ACCESS_REG_EX.asMatchPredicate().test(text)) {
-      accessType.item.toReadableAccess(text.toInt()).joinToString(" ")
-    }
-    else {
-      ""
-    }
+    resultLabel.text =
+      if (ACCESS_REG_EX.asMatchPredicate().test(text)) {
+        accessType.item.toReadableAccess(text.toInt()).joinToString(" ")
+      } else {
+        ""
+      }
   }
 
   private fun createAccessCalculatorsComponent(): JComponent {
@@ -115,10 +148,12 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
 
       val accessGroups = AccessGroup.entries.toTypedArray()
 
-      val bag = GridBag().withCommonsDefaults()
-        .setDefaultFill(GridBagConstraints.BOTH)
-        .setDefaultWeightX(0.25)
-        .setDefaultWeightY(accessGroups.size.toDouble() / ACCESS_CALCULATORS_IN_ONE_ROW)
+      val bag =
+        GridBag()
+          .withCommonsDefaults()
+          .setDefaultFill(GridBagConstraints.BOTH)
+          .setDefaultWeightX(0.25)
+          .setDefaultWeightY(accessGroups.size.toDouble() / ACCESS_CALCULATORS_IN_ONE_ROW)
 
       var x = 0
       var y = 0
@@ -133,8 +168,7 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
         if ((i + 1) % ACCESS_CALCULATORS_IN_ONE_ROW == 0) {
           x = 0
           y++
-        }
-        else {
+        } else {
           x++
         }
       }
@@ -143,11 +177,10 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
 
   // -- Inner Type ---------------------------------------------------------- //
 
-  internal class AccessCalculatorPanel(accessGroup: AccessGroup) : BorderLayoutPanel(0, UIUtil.DEFAULT_HGAP / 2) {
+  internal class AccessCalculatorPanel(accessGroup: AccessGroup) :
+    BorderLayoutPanel(0, UIUtil.DEFAULT_HGAP / 2) {
 
-    private val resultLabel = JBLabel("0").apply {
-      font = JBFont.label().toMonospace()
-    }.copyable()
+    private val resultLabel = JBLabel("0").apply { font = JBFont.label().toMonospace() }.copyable()
 
     init {
       addToTop(JLabel(accessGroup.toString()))
@@ -156,15 +189,16 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
       val table = AccessCalculatorTable(model)
       addToCenter(ScrollPaneFactory.createScrollPane(table))
 
-      addToBottom(JPanel(HorizontalLayout(UIUtil.DEFAULT_HGAP / 2)).apply {
-        add(JBLabel("Access:"))
-        add(resultLabel)
-      })
+      addToBottom(
+        JPanel(HorizontalLayout(UIUtil.DEFAULT_HGAP / 2)).apply {
+          add(JBLabel("Access:"))
+          add(resultLabel)
+        }
+      )
     }
   }
 
   // -- Inner Type ---------------------------------------------------------- //
-
 
   private class AccessCalculatorTable(model: TableModel) : JBTable(model) {
 
@@ -190,10 +224,15 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
 
   // -- Inner Type ---------------------------------------------------------- //
 
-  private class AccessCalculatorTableModel(accessGroup: AccessGroup, private val setResult: (String) -> Unit) :
+  private class AccessCalculatorTableModel(
+    accessGroup: AccessGroup,
+    private val setResult: (String) -> Unit,
+  ) :
     DefaultTableModel(
-      accessGroup.accesses.map { arrayOf(false, it.name.lowercase(Locale.getDefault()), it.value) }.toTypedArray(),
-      arrayOf("", "Name", "Value")
+      accessGroup.accesses
+        .map { arrayOf(false, it.name.lowercase(Locale.getDefault()), it.value) }
+        .toTypedArray(),
+      arrayOf("", "Name", "Value"),
     ) {
 
     init {
@@ -207,13 +246,16 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
       updateResult()
     }
 
-    override fun getColumnClass(columnIndex: Int) = when (columnIndex) {
-      0 -> java.lang.Boolean::class.java
-      else -> String::class.java
-    }
+    override fun getColumnClass(columnIndex: Int) =
+      when (columnIndex) {
+        0 -> java.lang.Boolean::class.java
+        else -> String::class.java
+      }
 
     private fun updateResult() {
-      val resultValue = dataVector.filter { it[0] == true }.map { it[2] as Int }.reduceOrNull { a, b -> a.or(b) } ?: 0
+      val resultValue =
+        dataVector.filter { it[0] == true }.map { it[2] as Int }.reduceOrNull { a, b -> a.or(b) }
+          ?: 0
       setResult(resultValue.toString())
     }
   }

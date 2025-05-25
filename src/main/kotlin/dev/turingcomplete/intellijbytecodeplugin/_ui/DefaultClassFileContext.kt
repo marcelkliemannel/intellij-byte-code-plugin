@@ -11,7 +11,7 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNod
 internal class DefaultClassFileContext(
   private val project: Project,
   private val classFile: ClassFile,
-  private val workAsync: Boolean
+  private val workAsync: Boolean,
 ) : ClassFileContext {
 
   // -- Companion Object ---------------------------------------------------- //
@@ -38,14 +38,13 @@ internal class DefaultClassFileContext(
   override fun classNode(): ClassNode = classNode
 
   override fun classReader(): ClassReader = classReader
-  
+
   override fun relatedClassFiles(): List<VirtualFile> = relatedClassFiles
 
   // -- Private Methods ----------------------------------------------------- //
 
-  private fun readClassNode() = ClassNode(ASM_API).apply {
-    classReader.accept(this, ClassReader.EXPAND_FRAMES)
-  }
+  private fun readClassNode() =
+    ClassNode(ASM_API).apply { classReader.accept(this, ClassReader.EXPAND_FRAMES) }
 
   private fun findRelatedClassFiles(): List<VirtualFile> {
     val parentDirectory = classFile.file.parent
@@ -55,8 +54,10 @@ internal class DefaultClassFileContext(
 
     val rootClassFileName = classFile.file.nameWithoutExtension.takeWhile { it != '$' }
     val rootClassFileNamePrefix = "$rootClassFileName$"
-    return parentDirectory.children
-      .filter { it.extension == "class" && (it.name == "$rootClassFileName.class" || it.name.startsWith(rootClassFileNamePrefix)) }
+    return parentDirectory.children.filter {
+      it.extension == "class" &&
+        (it.name == "$rootClassFileName.class" || it.name.startsWith(rootClassFileNamePrefix))
+    }
   }
 
   // -- Inner Type ---------------------------------------------------------- //

@@ -6,8 +6,10 @@ import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.Struc
 import javax.swing.JComponent
 import javax.swing.event.HyperlinkEvent
 
-internal open class HyperLinkNode(private val text: String, initialHyperLinkListener: HyperLinkListener? = null)
-  : StructureNode(), InteractiveNode {
+internal open class HyperLinkNode(
+  private val text: String,
+  initialHyperLinkListener: HyperLinkListener? = null,
+) : StructureNode(), InteractiveNode {
 
   // -- Companion Object ---------------------------------------------------- //
   // -- Properties ---------------------------------------------------------- //
@@ -23,15 +25,22 @@ internal open class HyperLinkNode(private val text: String, initialHyperLinkList
 
   // -- Exposed Methods ----------------------------------------------------- //
 
-  override fun component(selected: Boolean, context: StructureTreeContext, componentValid: Boolean): JComponent {
+  override fun component(
+    selected: Boolean,
+    context: StructureTreeContext,
+    componentValid: Boolean,
+  ): JComponent {
     if (component == null) {
       // Without the wrapping later component adjustments, like borders, will
       // have no effects.
-      component = JBUI.Panels.simplePanel(HyperlinkLabel(text).apply {
-        hyperLinkListeners.forEach { hyperLinkListener ->
-          addHyperlinkListener { event -> hyperLinkListener.handle(event, context) }
-        }
-      })
+      component =
+        JBUI.Panels.simplePanel(
+          HyperlinkLabel(text).apply {
+            hyperLinkListeners.forEach { hyperLinkListener ->
+              addHyperlinkListener { event -> hyperLinkListener.handle(event, context) }
+            }
+          }
+        )
     }
 
     return component!!

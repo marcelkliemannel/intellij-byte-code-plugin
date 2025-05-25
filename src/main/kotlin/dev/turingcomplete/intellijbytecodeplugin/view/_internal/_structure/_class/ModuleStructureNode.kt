@@ -9,8 +9,8 @@ import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._comm
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.TextNode
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.ValueNode
 
-internal class ModuleStructureNode(private val moduleNode: ModuleNode)
-  : TextNode("Module Descriptor", AllIcons.Nodes.JavaModule) {
+internal class ModuleStructureNode(private val moduleNode: ModuleNode) :
+  TextNode("Module Descriptor", AllIcons.Nodes.JavaModule) {
 
   // -- Companion Object ---------------------------------------------------- //
   // -- Properties ---------------------------------------------------------- //
@@ -35,13 +35,14 @@ internal class ModuleStructureNode(private val moduleNode: ModuleNode)
   // -- Private Methods ----------------------------------------------------- //
 
   private fun addMainClass() {
-    moduleNode.mainClass?.let {
-      add(ValueNode("Main class:", it))
-    }
+    moduleNode.mainClass?.let { add(ValueNode("Main class:", it)) }
   }
 
   private fun addPackages() {
-    addTitleNodeWithElements(moduleNode.packages, { TextNode("Packages", AllIcons.Nodes.Package) }) { _, `package` ->
+    addTitleNodeWithElements(
+      moduleNode.packages,
+      { TextNode("Packages", AllIcons.Nodes.Package) },
+    ) { _, `package` ->
       ValueNode(displayValue = `package`, icon = AllIcons.Nodes.Package)
     }
   }
@@ -62,28 +63,46 @@ internal class ModuleStructureNode(private val moduleNode: ModuleNode)
 
   private fun addExportsNode() {
     addTitleNodeWithElements(moduleNode.exports, { TextNode("Exports") }) { _, exports ->
-      createPackageToModulesNode(exports.packaze, exports.access, AccessGroup.MODULE_EXPORTS, exports.modules)
+      createPackageToModulesNode(
+        exports.packaze,
+        exports.access,
+        AccessGroup.MODULE_EXPORTS,
+        exports.modules,
+      )
     }
   }
 
   private fun addOpensNode() {
     addTitleNodeWithElements(moduleNode.opens, { TextNode("Opens") }) { _, opens ->
-      createPackageToModulesNode(opens.packaze, opens.access, AccessGroup.MODULE_OPENS, opens.modules)
+      createPackageToModulesNode(
+        opens.packaze,
+        opens.access,
+        AccessGroup.MODULE_OPENS,
+        opens.modules,
+      )
     }
   }
 
-  private fun createPackageToModulesNode(`package`: String,
-                                         access: Int,
-                                         accessGroup: AccessGroup,
-                                         modules: List<String>?): StructureNode {
+  private fun createPackageToModulesNode(
+    `package`: String,
+    access: Int,
+    accessGroup: AccessGroup,
+    modules: List<String>?,
+  ): StructureNode {
 
     return ValueNode(displayValue = `package`, icon = AllIcons.Nodes.Package).apply {
       addAccessNode(access, accessGroup)
-      modules?.takeIf { it.isNotEmpty() }?.let { modules ->
-        add(TextNode("to Modules").apply {
-          modules.forEach { module -> add(ValueNode(displayValue = module, icon = AllIcons.Nodes.JavaModule)) }
-        })
-      }
+      modules
+        ?.takeIf { it.isNotEmpty() }
+        ?.let { modules ->
+          add(
+            TextNode("to Modules").apply {
+              modules.forEach { module ->
+                add(ValueNode(displayValue = module, icon = AllIcons.Nodes.JavaModule))
+              }
+            }
+          )
+        }
     }
   }
 
@@ -96,16 +115,22 @@ internal class ModuleStructureNode(private val moduleNode: ModuleNode)
   private fun addProvidesNode() {
     addTitleNodeWithElements(moduleNode.provides, { TextNode("Provides") }) { _, provides ->
       val serviceInternalName = provides.service
-      ValueNode("Service:",
-                { ctx -> TypeUtils.toReadableName(serviceInternalName, ctx.typeNameRenderMode) },
-                goToProvider = GoToProvider.Class(serviceInternalName)).apply {
-
-        provides.providers.forEach { provider ->
-          add(ValueNode("with Provider:",
-                        { ctx -> TypeUtils.toReadableName(provider, ctx.typeNameRenderMode) },
-                        goToProvider = GoToProvider.Class(provider)))
+      ValueNode(
+          "Service:",
+          { ctx -> TypeUtils.toReadableName(serviceInternalName, ctx.typeNameRenderMode) },
+          goToProvider = GoToProvider.Class(serviceInternalName),
+        )
+        .apply {
+          provides.providers.forEach { provider ->
+            add(
+              ValueNode(
+                "with Provider:",
+                { ctx -> TypeUtils.toReadableName(provider, ctx.typeNameRenderMode) },
+                goToProvider = GoToProvider.Class(provider),
+              )
+            )
+          }
         }
-      }
     }
   }
 

@@ -36,11 +36,12 @@ object DecompilerUtils {
   }
 
   fun findDecompilersForFile(classFile: VirtualFile): List<ClassFileDecompilers.Decompiler> {
-    val decompilers = ClassFileDecompilers.getInstance().EP_NAME.extensions
-      .filter { it.accepts(classFile) }
-      // Prefer the `IdeaDecompiler` decompiler, as it produces better results.
-      .sortedBy { it.javaClass.name != IDEA_DECOMPILER_FQ_CLASS_NAME }
-      .toList()
+    val decompilers =
+      ClassFileDecompilers.getInstance().EP_NAME.extensions
+        .filter { it.accepts(classFile) }
+        // Prefer the `IdeaDecompiler` decompiler, as it produces better results.
+        .sortedBy { it.javaClass.name != IDEA_DECOMPILER_FQ_CLASS_NAME }
+        .toList()
     return decompilers
   }
 
@@ -49,17 +50,17 @@ object DecompilerUtils {
   private fun decompileClassFile(
     classFile: VirtualFile,
     decompilers: List<ClassFileDecompilers.Decompiler>,
-    psiManager: PsiManager
+    psiManager: PsiManager,
   ): String? {
     decompilers.forEach { decompiler ->
       if (decompiler is ClassFileDecompilers.Full) {
         val createFileViewProvider = decompiler.createFileViewProvider(classFile, psiManager, true)
-        val decompiledText = createFileViewProvider.getPsi(createFileViewProvider.baseLanguage)?.text
+        val decompiledText =
+          createFileViewProvider.getPsi(createFileViewProvider.baseLanguage)?.text
         if (!decompiledText.isNullOrBlank()) {
           return decompiledText
         }
-      }
-      else if (decompiler is ClassFileDecompilers.Light) {
+      } else if (decompiler is ClassFileDecompilers.Light) {
         val decompiledText = decompiler.getText(classFile).toString()
         if (decompiledText.isNotBlank()) {
           return decompiledText

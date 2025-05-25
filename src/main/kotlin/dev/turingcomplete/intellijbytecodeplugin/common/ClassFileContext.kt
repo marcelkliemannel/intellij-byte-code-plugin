@@ -11,9 +11,7 @@ interface ClassFileContext {
   // -- Initialization ------------------------------------------------------ //
   // -- Exposed Methods ----------------------------------------------------- //
 
-  /**
-   * Working in a synchronous way is for testing.
-   */
+  /** Working in a synchronous way is for testing. */
   fun workAsync(): Boolean
 
   fun project(): Project

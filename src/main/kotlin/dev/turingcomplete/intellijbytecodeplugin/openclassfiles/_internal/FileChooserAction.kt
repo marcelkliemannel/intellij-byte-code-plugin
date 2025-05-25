@@ -9,9 +9,12 @@ import com.intellij.openapi.vfs.VfsUtil
 import dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeAnalyserOpenClassFileService
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
 
-internal class FileChooserAction : OpenClassFilesToolWindowAction("Open Class Files...",
-                                                         "Open class files...",
-                                                         AllIcons.General.OpenDisk) {
+internal class FileChooserAction :
+  OpenClassFilesToolWindowAction(
+    "Open Class Files...",
+    "Open class files...",
+    AllIcons.General.OpenDisk,
+  ) {
   // -- Companion Object ---------------------------------------------------- //
   // -- Properties ---------------------------------------------------------- //
   // -- Initialization ------------------------------------------------------ //
@@ -22,7 +25,9 @@ internal class FileChooserAction : OpenClassFilesToolWindowAction("Open Class Fi
     val dialog = FileChooserDialogImpl(descriptor, project)
     val startPath = project.guessProjectDir() ?: VfsUtil.getUserHomeDir()
     val classFilesToOpen = dialog.choose(project, startPath).filter { it.isValid }.toList()
-    project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openVirtualFiles(classFilesToOpen)
+    project
+      .getService(ByteCodeAnalyserOpenClassFileService::class.java)
+      .openVirtualFiles(classFilesToOpen)
   }
 
   // -- Private Methods ----------------------------------------------------- //

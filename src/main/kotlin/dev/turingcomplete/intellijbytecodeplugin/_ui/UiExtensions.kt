@@ -19,32 +19,38 @@ import javax.swing.table.TableCellRenderer
 
 fun JBFont.toMonospace(): JBFont = JBFont.create(Font(Font.MONOSPACED, this.style, this.size))
 
-fun GridBag.withCommonsDefaults() = this
-        .setDefaultAnchor(GridBagConstraints.NORTHWEST)
-        .setDefaultInsets(0, 0, 0, 0)
-        .setDefaultFill(GridBagConstraints.NONE)
+fun GridBag.withCommonsDefaults() =
+  this.setDefaultAnchor(GridBagConstraints.NORTHWEST)
+    .setDefaultInsets(0, 0, 0, 0)
+    .setDefaultFill(GridBagConstraints.NONE)
 
 fun JComponent.configureForCell(tree: JTree, selected: Boolean, hasFocus: Boolean): JComponent {
   val background = RenderingUtil.getBackground(tree, selected)
-  val backgroundToUse: Color = when {
-    selected -> background
-    hasFocus -> RenderingUtil.getHoverBackground(tree) ?: background
-    else -> background
-  }
+  val backgroundToUse: Color =
+    when {
+      selected -> background
+      hasFocus -> RenderingUtil.getHoverBackground(tree) ?: background
+      else -> background
+    }
   return configureForCell(tree, RenderingUtil.getForeground(tree, selected), backgroundToUse)
 }
 
 fun JComponent.configureForCell(table: JTable, selected: Boolean, hasFocus: Boolean): JComponent {
   val background = RenderingUtil.getBackground(table, selected)
-  val backgroundToUse: Color = when {
-    selected -> background
-    hasFocus -> RenderingUtil.getHoverBackground(table) ?: background
-    else -> background
-  }
+  val backgroundToUse: Color =
+    when {
+      selected -> background
+      hasFocus -> RenderingUtil.getHoverBackground(table) ?: background
+      else -> background
+    }
   return configureForCell(table, RenderingUtil.getForeground(table, selected), backgroundToUse)
 }
 
-fun JComponent.configureForCell(cellContainer: JComponent, foreground: Color, background: Color): JComponent {
+fun JComponent.configureForCell(
+  cellContainer: JComponent,
+  foreground: Color,
+  background: Color,
+): JComponent {
   this.foreground = foreground
   this.background = background
   componentOrientation = cellContainer.componentOrientation

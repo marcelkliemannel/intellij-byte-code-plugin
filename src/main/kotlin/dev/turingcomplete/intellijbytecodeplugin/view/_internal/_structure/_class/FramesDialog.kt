@@ -10,12 +10,14 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.MethodNo
 import javax.swing.BorderFactory
 import javax.swing.JComponent
 
-class FramesDialog(methodNode: MethodNode,
-                   private val initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode,
-                   private val methodFrames: List<MethodFramesUtils.MethodFrame>,
-                   project: Project?) : DialogWrapper(project) {
+class FramesDialog(
+  methodNode: MethodNode,
+  private val initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode,
+  private val methodFrames: List<MethodFramesUtils.MethodFrame>,
+  project: Project?,
+) : DialogWrapper(project) {
 
-// -- Companion Object ------------------------------------------------------ //
+  // -- Companion Object ------------------------------------------------------ //
   // -- Properties ---------------------------------------------------------- //
   // -- Initialization ------------------------------------------------------ //
 
@@ -30,9 +32,11 @@ class FramesDialog(methodNode: MethodNode,
 
   override fun createCenterPanel(): JComponent {
     return BorderLayoutPanel().apply {
-      addToCenter(FramesPanel(initialTypeNameRenderMode, methodFrames).apply {
-        border = BorderFactory.createLineBorder(JBColor.border())
-      })
+      addToCenter(
+        FramesPanel(initialTypeNameRenderMode, methodFrames).apply {
+          border = BorderFactory.createLineBorder(JBColor.border())
+        }
+      )
     }
   }
 

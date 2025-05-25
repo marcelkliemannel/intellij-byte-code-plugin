@@ -11,7 +11,8 @@ import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils.TypeNameRenderMode
 
 @State(name = "ByteCodeAnalyserSettingsService", storages = [Storage("byte-code-analyser.xml")])
-internal class ByteCodeAnalyserSettingsService : PersistentStateComponent<ByteCodeAnalyserSettingsService.State> {
+internal class ByteCodeAnalyserSettingsService :
+  PersistentStateComponent<ByteCodeAnalyserSettingsService.State> {
   // -- Properties ---------------------------------------------------------- //
 
   var typeNameRenderMode by AtomicProperty(DEFAULT_TYPE_NAME_RENDER_MODE)
@@ -24,18 +25,23 @@ internal class ByteCodeAnalyserSettingsService : PersistentStateComponent<ByteCo
   // -- Initialization ------------------------------------------------------ //
   // -- Exposed Methods ----------------------------------------------------- //
 
-  override fun getState() = State(
-    typeNameRenderMode = typeNameRenderMode.name,
-    methodDescriptorRenderMode = methodDescriptorRenderMode.name,
-    showAccessAsHex = showAccessAsHex,
-    skipDebug = skipDebug,
-    skipCode = skipCode,
-    skipFrame = skipFrame
-  )
+  override fun getState() =
+    State(
+      typeNameRenderMode = typeNameRenderMode.name,
+      methodDescriptorRenderMode = methodDescriptorRenderMode.name,
+      showAccessAsHex = showAccessAsHex,
+      skipDebug = skipDebug,
+      skipCode = skipCode,
+      skipFrame = skipFrame,
+    )
 
   override fun loadState(state: State) {
-    typeNameRenderMode = state.typeNameRenderMode?.let { TypeNameRenderMode.valueOf(it) } ?: DEFAULT_TYPE_NAME_RENDER_MODE
-    methodDescriptorRenderMode = state.methodDescriptorRenderMode?.let { MethodDescriptorRenderMode.valueOf(it) } ?: DEFAULT_METHOD_DESCRIPTOR_RENDER_MODE
+    typeNameRenderMode =
+      state.typeNameRenderMode?.let { TypeNameRenderMode.valueOf(it) }
+        ?: DEFAULT_TYPE_NAME_RENDER_MODE
+    methodDescriptorRenderMode =
+      state.methodDescriptorRenderMode?.let { MethodDescriptorRenderMode.valueOf(it) }
+        ?: DEFAULT_METHOD_DESCRIPTOR_RENDER_MODE
     showAccessAsHex = state.showAccessAsHex ?: DEFAULT_SHOW_ACCESS_AS_HEX
     skipDebug = state.skipDebug ?: DEFAULT_SKIP_DEBUG
     skipCode = state.skipCode ?: DEFAULT_SKIP_CODE
@@ -46,18 +52,12 @@ internal class ByteCodeAnalyserSettingsService : PersistentStateComponent<ByteCo
   // -- Inner Type ---------------------------------------------------------- //
 
   data class State(
-    @get:Attribute("typeNameRenderMode")
-    var typeNameRenderMode: String? = null,
-    @get:Attribute("methodDescriptorRenderMode")
-    var methodDescriptorRenderMode: String? = null,
-    @get:Attribute("showAccessAsHex")
-    var showAccessAsHex: Boolean? = null,
-    @get:Attribute("skipDebug")
-    var skipDebug: Boolean? = null,
-    @get:Attribute("skipCode")
-    var skipCode: Boolean? = null,
-    @get:Attribute("skipFrame")
-    var skipFrame: Boolean? = null,
+    @get:Attribute("typeNameRenderMode") var typeNameRenderMode: String? = null,
+    @get:Attribute("methodDescriptorRenderMode") var methodDescriptorRenderMode: String? = null,
+    @get:Attribute("showAccessAsHex") var showAccessAsHex: Boolean? = null,
+    @get:Attribute("skipDebug") var skipDebug: Boolean? = null,
+    @get:Attribute("skipCode") var skipCode: Boolean? = null,
+    @get:Attribute("skipFrame") var skipFrame: Boolean? = null,
   )
 
   // -- Companion Object ---------------------------------------------------- //
@@ -72,6 +72,7 @@ internal class ByteCodeAnalyserSettingsService : PersistentStateComponent<ByteCo
     private const val DEFAULT_SKIP_FRAME = false
 
     val instance: ByteCodeAnalyserSettingsService
-      get() = ApplicationManager.getApplication().getService(ByteCodeAnalyserSettingsService::class.java)
+      get() =
+        ApplicationManager.getApplication().getService(ByteCodeAnalyserSettingsService::class.java)
   }
 }

@@ -23,15 +23,14 @@ import dev.turingcomplete.intellijbytecodeplugin.view._internal.ErrorStateHandle
 import javax.swing.JComponent
 import javax.swing.SwingConstants
 
-internal class ClassFileTab(
-  private val project: Project,
-  private var classFile: ClassFile
-) : ErrorStateHandler(), DataProvider, DumbAware, Disposable {
+internal class ClassFileTab(private val project: Project, private var classFile: ClassFile) :
+  ErrorStateHandler(), DataProvider, DumbAware, Disposable {
 
   // -- Companion Object ---------------------------------------------------- //
 
   companion object {
-    val CLASS_FILE_TAB_KEY = Key<ClassFileTab>("dev.turingcomplete.intellijbytecodeplugin.classFileTab")
+    val CLASS_FILE_TAB_KEY =
+      Key<ClassFileTab>("dev.turingcomplete.intellijbytecodeplugin.classFileTab")
   }
 
   // -- Properties ---------------------------------------------------------- //
@@ -42,8 +41,7 @@ internal class ClassFileTab(
   // -- Initialization ------------------------------------------------------ //
   // -- Exposed Methods ----------------------------------------------------- //
 
-  override fun dispose() {
-  }
+  override fun dispose() {}
 
   override fun createCenterComponent(): JComponent {
     loadClassNodeContext()
@@ -55,13 +53,14 @@ internal class ClassFileTab(
     if (sourceFile is CompilableSourceFile) {
       val classFileCandidates = ClassFileCandidates.fromAbsolutePaths(classFile.file.toNioPath())
       val classFilePreparationTask = ClassFilePreparationTask(classFileCandidates, sourceFile)
-      project.getService(ClassFilesPreparatorService::class.java)
-        .prepareClassFiles(listOf(classFilePreparationTask), centerComponentContainer) {
-          classFile = it
-          doReParseClassNodeContext()
-        }
-    }
-    else {
+      project.getService(ClassFilesPreparatorService::class.java).prepareClassFiles(
+        listOf(classFilePreparationTask),
+        centerComponentContainer,
+      ) {
+        classFile = it
+        doReParseClassNodeContext()
+      }
+    } else {
       doReParseClassNodeContext()
     }
   }
@@ -85,7 +84,13 @@ internal class ClassFileTab(
   // -- Private Methods ----------------------------------------------------- //
 
   private fun loadClassNodeContext(selectedByteCodeViewIndex: Int? = 0) {
-    setCenter(JBLabel("Parsing '${classFile.file.nameWithoutExtension}'...", AnimatedIcon.Default(), SwingConstants.CENTER))
+    setCenter(
+      JBLabel(
+        "Parsing '${classFile.file.nameWithoutExtension}'...",
+        AnimatedIcon.Default(),
+        SwingConstants.CENTER,
+      )
+    )
 
     val createClassFileContext = {
       // If we reach this method through the "refresh class file" action, it
@@ -134,16 +139,17 @@ internal class ClassFileTab(
 
   // -- Inner Type ---------------------------------------------------------- //
 
-  private class ByteCodeViewTabs(classFileContext: ClassFileContext, parentDisposable: Disposable)
-    : TabbedPaneWrapper(parentDisposable) {
+  private class ByteCodeViewTabs(classFileContext: ClassFileContext, parentDisposable: Disposable) :
+    TabbedPaneWrapper(parentDisposable) {
 
-    private val byteCodeViews: List<ByteCodeView> = ByteCodeView.EP.extensions.mapIndexed { index, byteCodeViewCreator ->
-      val selected = index == 0
-      val classFileView = byteCodeViewCreator.create(classFileContext)
-      addTab(classFileView.title, null, classFileView.createComponent(selected), null)
-      Disposer.register(parentDisposable, classFileView)
-      classFileView
-    }
+    private val byteCodeViews: List<ByteCodeView> =
+      ByteCodeView.EP.extensions.mapIndexed { index, byteCodeViewCreator ->
+        val selected = index == 0
+        val classFileView = byteCodeViewCreator.create(classFileContext)
+        addTab(classFileView.title, null, classFileView.createComponent(selected), null)
+        Disposer.register(parentDisposable, classFileView)
+        classFileView
+      }
     var selectedByteCodeViewIndex: Int = 0
 
     init {

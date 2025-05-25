@@ -7,14 +7,16 @@ import dev.turingcomplete.intellijbytecodeplugin.common._internal.DataProviderUt
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction
 
 @Suppress("ComponentNotRegistered")
-internal class ReParseByteCodeAction : ByteCodeAction("Re-Parse Class File", null, AllIcons.Actions.Refresh) {
+internal class ReParseByteCodeAction :
+  ByteCodeAction("Re-Parse Class File", null, AllIcons.Actions.Refresh) {
   // -- Companion Object ---------------------------------------------------- //
   // -- Properties ---------------------------------------------------------- //
   // -- Initialization ------------------------------------------------------ //
   // -- Exposed Methods ----------------------------------------------------- //
 
   override fun actionPerformed(e: AnActionEvent) {
-    val classFileTab = DataProviderUtils.getData(CommonDataKeys.CLASS_FILE_TAB_DATA_KEY, e.dataContext)
+    val classFileTab =
+      DataProviderUtils.getData(CommonDataKeys.CLASS_FILE_TAB_DATA_KEY, e.dataContext)
     classFileTab.reParseClassNodeContext()
   }
 

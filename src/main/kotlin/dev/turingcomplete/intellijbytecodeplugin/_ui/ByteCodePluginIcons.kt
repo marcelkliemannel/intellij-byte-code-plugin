@@ -7,7 +7,8 @@ internal object ByteCodePluginIcons {
 
   @Suppress("unused") // Referenced in plugin.xml
   @JvmField
-  val TOOL_WINDOW_ICON = IconLoader.getIcon("/icons/toolwindow.svg", ByteCodePluginIcons::class.java)
+  val TOOL_WINDOW_ICON =
+    IconLoader.getIcon("/icons/toolwindow.svg", ByteCodePluginIcons::class.java)
 
   val ACTION_ICON = IconLoader.getIcon("/icons/action.svg", ByteCodePluginIcons::class.java)
 

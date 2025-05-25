@@ -2,8 +2,8 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode._internal.constantpoo
 
 import java.io.DataInputStream
 
-internal class MethodTypeInfo(dataInputStream: DataInputStream)
-  : ConstantPoolInfo("MethodType", readValues(dataInputStream)) {
+internal class MethodTypeInfo(dataInputStream: DataInputStream) :
+  ConstantPoolInfo("MethodType", readValues(dataInputStream)) {
 
   // -- Companion Object ---------------------------------------------------- //
 

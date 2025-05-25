@@ -12,21 +12,25 @@ import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.SwingConstants
 
-internal class HtmlTextNode(preFix: String? = null,
-                            displayValue: (StructureTreeContext) -> String,
-                            rawValue: (StructureTreeContext) -> String = displayValue,
-                            postFix: String? = null,
-                            icon: Icon? = null,
-                            goToProvider: GoToProvider? = null)
-  : ValueNode(preFix, displayValue, rawValue, postFix, icon, goToProvider) {
+internal class HtmlTextNode(
+  preFix: String? = null,
+  displayValue: (StructureTreeContext) -> String,
+  rawValue: (StructureTreeContext) -> String = displayValue,
+  postFix: String? = null,
+  icon: Icon? = null,
+  goToProvider: GoToProvider? = null,
+) : ValueNode(preFix, displayValue, rawValue, postFix, icon, goToProvider) {
 
   // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     private val contextHelpFont = JBUI.Fonts.smallFont()
-    private val contextHelpFontCss = "font-family: '${contextHelpFont.family}'; font-size: ${contextHelpFont.size}pt;"
-    private val notSelectedCss = ".contextHelp { color: #${ColorUtil.toHex(UIUtil.getContextHelpForeground())}; margin-left: 50pt; $contextHelpFontCss }"
-    private val selectedCss = ".contextHelp { color: #${ColorUtil.toHex(UIUtil.getListForeground(true, true))}; margin-left: 50pt; $contextHelpFontCss }"
+    private val contextHelpFontCss =
+      "font-family: '${contextHelpFont.family}'; font-size: ${contextHelpFont.size}pt;"
+    private val notSelectedCss =
+      ".contextHelp { color: #${ColorUtil.toHex(UIUtil.getContextHelpForeground())}; margin-left: 50pt; $contextHelpFontCss }"
+    private val selectedCss =
+      ".contextHelp { color: #${ColorUtil.toHex(UIUtil.getListForeground(true, true))}; margin-left: 50pt; $contextHelpFontCss }"
   }
 
   // -- Properties ---------------------------------------------------------- //
@@ -36,15 +40,21 @@ internal class HtmlTextNode(preFix: String? = null,
 
   // -- Initialization ------------------------------------------------------ //
 
-  constructor(preFix: String? = null,
-              displayValue: String,
-              rawValue: String = displayValue,
-              postFix: String? = null,
-              icon: Icon? = null) : this(preFix, { displayValue }, { rawValue }, postFix, icon)
+  constructor(
+    preFix: String? = null,
+    displayValue: String,
+    rawValue: String = displayValue,
+    postFix: String? = null,
+    icon: Icon? = null,
+  ) : this(preFix, { displayValue }, { rawValue }, postFix, icon)
 
   // -- Exposed Methods ----------------------------------------------------- //
 
-  override fun component(selected: Boolean, context: StructureTreeContext, componentValid: Boolean): JComponent {
+  override fun component(
+    selected: Boolean,
+    context: StructureTreeContext,
+    componentValid: Boolean,
+  ): JComponent {
     if (!componentValid) {
       notSelectedComponent = createComponent(notSelectedCss, context)
       selectedComponent = createComponent(selectedCss, context)
@@ -58,15 +68,24 @@ internal class HtmlTextNode(preFix: String? = null,
   // -- Private Methods ----------------------------------------------------- //
 
   private fun createComponent(css: String, context: StructureTreeContext): JComponent {
-    val text = HtmlBuilder()
-            .append(HtmlChunk.raw(css).wrapWith("style").attr("type", "text/css").wrapWith("head"))
-            .append(HtmlChunk.raw(StringBuilder().apply {
-              preFix?.let { append(it).append(" ") }
-              append(displayValue(context))
-              postFix?.let { append(" ").append(it) }
-            }.toString().replace(" ", "&nbsp;")).wrapWith("body"))
-            .wrapWith("html")
-            .toString()
+    val text =
+      HtmlBuilder()
+        .append(HtmlChunk.raw(css).wrapWith("style").attr("type", "text/css").wrapWith("head"))
+        .append(
+          HtmlChunk.raw(
+              StringBuilder()
+                .apply {
+                  preFix?.let { append(it).append(" ") }
+                  append(displayValue(context))
+                  postFix?.let { append(" ").append(it) }
+                }
+                .toString()
+                .replace(" ", "&nbsp;")
+            )
+            .wrapWith("body")
+        )
+        .wrapWith("html")
+        .toString()
 
     return JBLabel(text, icon, SwingConstants.LEFT)
   }

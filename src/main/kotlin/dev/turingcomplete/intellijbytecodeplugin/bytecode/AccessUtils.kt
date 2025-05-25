@@ -36,9 +36,54 @@ enum class Access(val value: Int) {
 }
 
 enum class AccessGroup(val accesses: EnumSet<Access>) {
-  CLASS(EnumSet.of(PUBLIC, PRIVATE, PROTECTED, FINAL, SUPER, INTERFACE, ABSTRACT, SYNTHETIC, ANNOTATION, RECORD, DEPRECATED, ENUM, Access.MODULE)),
-  FIELD(EnumSet.of(PUBLIC, PRIVATE, PROTECTED, STATIC, FINAL, VOLATILE, TRANSIENT, SYNTHETIC, DEPRECATED, ENUM)),
-  METHOD(EnumSet.of(PUBLIC, PRIVATE, PROTECTED, STATIC, FINAL, SYNCHRONIZED, BRIDGE, VARARGS, NATIVE, ABSTRACT, STRICT, SYNTHETIC, DEPRECATED)),
+  CLASS(
+    EnumSet.of(
+      PUBLIC,
+      PRIVATE,
+      PROTECTED,
+      FINAL,
+      SUPER,
+      INTERFACE,
+      ABSTRACT,
+      SYNTHETIC,
+      ANNOTATION,
+      RECORD,
+      DEPRECATED,
+      ENUM,
+      Access.MODULE,
+    )
+  ),
+  FIELD(
+    EnumSet.of(
+      PUBLIC,
+      PRIVATE,
+      PROTECTED,
+      STATIC,
+      FINAL,
+      VOLATILE,
+      TRANSIENT,
+      SYNTHETIC,
+      DEPRECATED,
+      ENUM,
+    )
+  ),
+  METHOD(
+    EnumSet.of(
+      PUBLIC,
+      PRIVATE,
+      PROTECTED,
+      STATIC,
+      FINAL,
+      SYNCHRONIZED,
+      BRIDGE,
+      VARARGS,
+      NATIVE,
+      ABSTRACT,
+      STRICT,
+      SYNTHETIC,
+      DEPRECATED,
+    )
+  ),
   PARAMETER(EnumSet.of(FINAL, SYNTHETIC, MANDATED)),
   MODULE(EnumSet.of(OPEN, SYNTHETIC, MANDATED)),
   MODULE_REQUIRES(EnumSet.of(TRANSITIVE, STATIC_PHASE, SYNTHETIC, MANDATED)),
@@ -46,12 +91,19 @@ enum class AccessGroup(val accesses: EnumSet<Access>) {
   MODULE_OPENS(EnumSet.of(SYNTHETIC, MANDATED));
 
   fun toReadableAccess(access: Int): List<String> {
-    return accesses.asSequence()
-            .filter { it.check(access) }
-            .map { it.name.lowercase(Locale.ENGLISH) }
-            .sorted()
-            .toList()
+    return accesses
+      .asSequence()
+      .filter { it.check(access) }
+      .map { it.name.lowercase(Locale.ENGLISH) }
+      .sorted()
+      .toList()
   }
 
-  override fun toString() = name.lowercase(Locale.getDefault()).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }.replace("_", " ")
+  override fun toString() =
+    name
+      .lowercase(Locale.getDefault())
+      .replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+      }
+      .replace("_", " ")
 }

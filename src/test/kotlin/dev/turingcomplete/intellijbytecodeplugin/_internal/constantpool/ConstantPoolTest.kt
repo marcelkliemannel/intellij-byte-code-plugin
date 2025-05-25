@@ -7,8 +7,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(org.junit.runners.Parameterized::class)
-class ConstantPoolTest(@Suppress("UNUSED_PARAMETER") testName: String, classFilePath: String) : ClassFileConsumerTestCase(classFilePath) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+class ConstantPoolTest(@Suppress("UNUSED_PARAMETER") testName: String, classFilePath: String) :
+  ClassFileConsumerTestCase(classFilePath) {
+  // -- Companion Object
+  // -------------------------------------------------------------------------------------------- //
 
   companion object {
     @org.junit.runners.Parameterized.Parameters(name = "{0}")
@@ -16,10 +18,17 @@ class ConstantPoolTest(@Suppress("UNUSED_PARAMETER") testName: String, classFile
     fun data(): List<Array<String>> = testData()
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Properties
+  // -------------------------------------------------------------------------------------------------- //
+  // -- Initialization
+  // ----------------------------------------------------------------------------------------------
+  // //
+  // -- Exposed Methods
+  // ---------------------------------------------------------------------------------------------
+  // //
+  // -- Private Methods
+  // ---------------------------------------------------------------------------------------------
+  // //
 
   @Test
   fun testCreationOfConstantPool() {
@@ -28,5 +37,6 @@ class ConstantPoolTest(@Suppress("UNUSED_PARAMETER") testName: String, classFile
     ConstantPool.create(ClassFile(classFileAsVirtualFile))
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type
+  // -------------------------------------------------------------------------------------------------- //
 }

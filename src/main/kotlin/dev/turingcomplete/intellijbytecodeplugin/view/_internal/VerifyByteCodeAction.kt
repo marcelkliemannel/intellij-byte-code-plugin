@@ -33,7 +33,8 @@ import javax.swing.JPanel
 import javax.swing.SwingConstants
 
 @Suppress("ComponentNotRegistered")
-internal class VerifyByteCodeAction : ByteCodeAction("Verify Byte Code", null, ByteCodePluginIcons.VERIFY_ICON) {
+internal class VerifyByteCodeAction :
+  ByteCodeAction("Verify Byte Code", null, ByteCodePluginIcons.VERIFY_ICON) {
 
   // -- Companion Object ---------------------------------------------------- //
   // -- Properties ---------------------------------------------------------- //
@@ -41,7 +42,8 @@ internal class VerifyByteCodeAction : ByteCodeAction("Verify Byte Code", null, B
   // -- Exposed Methods ----------------------------------------------------- //
 
   override fun actionPerformed(e: AnActionEvent) {
-    val classFileContext = DataProviderUtils.getData(CommonDataKeys.CLASS_FILE_CONTEXT_DATA_KEY, e.dataContext)
+    val classFileContext =
+      DataProviderUtils.getData(CommonDataKeys.CLASS_FILE_CONTEXT_DATA_KEY, e.dataContext)
 
     val onError = DataProviderUtils.getData(CommonDataKeys.ON_ERROR_DATA_KEY, e.dataContext)
 
@@ -54,37 +56,56 @@ internal class VerifyByteCodeAction : ByteCodeAction("Verify Byte Code", null, B
       val success = !output.contains(AnalyzerException::class.java.name)
       ClassFileContext.VerificationResult(success, output)
     }
-    AsyncUtils.runAsync(classFileContext.project(), verifyByteCode, { result ->
-      ApplicationManager.getApplication().invokeLater {
-        val resultPanel = VerifyByteCodeResultPanel(result)
-        UiUtils.Dialog.show("Verify Byte Code Result", resultPanel, Dimension(800, 450), classFileContext.project())
-      }
-    }, { cause -> onError("Failed execute byte code verification", cause) })
+    AsyncUtils.runAsync(
+      classFileContext.project(),
+      verifyByteCode,
+      { result ->
+        ApplicationManager.getApplication().invokeLater {
+          val resultPanel = VerifyByteCodeResultPanel(result)
+          UiUtils.Dialog.show(
+            "Verify Byte Code Result",
+            resultPanel,
+            Dimension(800, 450),
+            classFileContext.project(),
+          )
+        }
+      },
+      { cause -> onError("Failed execute byte code verification", cause) },
+    )
   }
 
   // -- Private Methods ----------------------------------------------------- //
   // -- Inner Type ---------------------------------------------------------- //
 
-  private class VerifyByteCodeResultPanel(result: ClassFileContext.VerificationResult) : JPanel(GridBagLayout()) {
+  private class VerifyByteCodeResultPanel(result: ClassFileContext.VerificationResult) :
+    JPanel(GridBagLayout()) {
     init {
       val bag = GridBag().withCommonsDefaults().setDefaultFill(GridBagConstraints.HORIZONTAL)
 
-      val stateLabel = if (result.success) {
-        JBLabel("Byte code verified.", AllIcons.General.InspectionsOK, SwingConstants.LEFT)
-      }
-      else {
-        JBLabel("Byte code verification failed. See output for failure details.", AllIcons.General.BalloonError, SwingConstants.LEFT)
-      }
+      val stateLabel =
+        if (result.success) {
+          JBLabel("Byte code verified.", AllIcons.General.InspectionsOK, SwingConstants.LEFT)
+        } else {
+          JBLabel(
+            "Byte code verification failed. See output for failure details.",
+            AllIcons.General.BalloonError,
+            SwingConstants.LEFT,
+          )
+        }
       add(stateLabel.apply { font = font.deriveFont(Font.BOLD) }, bag.nextLine().next())
 
       add(JBLabel("Output:"), bag.nextLine().next().overrideTopInset(UIUtil.DEFAULT_HGAP))
-      val resultTextArea = JBTextArea(result.output, 20, 100).apply {
-        val globalScheme = EditorColorsManager.getInstance().globalScheme
-        font = JBUI.Fonts.create(globalScheme.editorFontName, globalScheme.editorFontSize)
-      }
-      add(ScrollPaneFactory.createScrollPane(resultTextArea).apply {
-        border = BorderFactory.createLineBorder(JBColor.border())
-      }, bag.nextLine().next().fillCell().weightx(1.0).weighty(1.0).overrideTopInset(2))
+      val resultTextArea =
+        JBTextArea(result.output, 20, 100).apply {
+          val globalScheme = EditorColorsManager.getInstance().globalScheme
+          font = JBUI.Fonts.create(globalScheme.editorFontName, globalScheme.editorFontSize)
+        }
+      add(
+        ScrollPaneFactory.createScrollPane(resultTextArea).apply {
+          border = BorderFactory.createLineBorder(JBColor.border())
+        },
+        bag.nextLine().next().fillCell().weightx(1.0).weighty(1.0).overrideTopInset(2),
+      )
     }
   }
 }

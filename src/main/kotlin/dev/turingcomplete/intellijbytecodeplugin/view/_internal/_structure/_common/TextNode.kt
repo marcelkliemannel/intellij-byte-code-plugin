@@ -15,7 +15,11 @@ internal open class TextNode(private val text: String, icon: Icon? = null) : Str
   // -- Initialization ------------------------------------------------------ //
   // -- Exposed Methods ----------------------------------------------------- //
 
-  override fun component(selected: Boolean, context: StructureTreeContext, componentValid: Boolean) = component
+  override fun component(
+    selected: Boolean,
+    context: StructureTreeContext,
+    componentValid: Boolean,
+  ) = component
 
   override fun searchText(context: StructureTreeContext) = text
 

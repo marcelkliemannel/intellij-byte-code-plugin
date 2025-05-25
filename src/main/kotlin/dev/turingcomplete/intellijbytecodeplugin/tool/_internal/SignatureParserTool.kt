@@ -17,7 +17,6 @@ import dev.turingcomplete.intellijbytecodeplugin.bytecode.Access
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.signature.SignatureReader
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.util.TraceSignatureVisitor
 import dev.turingcomplete.intellijbytecodeplugin.tool.ByteCodeTool
-import org.apache.commons.text.StringEscapeUtils
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import javax.swing.JLabel
@@ -25,18 +24,21 @@ import javax.swing.JPanel
 import javax.swing.SwingConstants
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
+import org.apache.commons.text.StringEscapeUtils
 
 internal class SignatureParserTool : ByteCodeTool("Signature Parser") {
   // -- Companion Object ---------------------------------------------------- //
 
   companion object {
-    val SAMPLES = arrayOf(
-            "Select sample",
-            "(TR;)I",
-            "<T::Ljava/util/function/Function;E:Ljava/lang/IllegalArgumentException;>([Ljava/lang/String;TT;)V^TE;"
-    )
+    val SAMPLES =
+      arrayOf(
+        "Select sample",
+        "(TR;)I",
+        "<T::Ljava/util/function/Function;E:Ljava/lang/IllegalArgumentException;>([Ljava/lang/String;TT;)V^TE;",
+      )
 
-    private val FORMAT_TYPE_PARAMETER_REGEX = Regex("^((?<formalTypeParameter><.*>)\\()(?<declaration>.*)$")
+    private val FORMAT_TYPE_PARAMETER_REGEX =
+      Regex("^((?<formalTypeParameter><.*>)\\()(?<declaration>.*)$")
 
     fun parseSignature(signature: String): ParsingResult {
       try {
@@ -47,20 +49,22 @@ internal class SignatureParserTool : ByteCodeTool("Signature Parser") {
 
         var formalTypeParameter: String? = null
         val declaration: String
-        val declarationSplit = FORMAT_TYPE_PARAMETER_REGEX.matchEntire(traceSignatureVisitor.declaration)
+        val declarationSplit =
+          FORMAT_TYPE_PARAMETER_REGEX.matchEntire(traceSignatureVisitor.declaration)
         if (declarationSplit != null) {
           formalTypeParameter = declarationSplit.groups["formalTypeParameter"]!!.value
           declaration = "(${declarationSplit.groups["declaration"]!!.value}"
-        }
-        else {
+        } else {
           declaration = traceSignatureVisitor.declaration
         }
 
         val exceptions = traceSignatureVisitor.exceptions
 
-        return ParsingResult(null, Signature(returnType, formalTypeParameter, declaration, exceptions))
-      }
-      catch (e: Exception) {
+        return ParsingResult(
+          null,
+          Signature(returnType, formalTypeParameter, declaration, exceptions),
+        )
+      } catch (e: Exception) {
         return ParsingResult(e, null)
       }
     }
@@ -77,7 +81,8 @@ internal class SignatureParserTool : ByteCodeTool("Signature Parser") {
   // -- Private Methods ----------------------------------------------------- //
   // -- Inner Type ---------------------------------------------------------- //
 
-  private class SignatureParserDialog(project: Project?) : DialogWrapper(project), DocumentListener {
+  private class SignatureParserDialog(project: Project?) :
+    DialogWrapper(project), DocumentListener {
 
     private val signatureField = JBTextField(30)
     private val isInterface = JBCheckBox("Is from interface")
@@ -92,27 +97,41 @@ internal class SignatureParserTool : ByteCodeTool("Signature Parser") {
       signatureField.document.addDocumentListener(this)
     }
 
-    override fun createCenterPanel() = JPanel(GridBagLayout()).apply {
-      val bag = GridBag().withCommonsDefaults().setDefaultAnchor(GridBagConstraints.WEST)
+    override fun createCenterPanel() =
+      JPanel(GridBagLayout()).apply {
+        val bag = GridBag().withCommonsDefaults().setDefaultAnchor(GridBagConstraints.WEST)
 
-      add(JLabel("Signature:"), bag.nextLine().next())
-      add(signatureField, bag.next().overrideLeftInset(UIUtil.DEFAULT_HGAP / 2).weightx(1.0).fillCellHorizontally())
-      add(isInterface, bag.next().overrideLeftInset(UIUtil.DEFAULT_HGAP / 2))
+        add(JLabel("Signature:"), bag.nextLine().next())
+        add(
+          signatureField,
+          bag.next().overrideLeftInset(UIUtil.DEFAULT_HGAP / 2).weightx(1.0).fillCellHorizontally(),
+        )
+        add(isInterface, bag.next().overrideLeftInset(UIUtil.DEFAULT_HGAP / 2))
 
-      add(resultContainer, bag.nextLine().next().overrideTopInset(UIUtil.DEFAULT_VGAP).coverLine().weightx(1.0).fillCellHorizontally())
+        add(
+          resultContainer,
+          bag
+            .nextLine()
+            .next()
+            .overrideTopInset(UIUtil.DEFAULT_VGAP)
+            .coverLine()
+            .weightx(1.0)
+            .fillCellHorizontally(),
+        )
 
-      val samplesComboBox = ComboBox(SAMPLES).apply {
-        addItemListener {
-          if (selectedIndex > 0) {
-            signatureField.text = SAMPLES[selectedIndex]
+        val samplesComboBox =
+          ComboBox(SAMPLES).apply {
+            addItemListener {
+              if (selectedIndex > 0) {
+                signatureField.text = SAMPLES[selectedIndex]
+              }
+            }
           }
-        }
+
+        add(samplesComboBox, bag.nextLine().next().overrideTopInset(UIUtil.LARGE_VGAP).coverLine())
+
+        add(JPanel(), bag.nextLine().next().fillCell().coverLine().weighty(1.0).weightx(1.0))
       }
-
-      add(samplesComboBox, bag.nextLine().next().overrideTopInset(UIUtil.LARGE_VGAP).coverLine())
-
-      add(JPanel(), bag.nextLine().next().fillCell().coverLine().weighty(1.0).weightx(1.0))
-    }
 
     override fun insertUpdate(e: DocumentEvent?) {
       parseSignature()
@@ -135,10 +154,13 @@ internal class SignatureParserTool : ByteCodeTool("Signature Parser") {
 
       val parsingResult = parseSignature(signatureField.text)
       if (parsingResult.error != null) {
-        val errorMessage = "Invalid signature${if (parsingResult.error.message != null) " ${parsingResult.error.message}" else ""}"
-        resultContainer.add(JBLabel(errorMessage, AllIcons.General.BalloonError, SwingConstants.LEFT), bag.nextLine().next().weightx(1.0).fillCellHorizontally())
-      }
-      else {
+        val errorMessage =
+          "Invalid signature${if (parsingResult.error.message != null) " ${parsingResult.error.message}" else ""}"
+        resultContainer.add(
+          JBLabel(errorMessage, AllIcons.General.BalloonError, SwingConstants.LEFT),
+          bag.nextLine().next().weightx(1.0).fillCellHorizontally(),
+        )
+      } else {
         val signature = parsingResult.signature
 
         val rows = mutableListOf<Pair<String, String>>()
@@ -156,7 +178,15 @@ internal class SignatureParserTool : ByteCodeTool("Signature Parser") {
         rows.forEachIndexed { index, row ->
           val topInset = if (index == 0) 0 else UIUtil.DEFAULT_VGAP
           resultContainer.add(JBLabel(row.first), bag.nextLine().next().overrideTopInset(topInset))
-          resultContainer.add(JBLabel("<html>${StringEscapeUtils.escapeHtml4(row.second)}</html>").copyable(), bag.next().overrideTopInset(topInset).overrideLeftInset(UIUtil.DEFAULT_HGAP / 2).weightx(1.0).fillCellHorizontally())
+          resultContainer.add(
+            JBLabel("<html>${StringEscapeUtils.escapeHtml4(row.second)}</html>").copyable(),
+            bag
+              .next()
+              .overrideTopInset(topInset)
+              .overrideLeftInset(UIUtil.DEFAULT_HGAP / 2)
+              .weightx(1.0)
+              .fillCellHorizontally(),
+          )
         }
       }
 
@@ -166,7 +196,8 @@ internal class SignatureParserTool : ByteCodeTool("Signature Parser") {
 
   // -- Inner Type ---------------------------------------------------------- //
 
-  class ParsingResult internal constructor(val error: Exception?, private val _signature: Signature?) {
+  class ParsingResult
+  internal constructor(val error: Exception?, private val _signature: Signature?) {
 
     val signature: Signature
       get() {
@@ -177,8 +208,11 @@ internal class SignatureParserTool : ByteCodeTool("Signature Parser") {
       }
   }
 
-  class Signature internal constructor(val returnType: String?,
-                                       val formalTypeParameter: String?,
-                                       val declaration: String,
-                                       val exceptions: String?)
+  class Signature
+  internal constructor(
+    val returnType: String?,
+    val formalTypeParameter: String?,
+    val declaration: String,
+    val exceptions: String?,
+  )
 }

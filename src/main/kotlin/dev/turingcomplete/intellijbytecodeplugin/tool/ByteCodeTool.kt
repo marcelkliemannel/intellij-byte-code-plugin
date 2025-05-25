@@ -11,7 +11,8 @@ abstract class ByteCodeTool(val title: String, val icon: Icon? = null) {
   // -- Companion Object ---------------------------------------------------- //
 
   companion object {
-    val EP: ExtensionPointName<ByteCodeTool> = ExtensionPointName.create("dev.turingcomplete.intellijbytecodeplugin.byteCodeTool")
+    val EP: ExtensionPointName<ByteCodeTool> =
+      ExtensionPointName.create("dev.turingcomplete.intellijbytecodeplugin.byteCodeTool")
   }
 
   // -- Properties ---------------------------------------------------------- //
@@ -21,7 +22,7 @@ abstract class ByteCodeTool(val title: String, val icon: Icon? = null) {
   abstract fun execute(project: Project?)
 
   fun toAction(): DumbAwareAction {
-    return object: DumbAwareAction(title, null, icon) {
+    return object : DumbAwareAction(title, null, icon) {
       override fun actionPerformed(e: AnActionEvent) {
         execute(CommonDataKeys.PROJECT.getData(e.dataContext))
       }

@@ -18,7 +18,7 @@ internal object ConstantPoolUtils {
 
   // -- Private Methods ----------------------------------------------------- //
 
-  private fun readTwoInts(dataInputStream: DataInputStream, capacity: Int) : ByteBuffer {
+  private fun readTwoInts(dataInputStream: DataInputStream, capacity: Int): ByteBuffer {
     return ByteBuffer.allocate(capacity).run {
       putInt(dataInputStream.readInt())
       putInt(dataInputStream.readInt())

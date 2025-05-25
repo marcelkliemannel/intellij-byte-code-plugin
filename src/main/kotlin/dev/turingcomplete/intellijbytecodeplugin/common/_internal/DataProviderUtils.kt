@@ -8,8 +8,9 @@ internal object DataProviderUtils {
   // -- Initialization ------------------------------------------------------ //
   // -- Exposed Methods ----------------------------------------------------- //
 
-  fun <T> getData(dataKey: DataKey<T>, dataContext: DataContext) : T {
-    return dataKey.getData(dataContext) ?: throw IllegalStateException("snh: Missing data from key: ${dataKey.name}")
+  fun <T> getData(dataKey: DataKey<T>, dataContext: DataContext): T {
+    return dataKey.getData(dataContext)
+      ?: throw IllegalStateException("snh: Missing data from key: ${dataKey.name}")
   }
 
   // -- Private Methods ----------------------------------------------------- //

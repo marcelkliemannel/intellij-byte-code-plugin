@@ -2,7 +2,8 @@ package dev.turingcomplete.intellijbytecodeplugin.common
 
 import com.intellij.openapi.vfs.VirtualFile
 
-data class ClassFile internal constructor(val file: VirtualFile, val sourceFile: SourceFile? = null) {
+data class ClassFile
+internal constructor(val file: VirtualFile, val sourceFile: SourceFile? = null) {
   // -- Properties ---------------------------------------------------------- //
   // -- Initialization ------------------------------------------------------ //
 
