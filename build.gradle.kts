@@ -20,6 +20,7 @@ plugins {
   alias(libs.plugins.intellij.platform)
   alias(libs.plugins.changelog)
   alias(libs.plugins.shadow)
+  alias(libs.plugins.version.catalog.update)
 }
 
 group = properties("pluginGroup")
@@ -146,5 +147,17 @@ tasks {
 
   withType<Test> {
     useJUnitPlatform()
+  }
+}
+
+versionCatalogUpdate {
+  pin {
+    versions.set(
+      listOf(
+        // Must be updated in conjunction with the minimum platform version
+        // https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
+        "kotlin"
+      )
+    )
   }
 }
