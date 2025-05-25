@@ -4,6 +4,8 @@
 
 ### Added
 
+- Support for Java 25
+
 ### Changed
 
 ### Removed

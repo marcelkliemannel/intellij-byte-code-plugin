@@ -1,5 +1,5 @@
 [versions]
-asm = "9.7.1"
+asm = "9.8"
 commons-text = "1.11.0"
 assertj = "3.24.2"
 junit5 = "5.10.1"
