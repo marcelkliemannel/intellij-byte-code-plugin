@@ -30,20 +30,20 @@ import javax.swing.JTextArea
 import javax.swing.SwingConstants
 
 abstract class ErrorStateHandler {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     private val LOG = Logger.getInstance(ErrorStateHandler::class.java)
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val inErrorState = AtomicBoolean()
   private val componentContainer = BorderLayoutPanel()
   private var centerComponent: JComponent? = null
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun createComponent(selected: Boolean = false): JComponent {
     if (selected) {
@@ -93,8 +93,8 @@ abstract class ErrorStateHandler {
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class ErrorStatePanel(message: String, cause: Throwable?, retry: () -> Unit) : JPanel(GridBagLayout()) {
 

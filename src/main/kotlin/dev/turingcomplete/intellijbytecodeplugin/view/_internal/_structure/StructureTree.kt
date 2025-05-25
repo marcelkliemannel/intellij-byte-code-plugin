@@ -52,13 +52,13 @@ import javax.swing.tree.TreeNode
 
 internal class StructureTree(classFileContext: ClassFileContext, parent: Disposable) :
   Tree(AsyncTreeModel(StructureTreeModel(classFileContext), true, parent)), DataProvider {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val structureTreeModel = StructureTreeModel(classFileContext)
   private val context = StructureTreeContext(classFileContext.project(), syncTree())
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   init {
     setCellEditor(StructureTreeCellEditor())
@@ -91,7 +91,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
     installSearchHandler()
   }
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun reload() {
     structureTreeModel.reload()
@@ -131,7 +131,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun installSearchHandler() {
     TreeUIHelper.getInstance().installTreeSpeedSearch(this, { treePath ->
@@ -151,7 +151,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
     this@StructureTree.repaint()
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class StructureTreeModel(private val classFileContext: ClassFileContext) :
     BaseTreeModel<TreeNode>(), InvokerSupplier {
@@ -188,7 +188,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private inner class StructureTreeCellRenderer : TreeCellRenderer {
 
@@ -208,7 +208,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private inner class StructureTreeCellEditor : AbstractCellEditor(), TreeCellEditor, ActionListener {
 
@@ -238,7 +238,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private inner class RenderOptionsGroup : DefaultActionGroup("Render Options", true), Toggleable, DumbAware {
 

@@ -17,9 +17,9 @@ import java.io.PrintWriter
 import java.io.StringWriter
 
 object MethodFramesUtils {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun collectFrames(method: MethodNode, owner: ClassNode): MethodFrames {
     val instructionTextifier = ExtendedTextifier()
@@ -48,20 +48,20 @@ object MethodFramesUtils {
     return MethodFrames(HashMap(instructionTextifier.labelsNames()), methodFrames)
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   data class MethodFrames internal constructor(val labelsNames: Map<Label, String>,
                                           val methodFrames: List<MethodFrame>)
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class MethodFrame internal constructor(val instruction: AbstractInsnNode,
                                          val textifiedInstruction: String,
                                          val stack: Array<Type>,
                                          val locals: Array<Type>)
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class ExtendedTextifier : Textifier(DefaultClassFileContext.ASM_API) {
 
@@ -105,7 +105,7 @@ object MethodFramesUtils {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class ExtendedInterpreter : BasicInterpreter(DefaultClassFileContext.ASM_API) {
 

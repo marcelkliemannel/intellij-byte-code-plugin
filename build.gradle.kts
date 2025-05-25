@@ -20,6 +20,7 @@ plugins {
   alias(libs.plugins.intellij.platform)
   alias(libs.plugins.changelog)
   alias(libs.plugins.shadow)
+  alias(libs.plugins.spotless)
   alias(libs.plugins.version.catalog.update)
 }
 
@@ -132,6 +133,8 @@ changelog {
   groups.set(listOf("Added", "Changed", "Removed", "Fixed"))
 }
 
+spotless { kotlin { ktfmt().googleStyle() } }
+
 tasks {
   runIde {
     // Enable to test Kotlin K2 beta mode
@@ -148,6 +151,8 @@ tasks {
   withType<Test> {
     useJUnitPlatform()
   }
+
+  named("check") { dependsOn("spotlessCheck") }
 }
 
 versionCatalogUpdate {

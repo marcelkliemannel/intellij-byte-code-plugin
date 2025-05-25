@@ -10,10 +10,10 @@ import dev.turingcomplete.intellijbytecodeplugin.common._internal.DataProviderUt
 import java.awt.datatransfer.StringSelection
 
 class CopyValueAction : DumbAwareAction("Copy Value", null, PlatformIcons.COPY_ICON) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun update(e: AnActionEvent) {
     e.presentation.isVisible = CommonDataKeys.VALUE.getData(e.dataContext) != null
@@ -26,6 +26,6 @@ class CopyValueAction : DumbAwareAction("Copy Value", null, PlatformIcons.COPY_I
 
   override fun getActionUpdateThread() = ActionUpdateThread.EDT
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

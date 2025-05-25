@@ -32,9 +32,9 @@ import javax.swing.text.AttributeSet
 import javax.swing.text.DocumentFilter
 
 internal object UiUtils {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exported Methods -------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exported Methods ---------------------------------------------------- //
 
   fun createLink(title: String, url: String): HyperlinkLabel {
     return HyperlinkLabel(title).apply {
@@ -67,8 +67,8 @@ internal object UiUtils {
       override fun getOptions(): Array<Action> = options
     }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   object Field {
 
@@ -99,7 +99,7 @@ internal object UiUtils {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   object Dialog {
     fun show(title: String, content: JComponent, size: Dimension, project: Project?, ideModalityType: IdeModalityType = IdeModalityType.IDE) {
@@ -117,7 +117,7 @@ internal object UiUtils {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   object PopUp {
     fun showTextAreaPopup(value: String, dataContext: DataContext) {
@@ -139,7 +139,7 @@ internal object UiUtils {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   object Table {
 
@@ -176,7 +176,7 @@ internal object UiUtils {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   object Panel {
 

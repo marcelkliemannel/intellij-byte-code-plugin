@@ -58,8 +58,8 @@ abstract class ByteCodeParsingResultView(
   private val parsingOptionsAvailable: Boolean = true
 ) : ByteCodeView(classFileContext, title) {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val editor: EditorEx by lazy { createEditor() }
   private var editorCreated: Boolean = false
@@ -80,7 +80,7 @@ abstract class ByteCodeParsingResultView(
     ByteCodeAnalyserSettingsService.instance.skipFrame = new
   }
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   init {
     // Sync editor colors after IntelliJ appearance changed
@@ -88,7 +88,7 @@ abstract class ByteCodeParsingResultView(
       .subscribe(LafManagerListener.TOPIC, LafManagerListener { editor.syncEditorColors() })
   }
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun doSelected() {
     editor.component.requestFocusInWindow()
@@ -137,7 +137,7 @@ abstract class ByteCodeParsingResultView(
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun createGoToMethodsLink(): DropDownLink<Pair<Int, String>> {
     val createPopUp: (DropDownLink<Pair<Int, String>>) -> JBPopup = {
@@ -306,11 +306,11 @@ abstract class ByteCodeParsingResultView(
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class ByteCodeParsingResult(val text: String, val goToMethods: Map<Int, String>)
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private inner class ToggleParsingOptionAction(@NlsActions.ActionText text: String,
                                                 private val isSelected: () -> Boolean,

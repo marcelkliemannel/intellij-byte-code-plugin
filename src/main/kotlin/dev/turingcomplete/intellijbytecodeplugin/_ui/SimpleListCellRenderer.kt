@@ -7,9 +7,9 @@ import javax.swing.DefaultListCellRenderer
 import javax.swing.JList
 
 class SimpleListCellRenderer(private val textTransformer: (Any?) -> String): DefaultListCellRenderer() {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exported Methods -------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exported Methods ---------------------------------------------------- //
 
   override fun getListCellRendererComponent(list: JList<*>?, value: Any?, index: Int, selected: Boolean, focused: Boolean): Component {
     super.getListCellRendererComponent(list, value, index, selected, false)
@@ -24,7 +24,7 @@ class SimpleListCellRenderer(private val textTransformer: (Any?) -> String): Def
     return this
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 }

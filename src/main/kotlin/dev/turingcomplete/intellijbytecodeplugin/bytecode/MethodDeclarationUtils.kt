@@ -4,9 +4,9 @@ import com.intellij.openapi.util.text.StringUtil
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
 
 object MethodDeclarationUtils {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun toReadableDeclaration(name: String,
                             descriptor: String,
@@ -44,13 +44,13 @@ object MethodDeclarationUtils {
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun toReadableParameters(methodType: Type, typeNameRenderMode: TypeUtils.TypeNameRenderMode): String {
     return methodType.argumentTypes.joinToString(", ") { TypeUtils.toReadableType(it, typeNameRenderMode) }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   enum class MethodDescriptorRenderMode(val title: String) {
     DESCRIPTOR("Method Descriptor"),

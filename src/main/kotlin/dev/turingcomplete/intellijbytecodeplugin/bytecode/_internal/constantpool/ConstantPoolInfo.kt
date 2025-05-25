@@ -3,8 +3,8 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode._internal.constantpoo
 internal abstract class ConstantPoolInfo(val type: String,
                                          private val values: List<Value>,
                                          val usedConstantPoolIndices: Int = 1) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   val unresolvedDisplayText : String by lazy {
     values.joinToString(", ") { it.createUnresolvedDisplayText() }
@@ -13,8 +13,8 @@ internal abstract class ConstantPoolInfo(val type: String,
 
   val goToIndices : List<Int> by lazy { values.mapNotNull { it.goToIndex() }.toList() }
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun resolvedDisplayText(constantPool: ConstantPool): String {
     if (resolvedDisplayText == null) {
@@ -23,8 +23,8 @@ internal abstract class ConstantPoolInfo(val type: String,
     return resolvedDisplayText!!
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   internal abstract class Value {
 
@@ -35,7 +35,7 @@ internal abstract class ConstantPoolInfo(val type: String,
     open fun goToIndex() : Int? = null
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   internal open class PlainValue(private val name: String? = null, private val value: String) : Value() {
 
@@ -44,7 +44,7 @@ internal abstract class ConstantPoolInfo(val type: String,
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   internal open class ResolvableIndexValue(private val name: String, private val index: Int) : Value() {
 

@@ -27,7 +27,7 @@ import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 
 internal class SignatureParserTool : ByteCodeTool("Signature Parser") {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     val SAMPLES = arrayOf(
@@ -66,16 +66,16 @@ internal class SignatureParserTool : ByteCodeTool("Signature Parser") {
     }
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun execute(project: Project?) {
     SignatureParserDialog(project).show()
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class SignatureParserDialog(project: Project?) : DialogWrapper(project), DocumentListener {
 
@@ -164,7 +164,7 @@ internal class SignatureParserTool : ByteCodeTool("Signature Parser") {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class ParsingResult internal constructor(val error: Exception?, private val _signature: Signature?) {
 

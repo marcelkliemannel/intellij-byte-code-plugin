@@ -14,9 +14,9 @@ internal class FieldStructureNode private constructor(private val field: FieldNo
               icon = AllIcons.Nodes.Field,
               goToProvider = GoToProvider.Class(fieldTypeInternalName)) {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   constructor(field: FieldNode) : this(field, Type.getType(field.desc).className)
 
@@ -31,8 +31,8 @@ internal class FieldStructureNode private constructor(private val field: FieldNo
     }
   }
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun addInitialValueNode() {
     field.value?.let {
@@ -43,5 +43,5 @@ internal class FieldStructureNode private constructor(private val field: FieldNo
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

@@ -12,9 +12,9 @@ import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._comm
 internal class ModuleStructureNode(private val moduleNode: ModuleNode)
   : TextNode("Module Descriptor", AllIcons.Nodes.JavaModule) {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   init {
     asyncAdd {
@@ -31,8 +31,8 @@ internal class ModuleStructureNode(private val moduleNode: ModuleNode)
     }
   }
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun addMainClass() {
     moduleNode.mainClass?.let {
@@ -109,5 +109,5 @@ internal class ModuleStructureNode(private val moduleNode: ModuleNode)
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

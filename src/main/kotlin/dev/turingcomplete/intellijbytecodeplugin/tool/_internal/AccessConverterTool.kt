@@ -39,7 +39,7 @@ import javax.swing.table.DefaultTableModel
 import javax.swing.table.TableModel
 
 internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.Nodes.RwAccess), DocumentListener, ActionListener {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     private const val ACCESS_CALCULATORS_IN_ONE_ROW = 2
@@ -47,7 +47,7 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
     private var ACCESS_REG_EX: Pattern = Pattern.compile("^\\d+$")
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val accessType = ComboBox(EnumComboBoxModel(AccessGroup::class.java))
   private val accessField = IntegerField(null, 0, 99999)
@@ -55,8 +55,8 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
     font = JBFont.label().toMonospace()
   }.copyable()
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun execute(project: Project?) {
     if (project?.isDisposed == true) {
@@ -97,7 +97,7 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
     calculateResult()
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun calculateResult() {
     val text = accessField.text
@@ -141,7 +141,7 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   internal class AccessCalculatorPanel(accessGroup: AccessGroup) : BorderLayoutPanel(0, UIUtil.DEFAULT_HGAP / 2) {
 
@@ -163,7 +163,7 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
 
   private class AccessCalculatorTable(model: TableModel) : JBTable(model) {
@@ -188,7 +188,7 @@ internal class AccessConverterTool : ByteCodeTool("Access Converter", AllIcons.N
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class AccessCalculatorTableModel(accessGroup: AccessGroup, private val setResult: (String) -> Unit) :
     DefaultTableModel(

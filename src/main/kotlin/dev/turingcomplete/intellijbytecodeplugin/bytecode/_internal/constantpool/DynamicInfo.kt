@@ -5,7 +5,7 @@ import java.io.DataInputStream
 internal abstract class DynamicInfo(dataInputStream: DataInputStream, type: String)
   : ConstantPoolInfo(type, readValues(dataInputStream)) {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     fun readValues(dataInputStream: DataInputStream): List<Value> {
@@ -15,15 +15,15 @@ internal abstract class DynamicInfo(dataInputStream: DataInputStream, type: Stri
     }
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class Simple(dataInputStream: DataInputStream) : DynamicInfo(dataInputStream, "Dynamic")
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class Invoke(dataInputStream: DataInputStream) : DynamicInfo(dataInputStream, "InvokeDynamic")
 }

@@ -4,7 +4,7 @@ import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import java.io.DataInputStream
 
 internal class ConstantPool(val entries: List<ConstantPoolInfo>) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     private val MAGIC_BYTES: UInt = 3405691582.toUInt()
@@ -61,9 +61,9 @@ internal class ConstantPool(val entries: List<ConstantPoolInfo>) {
     }
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   /**
    * The constant pool starts at index one, but the underling structure used in
@@ -78,6 +78,6 @@ internal class ConstantPool(val entries: List<ConstantPoolInfo>) {
            ?: throw IllegalArgumentException("Unknown constant pool entry index: $index")
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

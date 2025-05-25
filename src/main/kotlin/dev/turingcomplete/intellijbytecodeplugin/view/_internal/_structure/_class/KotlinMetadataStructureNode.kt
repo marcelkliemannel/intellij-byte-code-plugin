@@ -10,8 +10,8 @@ import org.apache.commons.text.StringEscapeUtils
 internal class KotlinMetadataStructureNode(
   private val fieldNameToValueList: List<Pair<Any, Any?>>
 ) : TextNode("Kotlin Metadata", kotlinIcon) {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   init {
     asyncAdd(true) {
@@ -33,8 +33,8 @@ internal class KotlinMetadataStructureNode(
     }
   }
 
-  // -- Exported Methods -------------------------------------------------------------------------------------------- //
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Exported Methods ---------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun addVersionNode(preFix: String, value: Any?) {
     add(
@@ -101,8 +101,8 @@ internal class KotlinMetadataStructureNode(
     )
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
 

@@ -33,7 +33,7 @@ import java.awt.dnd.DropTarget
 import javax.swing.Icon
 
 internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     private val LOGGER = Logger.getInstance(ByteCodeToolWindowFactory::class.java)
@@ -74,9 +74,9 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
     }
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
     assert(toolWindow.id == TOOL_WINDOW_ID)
@@ -88,7 +88,7 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun ToolWindow.initDropTarget(project: Project) {
     ApplicationManager.getApplication().invokeLater {
@@ -183,7 +183,7 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class OpenClassFilesOptionsAction(project: Project, private val contentManager: ContentManager)
     : DefaultActionGroup("Open Class Files", null, AllIcons.General.Add) {
@@ -200,7 +200,7 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
     override fun getActionUpdateThread() = ActionUpdateThread.BGT
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class ReportAnIssueAction : DumbAwareAction("Report an Issue") {
 
@@ -209,7 +209,7 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class ByteCodeRelatedLinksActionsGroup : DefaultActionGroup("Byte Code Related Links", true) {
 
@@ -232,5 +232,5 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

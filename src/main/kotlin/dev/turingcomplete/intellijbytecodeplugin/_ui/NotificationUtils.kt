@@ -7,13 +7,13 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 
 internal object NotificationUtils {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val logger = Logger.getInstance(NotificationUtils::class.java)
   private const val notificationGroupId = "dev.turingcomplete.intellijbytecodeplugin.notificationGroup"
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exported Methods -------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exported Methods ---------------------------------------------------- //
 
   fun notifyInternalError(title: String, message: String, e: Throwable? = null, project: Project? = null) {
     logger.warn(message, e)
@@ -26,6 +26,6 @@ internal object NotificationUtils {
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

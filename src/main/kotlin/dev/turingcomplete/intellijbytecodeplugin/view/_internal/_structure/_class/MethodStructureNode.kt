@@ -19,7 +19,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
               rawValue = createRawValueProvider(methodNode, classNode),
               icon = createIcon(methodNode)) {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
 
@@ -36,11 +36,11 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
     }
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val sortedLocalVariables : List<LocalVariableNode>? = methodNode.localVariables?.sortedBy { it.index }
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   init {
     asyncAdd(true) {
@@ -59,11 +59,11 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
     }
   }
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun searchText(context: StructureTreeContext) = rawValue(context)
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun addReturnTypeNode() {
     val hasReturnType = methodNode.name != "<clinit>" && methodNode.name != "<init>"
@@ -170,7 +170,7 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class ShowFramesNode(private val methodFrames: List<MethodFramesUtils.MethodFrame>,
                                private val methodNode: MethodNode) : HyperLinkNode("Show frames") {

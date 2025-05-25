@@ -16,17 +16,17 @@ import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeParsingResultView
 class AsmView(classFileContext: ClassFileContext) :
   ByteCodeParsingResultView(classFileContext, "ASM", METHOD_LINE_REGEX) {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     // Example: "methodVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);"
     private val METHOD_LINE_REGEX = Regex("^.*classWriter\\.visitMethod\\(.*?,\\s\"(?<name>.+?)\".*\$")
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun asyncParseByteCode(parsingOptions: Int, onSuccess: (String) -> Unit) {
     val asmifiedText = traceVisit(classFileContext.classReader(), parsingOptions, ASMifier())
@@ -51,8 +51,8 @@ class AsmView(classFileContext: ClassFileContext) :
 
   override fun openInEditorFileName() = "${classFileContext.classFile().file.nameWithoutExtension}Dump.java"
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class MyCreator : Creator {
     override fun create(classFileContext: ClassFileContext) = AsmView(classFileContext)

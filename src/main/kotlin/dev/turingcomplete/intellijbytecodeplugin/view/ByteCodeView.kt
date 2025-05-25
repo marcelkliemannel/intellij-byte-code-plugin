@@ -10,15 +10,15 @@ import dev.turingcomplete.intellijbytecodeplugin.view._internal.ErrorStateHandle
 abstract class ByteCodeView(val classFileContext: ClassFileContext, val title: String)
   : ErrorStateHandler(), Disposable, DataProvider {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     val EP: ExtensionPointName<Creator> = ExtensionPointName.create("dev.turingcomplete.intellijbytecodeplugin.byteCodeView")
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun dispose() {
     // Override if needed
@@ -39,8 +39,8 @@ abstract class ByteCodeView(val classFileContext: ClassFileContext, val title: S
     else -> null
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   fun interface Creator {
     fun create(classFileContext: ClassFileContext): ByteCodeView

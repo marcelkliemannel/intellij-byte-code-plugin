@@ -8,9 +8,9 @@ import java.nio.file.Path
 import kotlin.io.path.relativeToOrNull
 
 sealed class ClassFileCandidates private constructor(val primaryPath: Path, private val fallbackPaths: List<Path> = emptyList()) {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exported Methods -------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exported Methods ---------------------------------------------------- //
 
   fun allPaths() = listOf(primaryPath) + fallbackPaths
 
@@ -45,7 +45,7 @@ sealed class ClassFileCandidates private constructor(val primaryPath: Path, priv
     return "ClassFileCandidates(primaryPath=$primaryPath, fallbackPaths=$fallbackPaths)"
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun formatPath(path: Path, project: Project?): String {
     val projectDir = project?.guessProjectDir()?.toNioPath()
@@ -57,17 +57,17 @@ sealed class ClassFileCandidates private constructor(val primaryPath: Path, priv
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class RelativeClassFileCandidates(primaryPath: Path, fallbackPaths: List<Path>)
     : ClassFileCandidates(primaryPath, fallbackPaths)
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class AbsoluteClassFileCandidates(primaryPath: Path, fallbackPaths: List<Path>)
     : ClassFileCandidates(primaryPath, fallbackPaths)
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
 

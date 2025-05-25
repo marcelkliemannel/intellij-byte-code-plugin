@@ -14,10 +14,10 @@ import javax.swing.Icon
 
 class OpenInEditorAction(@Nullable @NlsActions.ActionText text: String = "Open in Editor",
                          icon: Icon = AllIcons.Actions.MoveTo2) : DumbAwareAction(text, null, icon) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun update(e: AnActionEvent) {
     e.presentation.isEnabled = CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.getData(e.dataContext) != null
@@ -31,6 +31,6 @@ class OpenInEditorAction(@Nullable @NlsActions.ActionText text: String = "Open i
     FileEditorManager.getInstance(project).openEditor(OpenFileDescriptor(project, openInEditorFile), true)
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

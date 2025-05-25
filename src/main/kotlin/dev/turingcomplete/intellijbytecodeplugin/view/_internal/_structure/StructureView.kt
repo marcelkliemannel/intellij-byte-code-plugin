@@ -29,13 +29,13 @@ import javax.swing.JPanel
 internal class StructureView(classFileContext: ClassFileContext)
   : ByteCodeView(classFileContext, "Structure"), DataProvider {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val tree: StructureTree by lazy { StructureTree(classFileContext, this) }
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun createCenterComponent(): JComponent {
     return SimpleToolWindowPanel(true, false).apply {
@@ -55,7 +55,7 @@ internal class StructureView(classFileContext: ClassFileContext)
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun createToolbar(): JComponent = JPanel(GridBagLayout()).apply {
     val bag = GridBag().withCommonsDefaults().setDefaultAnchor(GridBagConstraints.WEST)
@@ -101,7 +101,7 @@ internal class StructureView(classFileContext: ClassFileContext)
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class MyCreator : Creator {
     override fun create(classFileContext: ClassFileContext) = StructureView(classFileContext)

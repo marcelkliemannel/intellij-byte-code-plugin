@@ -12,6 +12,7 @@ junit5 = "5.12.2"
 kotlin = "1.9.24"
 shadow = "8.1.1"
 version-catalog-update = "1.0.0"
+spotless = "7.0.3"
 
 [libraries]
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
@@ -51,4 +52,5 @@ changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
 intellij-platform = { id = "org.jetbrains.intellij.platform", version.ref = "intellij-platform" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 version-catalog-update = { id = "nl.littlerobots.version-catalog-update", version.ref = "version-catalog-update" }

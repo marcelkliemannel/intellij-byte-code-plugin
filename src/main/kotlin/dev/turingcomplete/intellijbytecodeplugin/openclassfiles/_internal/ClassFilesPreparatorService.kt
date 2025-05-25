@@ -25,12 +25,12 @@ import javax.swing.JComponent
 
 @Service(Service.Level.PROJECT)
 internal class ClassFilesPreparatorService(private val project: Project) {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   private val compilerManager by lazy { CompilerManager.getInstance(project) }
 
-  // -- Exported Methods -------------------------------------------------------------------------------------------- //
+  // -- Exported Methods ---------------------------------------------------- //
 
   fun prepareClassFiles(
     preparationTasks: List<ClassFilePreparationTask>,
@@ -117,15 +117,15 @@ internal class ClassFilesPreparatorService(private val project: Project) {
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   internal data class ClassFilePreparationTask(
     val compilerOutputClassFileCandidates: AbsoluteClassFileCandidates,
     val sourceFile: CompilableSourceFile
   )
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class OpenClassFilesAfterCompilationHandler(
     private val classFilesNeedingPreparation: List<ClassFilePreparationTask>,
@@ -164,7 +164,7 @@ internal class ClassFilesPreparatorService(private val project: Project) {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   internal enum class PrepareMode(
     val code: Int,
@@ -181,7 +181,7 @@ internal class ClassFilesPreparatorService(private val project: Project) {
     USE_DIRECTLY(code = 6, singularTitle = "Use file as it is", pluralTitle = "Use files as they are", icon = AllIcons.Actions.Execute)
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   internal enum class PrepareReason(
     val question: (Map<String, List<String>>) -> String,
@@ -229,7 +229,7 @@ internal class ClassFilesPreparatorService(private val project: Project) {
     )
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   internal class PrepareClassFilesOptionsDialog(
     project: Project,
@@ -306,7 +306,7 @@ internal class ClassFilesPreparatorService(private val project: Project) {
     }
   }
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
 

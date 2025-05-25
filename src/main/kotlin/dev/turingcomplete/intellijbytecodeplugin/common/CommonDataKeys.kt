@@ -16,7 +16,7 @@ import dev.turingcomplete.intellijbytecodeplugin._ui.ClassFileTab
  * globally as [GetDataRule]s.
  */
 object CommonDataKeys {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   /**
    * The data key is also hard coded for the [ClassFileContextDataRule] in the `plugin.xml`.
@@ -40,10 +40,10 @@ object CommonDataKeys {
 
   val VALUE = DataKey.create<String>("dev.turingcomplete.intellijbytecodeplugin.value")
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class ClassFileContextDataRule : GetDataRule {
 
@@ -53,7 +53,7 @@ object CommonDataKeys {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class ClassFileTabDataRule : GetDataRule {
 
@@ -63,7 +63,7 @@ object CommonDataKeys {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class OnErrorDataRule : GetDataRule {
 
@@ -73,7 +73,7 @@ object CommonDataKeys {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class OpenInEditorDataRule : GetDataRule {
 

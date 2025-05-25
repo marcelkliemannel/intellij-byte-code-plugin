@@ -3,7 +3,7 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Opcodes
 
 object ClassVersionUtils {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   val CLASS_VERSIONS = arrayOf(
     ClassVersion(Opcodes.V24.toByte(), "Java SE 24"),
@@ -34,8 +34,8 @@ object ClassVersionUtils {
 
   val MAJOR_TO_CLASS_VERSION: Map<Byte, ClassVersion> = CLASS_VERSIONS.associateBy { it.major }
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun toClassVersion(asmClassVersion: Int): ClassVersion? {
     val (major, minor) = parseMajorMinor(asmClassVersion)
@@ -47,7 +47,7 @@ object ClassVersionUtils {
     return major.toString() + (if (minor != 0.toByte()) ".$minor" else "")
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun parseMajorMinor(asmClassVersion: Int): Pair<Byte, Byte> {
     val major = (asmClassVersion and 0xFF).toByte()
@@ -55,7 +55,7 @@ object ClassVersionUtils {
     return Pair(major, minor)
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   data class ClassVersion(val major: Byte, val specification: String) {
 

@@ -12,10 +12,10 @@ import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesTo
 internal class FileChooserAction : OpenClassFilesToolWindowAction("Open Class Files...",
                                                          "Open class files...",
                                                          AllIcons.General.OpenDisk) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun execute(project: Project) {
     val descriptor = FileTypeDescriptor("Open Class Files", "class")
@@ -25,6 +25,6 @@ internal class FileChooserAction : OpenClassFilesToolWindowAction("Open Class Fi
     project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openVirtualFiles(classFilesToOpen)
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

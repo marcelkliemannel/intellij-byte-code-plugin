@@ -9,19 +9,19 @@ import javax.swing.event.HyperlinkEvent
 internal open class HyperLinkNode(private val text: String, initialHyperLinkListener: HyperLinkListener? = null)
   : StructureNode(), InteractiveNode {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val hyperLinkListeners = mutableSetOf<HyperLinkListener>()
   private var component: JComponent? = null
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   init {
     initialHyperLinkListener?.let { hyperLinkListeners.add(it) }
   }
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun component(selected: Boolean, context: StructureTreeContext, componentValid: Boolean): JComponent {
     if (component == null) {
@@ -43,8 +43,8 @@ internal open class HyperLinkNode(private val text: String, initialHyperLinkList
     hyperLinkListeners.add(hyperLinkListener)
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   fun interface HyperLinkListener {
     fun handle(event: HyperlinkEvent, context: StructureTreeContext)

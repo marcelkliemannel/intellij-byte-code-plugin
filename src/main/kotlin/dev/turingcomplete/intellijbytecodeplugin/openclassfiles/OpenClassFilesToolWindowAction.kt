@@ -11,15 +11,15 @@ import javax.swing.Icon
 abstract class OpenClassFilesToolWindowAction(@NlsActions.ActionText val actionTitle: String,
                                               @Nls(capitalization = Nls.Capitalization.Sentence) val linkTitle: String,
                                               val icon: Icon? = null) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     val EP: ExtensionPointName<OpenClassFilesToolWindowAction> = ExtensionPointName.create("dev.turingcomplete.intellijbytecodeplugin.openClassFilesAction")
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun createAsEmbeddedAction(project: Project) = object: DumbAwareAction(actionTitle, null, icon) {
     override fun actionPerformed(e: AnActionEvent) {
@@ -29,6 +29,6 @@ abstract class OpenClassFilesToolWindowAction(@NlsActions.ActionText val actionT
 
   abstract fun execute(project: Project)
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

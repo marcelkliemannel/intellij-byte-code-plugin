@@ -20,16 +20,16 @@ import javax.swing.tree.DefaultMutableTreeNode
 internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
   : DefaultMutableTreeNode(), LeafState.Supplier {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private var componentValid = false
   private var asyncAddChildrenInExecution = AtomicBoolean()
   private var asyncAddChildren: (() -> Unit)? = null
   private var willAlwaysHaveAsyncChildren = false
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun component(selected: Boolean, context: StructureTreeContext): JComponent {
     val component = component(selected, context, componentValid)
@@ -184,7 +184,7 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
     })
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun createAnnotationNode(annotation: AnnotationNode, postFix: String? = null): StructureNode {
     val values = annotation.values?.let { values ->
@@ -210,5 +210,5 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

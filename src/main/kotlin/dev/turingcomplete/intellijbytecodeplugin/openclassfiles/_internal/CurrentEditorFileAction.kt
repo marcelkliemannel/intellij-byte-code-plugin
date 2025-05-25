@@ -11,10 +11,10 @@ internal class CurrentEditorFileAction : OpenClassFilesToolWindowAction(
   "Analyze Current Editor File",
   "Analyze current editor file"
 ) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun execute(project: Project) {
     val editorPsiFiles = FileEditorManager.getInstance(project).selectedEditors.mapNotNull { editor ->
@@ -28,6 +28,6 @@ internal class CurrentEditorFileAction : OpenClassFilesToolWindowAction(
     project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openPsiFiles(editorPsiFiles)
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

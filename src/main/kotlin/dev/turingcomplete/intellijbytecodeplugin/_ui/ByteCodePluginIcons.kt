@@ -3,7 +3,7 @@ package dev.turingcomplete.intellijbytecodeplugin._ui
 import com.intellij.openapi.util.IconLoader
 
 internal object ByteCodePluginIcons {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   @Suppress("unused") // Referenced in plugin.xml
   @JvmField
@@ -13,8 +13,8 @@ internal object ByteCodePluginIcons {
 
   val VERIFY_ICON = IconLoader.getIcon("/icons/verify.svg", ByteCodePluginIcons::class.java)
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exported Methods -------------------------------------------------------------------------------------------- //
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exported Methods ---------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

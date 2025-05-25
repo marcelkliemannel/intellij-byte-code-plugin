@@ -15,10 +15,10 @@ import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassF
 
 @Service(Service.Level.PROJECT)
 class ByteCodeAnalyserOpenClassFileService(val project: Project) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun openPsiFiles(psiFiles: List<PsiFile>) {
     run { service -> service.findByPsiFiles(psiFiles) }
@@ -36,7 +36,7 @@ class ByteCodeAnalyserOpenClassFileService(val project: Project) {
     run { service -> service.findByClassFiles(classFiles) }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun run(findBy: (ClassFilesFinderService) -> Result) {
     val result = findBy(project.getService(ClassFilesFinderService::class.java))
@@ -71,6 +71,6 @@ class ByteCodeAnalyserOpenClassFileService(val project: Project) {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
 }

@@ -20,7 +20,7 @@ internal class HtmlTextNode(preFix: String? = null,
                             goToProvider: GoToProvider? = null)
   : ValueNode(preFix, displayValue, rawValue, postFix, icon, goToProvider) {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     private val contextHelpFont = JBUI.Fonts.smallFont()
@@ -29,12 +29,12 @@ internal class HtmlTextNode(preFix: String? = null,
     private val selectedCss = ".contextHelp { color: #${ColorUtil.toHex(UIUtil.getListForeground(true, true))}; margin-left: 50pt; $contextHelpFontCss }"
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private var notSelectedComponent: JComponent? = null
   private var selectedComponent: JComponent? = null
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   constructor(preFix: String? = null,
               displayValue: String,
@@ -42,7 +42,7 @@ internal class HtmlTextNode(preFix: String? = null,
               postFix: String? = null,
               icon: Icon? = null) : this(preFix, { displayValue }, { rawValue }, postFix, icon)
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun component(selected: Boolean, context: StructureTreeContext, componentValid: Boolean): JComponent {
     if (!componentValid) {
@@ -55,7 +55,7 @@ internal class HtmlTextNode(preFix: String? = null,
 
   override fun searchText(context: StructureTreeContext) = rawValue(context)
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun createComponent(css: String, context: StructureTreeContext): JComponent {
     val text = HtmlBuilder()
@@ -71,5 +71,5 @@ internal class HtmlTextNode(preFix: String? = null,
     return JBLabel(text, icon, SwingConstants.LEFT)
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

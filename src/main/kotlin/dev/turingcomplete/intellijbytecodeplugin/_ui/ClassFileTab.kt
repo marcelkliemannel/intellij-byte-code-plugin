@@ -28,19 +28,19 @@ internal class ClassFileTab(
   private var classFile: ClassFile
 ) : ErrorStateHandler(), DataProvider, DumbAware, Disposable {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     val CLASS_FILE_TAB_KEY = Key<ClassFileTab>("dev.turingcomplete.intellijbytecodeplugin.classFileTab")
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private var byteCodeViewTabs: ByteCodeViewTabs? = null
   private val centerComponentContainer = BorderLayoutPanel()
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun dispose() {
   }
@@ -82,7 +82,7 @@ internal class ClassFileTab(
     return byteCodeViewTabs!!.selectedBytecodeView().getData(dataId)
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun loadClassNodeContext(selectedByteCodeViewIndex: Int? = 0) {
     setCenter(JBLabel("Parsing '${classFile.file.nameWithoutExtension}'...", AnimatedIcon.Default(), SwingConstants.CENTER))
@@ -132,7 +132,7 @@ internal class ClassFileTab(
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class ByteCodeViewTabs(classFileContext: ClassFileContext, parentDisposable: Disposable)
     : TabbedPaneWrapper(parentDisposable) {

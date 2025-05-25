@@ -10,12 +10,12 @@ import java.nio.file.Path
 import java.util.concurrent.Callable
 
 internal object AsyncUtils {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val log = Logger.getInstance(AsyncUtils::class.java)
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun runAsync(project: Project?, execute: Runnable, onError: (Throwable) -> Unit) =
     runAsync(project, { execute.run(); null }, {}, onError)
@@ -43,7 +43,7 @@ internal object AsyncUtils {
     browseAsync(project, { BrowserUtil.browse(path) }, path.toString())
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun browseAsync(project: Project?, runnable: Runnable, target: String) {
     runAsync(project, runnable) { e ->
@@ -54,5 +54,5 @@ internal object AsyncUtils {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

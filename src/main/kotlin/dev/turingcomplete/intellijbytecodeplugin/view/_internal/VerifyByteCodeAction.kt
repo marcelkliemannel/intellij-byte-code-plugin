@@ -35,10 +35,10 @@ import javax.swing.SwingConstants
 @Suppress("ComponentNotRegistered")
 internal class VerifyByteCodeAction : ByteCodeAction("Verify Byte Code", null, ByteCodePluginIcons.VERIFY_ICON) {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun actionPerformed(e: AnActionEvent) {
     val classFileContext = DataProviderUtils.getData(CommonDataKeys.CLASS_FILE_CONTEXT_DATA_KEY, e.dataContext)
@@ -62,8 +62,8 @@ internal class VerifyByteCodeAction : ByteCodeAction("Verify Byte Code", null, B
     }, { cause -> onError("Failed execute byte code verification", cause) })
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class VerifyByteCodeResultPanel(result: ClassFileContext.VerificationResult) : JPanel(GridBagLayout()) {
     init {

@@ -14,17 +14,17 @@ internal open class ValueNode(protected val preFix: String? = null,
                               protected val icon: Icon? = null,
                               goToProvider: GoToProvider? = null) : StructureNode(goToProvider) {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private var component: JComponent? = null
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   constructor(preFix: String? = null, displayValue: String, rawValue: String = displayValue, postFix: String? = null, icon: Icon? = null)
           : this(preFix, { displayValue }, { rawValue }, postFix, icon)
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun component(selected: Boolean, context: StructureTreeContext, componentValid: Boolean): JComponent {
     if (!componentValid) {
@@ -41,6 +41,6 @@ internal open class ValueNode(protected val preFix: String? = null,
 
   override fun searchText(context: StructureTreeContext): String = rawValue(context)
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

@@ -12,9 +12,9 @@ import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeParsingResultView
 internal class DecompiledView(classFileContext: ClassFileContext)
   : ByteCodeParsingResultView(classFileContext, "Decompiled", parsingOptionsAvailable = false) {
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun asyncParseByteCode(parsingOptions: Int, onSuccess: (String) -> Unit) {
     val classFile = classFileContext.classFile()
@@ -53,12 +53,12 @@ internal class DecompiledView(classFileContext: ClassFileContext)
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class MyCreator : Creator {
     override fun create(classFileContext: ClassFileContext) = DecompiledView(classFileContext)
   }
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 }

@@ -3,9 +3,9 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
 
 object TypeUtils {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun toReadableName(internalName: String, renderMode: TypeNameRenderMode): String {
     return when(renderMode) {
@@ -38,8 +38,8 @@ object TypeUtils {
     }
   }
   
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   enum class TypeNameRenderMode(val title: String) {
     INTERNAL("Internal Name"),

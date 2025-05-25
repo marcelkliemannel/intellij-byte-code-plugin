@@ -14,20 +14,20 @@ internal class DefaultClassFileContext(
   private val workAsync: Boolean
 ) : ClassFileContext {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     const val ASM_API: Int = Opcodes.ASM9
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val classReader: ClassReader = ClassReader(classFile.file.inputStream)
   private val classNode: ClassNode = readClassNode()
   private val relatedClassFiles: List<VirtualFile> = findRelatedClassFiles()
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun workAsync(): Boolean = workAsync
 
@@ -41,7 +41,7 @@ internal class DefaultClassFileContext(
   
   override fun relatedClassFiles(): List<VirtualFile> = relatedClassFiles
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun readClassNode() = ClassNode(ASM_API).apply {
     classReader.accept(this, ClassReader.EXPAND_FRAMES)
@@ -59,5 +59,5 @@ internal class DefaultClassFileContext(
       .filter { it.extension == "class" && (it.name == "$rootClassFileName.class" || it.name.startsWith(rootClassFileNamePrefix)) }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

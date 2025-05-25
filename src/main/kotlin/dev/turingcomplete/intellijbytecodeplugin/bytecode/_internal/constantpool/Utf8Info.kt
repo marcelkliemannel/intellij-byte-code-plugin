@@ -3,7 +3,7 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode._internal.constantpoo
 import java.io.DataInputStream
 
 internal class Utf8Info(dataInputStream: DataInputStream) : ConstantPoolInfo("Utf8", readValues(dataInputStream)) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     fun readValues(dataInputStream: DataInputStream): List<Value> {
@@ -11,9 +11,9 @@ internal class Utf8Info(dataInputStream: DataInputStream) : ConstantPoolInfo("Ut
     }
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

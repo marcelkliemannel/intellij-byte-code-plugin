@@ -18,10 +18,10 @@ import javax.swing.JComponent
 import javax.swing.TransferHandler
 
 internal class FilesDropHandler(private val project: Project) : TransferHandler(), EditorDropHandler, DropTargetListener {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun canImport(comp: JComponent?, transferFlavors: Array<out DataFlavor>?): Boolean {
     return canHandleDrop0(transferFlavors)
@@ -60,7 +60,7 @@ internal class FilesDropHandler(private val project: Project) : TransferHandler(
     // Nothing to do
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun canHandleDrop0(transferFlavors: Array<out DataFlavor>?): Boolean {
     return transferFlavors != null && FileCopyPasteUtil.isFileListFlavorAvailable(transferFlavors)
@@ -103,5 +103,5 @@ internal class FilesDropHandler(private val project: Project) : TransferHandler(
     return false
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

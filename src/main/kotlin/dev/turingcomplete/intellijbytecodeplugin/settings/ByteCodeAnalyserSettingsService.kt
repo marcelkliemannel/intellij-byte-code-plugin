@@ -12,7 +12,7 @@ import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils.TypeNameRend
 
 @State(name = "ByteCodeAnalyserSettingsService", storages = [Storage("byte-code-analyser.xml")])
 internal class ByteCodeAnalyserSettingsService : PersistentStateComponent<ByteCodeAnalyserSettingsService.State> {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   var typeNameRenderMode by AtomicProperty(DEFAULT_TYPE_NAME_RENDER_MODE)
   var methodDescriptorRenderMode by AtomicProperty(DEFAULT_METHOD_DESCRIPTOR_RENDER_MODE)
@@ -21,8 +21,8 @@ internal class ByteCodeAnalyserSettingsService : PersistentStateComponent<ByteCo
   var skipCode by AtomicBooleanProperty(DEFAULT_SKIP_CODE)
   var skipFrame by AtomicBooleanProperty(DEFAULT_SKIP_FRAME)
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun getState() = State(
     typeNameRenderMode = typeNameRenderMode.name,
@@ -42,8 +42,8 @@ internal class ByteCodeAnalyserSettingsService : PersistentStateComponent<ByteCo
     skipFrame = state.skipFrame ?: DEFAULT_SKIP_FRAME
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   data class State(
     @get:Attribute("typeNameRenderMode")
@@ -60,7 +60,7 @@ internal class ByteCodeAnalyserSettingsService : PersistentStateComponent<ByteCo
     var skipFrame: Boolean? = null,
   )
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
 

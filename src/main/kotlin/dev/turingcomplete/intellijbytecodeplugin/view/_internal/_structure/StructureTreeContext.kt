@@ -7,8 +7,8 @@ import dev.turingcomplete.intellijbytecodeplugin.settings.ByteCodeAnalyserSettin
 import kotlin.properties.Delegates
 
 internal class StructureTreeContext(val project: Project, private val syncStructure: () -> Unit) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   var typeNameRenderMode: TypeNameRenderMode by Delegates.observable(ByteCodeAnalyserSettingsService.instance.typeNameRenderMode) { _, old, new ->
     ByteCodeAnalyserSettingsService.instance.typeNameRenderMode = new
@@ -23,9 +23,9 @@ internal class StructureTreeContext(val project: Project, private val syncStruct
     syncStructure(new, old)
   }
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun <T> syncStructure(new: T, old: T) {
     if (new != old) {
@@ -33,5 +33,5 @@ internal class StructureTreeContext(val project: Project, private val syncStruct
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

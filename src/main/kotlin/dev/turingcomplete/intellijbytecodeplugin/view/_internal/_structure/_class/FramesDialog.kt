@@ -15,9 +15,9 @@ class FramesDialog(methodNode: MethodNode,
                    private val methodFrames: List<MethodFramesUtils.MethodFrame>,
                    project: Project?) : DialogWrapper(project) {
 
-// -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+// -- Companion Object ------------------------------------------------------ //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   init {
     this.title = "Frames of Method '${methodNode.name}'"
@@ -26,7 +26,7 @@ class FramesDialog(methodNode: MethodNode,
     init()
   }
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun createCenterPanel(): JComponent {
     return BorderLayoutPanel().apply {
@@ -38,6 +38,6 @@ class FramesDialog(methodNode: MethodNode,
 
   override fun createActions() = arrayOf(myOKAction)
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

@@ -34,7 +34,7 @@ import javax.swing.table.TableCellRenderer
 import javax.swing.table.TableRowSorter
 
 class InstructionsOverviewTool : ByteCodeTool("Instructions Overview") {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
 
@@ -43,9 +43,9 @@ class InstructionsOverviewTool : ByteCodeTool("Instructions Overview") {
     private val OPCODE_COMPARATOR = Comparator<String> { a, b -> a.toInt().compareTo(b.toInt()) }
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun execute(project: Project?) {
     if (project?.isDisposed == true) {
@@ -66,8 +66,8 @@ class InstructionsOverviewTool : ByteCodeTool("Instructions Overview") {
     }, Dimension(800, 500), project, IdeModalityType.MODELESS)
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class InstructionsTable : JBTable(InstructionsTableModel()), DataProvider {
 
@@ -115,7 +115,7 @@ class InstructionsOverviewTool : ByteCodeTool("Instructions Overview") {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class InstructionsTableModel : DefaultTableModel() {
 

@@ -22,8 +22,8 @@ import javax.swing.table.TableCellRenderer
 import kotlin.properties.Delegates
 
 internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTable(), DataProvider {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   var resolveIndices: Boolean by Delegates.observable(false) { _, old, new ->
     if (old != new) {
@@ -32,7 +32,7 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
     }
   }
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   init {
     model = MyTableModel()
@@ -78,7 +78,7 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
     installSearchHandler()
   }
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun getData(dataId: String): Any? {
     return when {
@@ -87,7 +87,7 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun installSearchHandler() {
     val cellValueToSearchString: (Any) -> String? = { cellValue ->
@@ -114,7 +114,7 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private inner class MyTableModel : DefaultTableModel() {
 
@@ -141,7 +141,7 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
     override fun isCellEditable(row: Int, column: Int) = false
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private inner class ConstantPoolInfoValueTableCellRenderer : JBLabel(), TableCellRenderer {
 
@@ -153,7 +153,7 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class GoToIndexAction(private val index: Int, private val selectTableRow: (Int) -> Unit)
     : DumbAwareAction("Go To Index $index") {

@@ -36,20 +36,20 @@ import kotlin.reflect.KProperty
 
 class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, methodFrames: List<MethodFramesUtils.MethodFrame>)
   : SimpleToolWindowPanel(false, true), DataProvider {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val stacksAndLocalsModel = FramesModel(initialTypeNameRenderMode, methodFrames)
   private val table: JBTable = createFramesTable()
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   init {
     toolbar = createToolbar(this)
     setContent(ScrollPaneFactory.createScrollPane(table, true))
   }
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun getData(dataId: String): Any? {
     return when {
@@ -58,7 +58,7 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun createToolbar(targetComponent: JComponent): JComponent {
     val toolbarGroup = DefaultActionGroup(
@@ -115,7 +115,7 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class FramesModel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode,
                             private val frames: List<MethodFramesUtils.MethodFrame>) : AbstractTableModel() {
@@ -185,7 +185,7 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class FramesCellRenderer : JBLabel(), TableCellRenderer {
 

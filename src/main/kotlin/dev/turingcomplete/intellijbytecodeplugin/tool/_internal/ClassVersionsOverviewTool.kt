@@ -18,10 +18,10 @@ import javax.swing.table.DefaultTableModel
 import javax.swing.table.TableModel
 
 class ClassVersionsOverviewTool : ByteCodeTool("Class Versions Overview") {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun execute(project: Project?) {
     if (project?.isDisposed == true) {
@@ -38,8 +38,8 @@ class ClassVersionsOverviewTool : ByteCodeTool("Class Versions Overview") {
     }, Dimension(400, 500), project, IdeModalityType.MODELESS)
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class ClassVersionsTable(tableModel: TableModel): JBTable(tableModel), DataProvider {
 

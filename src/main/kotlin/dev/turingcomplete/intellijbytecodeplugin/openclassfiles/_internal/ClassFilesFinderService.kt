@@ -49,7 +49,7 @@ import java.nio.file.Paths
 
 @Service(Service.Level.PROJECT)
 internal class ClassFilesFinderService(private val project: Project) {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val projectFileIndex by lazy { ProjectFileIndex.getInstance(project) }
   private val classNameProvider by lazy {
@@ -60,8 +60,8 @@ internal class ClassFilesFinderService(private val project: Project) {
     )
   }
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun findByVirtualFiles(virtualFiles: List<VirtualFile>): Result {
     return virtualFiles.mapNotNull { virtualFile ->
@@ -155,7 +155,7 @@ internal class ClassFilesFinderService(private val project: Project) {
     }.reduce()
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun findByPsiElements(psiElement: PsiElement, workingFile: WorkingFile): Result {
     if (DumbService.isDumb(project)) {
@@ -499,7 +499,7 @@ internal class ClassFilesFinderService(private val project: Project) {
   }
 
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class WorkingFile(val psiFile: PsiFile, val virtualFile: VirtualFile, val isClassFile: Boolean) {
 
@@ -514,7 +514,7 @@ internal class ClassFilesFinderService(private val project: Project) {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   data class Result(
     val classFilesToOpen: MutableList<ClassFile> = mutableListOf(),
@@ -554,7 +554,7 @@ internal class ClassFilesFinderService(private val project: Project) {
     }
   }
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
 

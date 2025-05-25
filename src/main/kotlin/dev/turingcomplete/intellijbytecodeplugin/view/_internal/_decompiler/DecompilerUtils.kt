@@ -7,12 +7,12 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.compiled.ClassFileDecompilers
 
 object DecompilerUtils {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private const val IDEA_DECOMPILER_FQ_CLASS_NAME = "org.jetbrains.java.decompiler.IdeaDecompiler"
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exported Methods -------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exported Methods ---------------------------------------------------- //
 
   fun decompile(classFile: VirtualFile, project: Project): String? {
     val decompilers = findDecompilersForFile(classFile)
@@ -44,7 +44,7 @@ object DecompilerUtils {
     return decompilers
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun decompileClassFile(
     classFile: VirtualFile,
@@ -69,5 +69,5 @@ object DecompilerUtils {
     return null
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

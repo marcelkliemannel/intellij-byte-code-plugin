@@ -11,7 +11,7 @@ import javax.swing.Icon
 abstract class ByteCodeAction(@NlsActions.ActionText text : String?,
                               @NlsActions.ActionDescription description : String?,
                               icon : Icon?) : DumbAwareAction(text, description, icon) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     val EP: ExtensionPointName<ByteCodeAction> = ExtensionPointName.create("dev.turingcomplete.intellijbytecodeplugin.byteCodeAction")
@@ -23,9 +23,9 @@ abstract class ByteCodeAction(@NlsActions.ActionText text : String?,
     }
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

@@ -6,10 +6,10 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.ClassReader
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.ClassNode
 
 interface ClassFileContext {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   /**
    * Working in a synchronous way is for testing.
@@ -26,8 +26,8 @@ interface ClassFileContext {
 
   fun relatedClassFiles(): List<VirtualFile>
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class VerificationResult(val success: Boolean, val output: String)
 }
