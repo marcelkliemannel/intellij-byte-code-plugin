@@ -1,5 +1,17 @@
 # Changelog
 
+## 4.3.0-dev
+
+### Added
+
+- Support for Java 25
+
+### Changed
+
+### Removed
+
+### Fixed
+
 ## Unreleased
 
 ### Added
