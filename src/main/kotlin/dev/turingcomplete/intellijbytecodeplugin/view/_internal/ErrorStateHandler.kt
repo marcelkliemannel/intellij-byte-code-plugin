@@ -30,20 +30,20 @@ import javax.swing.JTextArea
 import javax.swing.SwingConstants
 
 abstract class ErrorStateHandler {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     private val LOG = Logger.getInstance(ErrorStateHandler::class.java)
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val inErrorState = AtomicBoolean()
   private val componentContainer = BorderLayoutPanel()
   private var centerComponent: JComponent? = null
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun createComponent(selected: Boolean = false): JComponent {
     if (selected) {
@@ -69,8 +69,7 @@ abstract class ErrorStateHandler {
 
           if (centerComponent == null) {
             initComponent()
-          }
-          else {
+          } else {
             addToCenter(centerComponent!!)
           }
 
@@ -93,10 +92,11 @@ abstract class ErrorStateHandler {
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
-  private class ErrorStatePanel(message: String, cause: Throwable?, retry: () -> Unit) : JPanel(GridBagLayout()) {
+  private class ErrorStatePanel(message: String, cause: Throwable?, retry: () -> Unit) :
+    JPanel(GridBagLayout()) {
 
     init {
       border = JBEmptyBorder(UIUtil.getRegularPanelInsets())
@@ -106,45 +106,69 @@ abstract class ErrorStateHandler {
       val box = Box(BoxLayout.Y_AXIS)
       box.add(Box.createVerticalGlue())
       // Error
-      val errorText = if (cause?.message != null) "<b>$message:<br />${cause.message}</b>" else "<b>$message.</b>"
-      box.add(JBLabel("<html>${errorText}</html>", AllIcons.General.BalloonError, SwingConstants.CENTER).apply {
-        alignmentX = Component.CENTER_ALIGNMENT
-      })
+      val errorText =
+        if (cause?.message != null) "<b>$message:<br />${cause.message}</b>" else "<b>$message.</b>"
+      box.add(
+        JBLabel("<html>${errorText}</html>", AllIcons.General.BalloonError, SwingConstants.CENTER)
+          .apply { alignmentX = Component.CENTER_ALIGNMENT }
+      )
 
       box.add(Box.createVerticalStrut(UIUtil.DEFAULT_HGAP))
 
       // Retry
-      box.add(JButton().apply {
-        action = object : AbstractAction("Retry", AllIcons.Actions.Refresh) {
-          override fun actionPerformed(e: ActionEvent?) {
-            retry()
-          }
+      box.add(
+        JButton().apply {
+          action =
+            object : AbstractAction("Retry", AllIcons.Actions.Refresh) {
+              override fun actionPerformed(e: ActionEvent?) {
+                retry()
+              }
+            }
+          alignmentX = Component.CENTER_ALIGNMENT
+          requestFocusInWindow()
         }
-        alignmentX = Component.CENTER_ALIGNMENT
-        requestFocusInWindow()
-      })
+      )
       box.add(Box.createVerticalGlue())
       add(box, bag.nextLine().next().weightx(1.0).weighty(1.0).fillCell())
 
       // Stack trace
       if (cause != null) {
-        add(JButton().apply {
-          action = object : AbstractAction("Show stack trace...") {
-            override fun actionPerformed(e: ActionEvent?) {
-              val errorStackTraceTextArea = JBScrollPane(JTextArea(cause.getThrowableText()).apply { isEditable = false }).apply {
-                putClientProperty(UIUtil.KEEP_BORDER_SIDES, SideBorder.ALL)
-              }
+        add(
+          JButton().apply {
+            action =
+              object : AbstractAction("Show stack trace...") {
+                override fun actionPerformed(e: ActionEvent?) {
+                  val errorStackTraceTextArea =
+                    JBScrollPane(JTextArea(cause.getThrowableText()).apply { isEditable = false })
+                      .apply { putClientProperty(UIUtil.KEEP_BORDER_SIDES, SideBorder.ALL) }
 
-              UiUtils.Dialog.show("Error Stack Trace", errorStackTraceTextArea, Dimension(600, 500), null)
-            }
-          }
-        }, bag.nextLine().next().overrideTopInset(UIUtil.LARGE_VGAP))
+                  UiUtils.Dialog.show(
+                    "Error Stack Trace",
+                    errorStackTraceTextArea,
+                    Dimension(600, 500),
+                    null,
+                  )
+                }
+              }
+          },
+          bag.nextLine().next().overrideTopInset(UIUtil.LARGE_VGAP),
+        )
       }
 
       // Hint
-      add(JBLabel("<html>Please create a bug for the $PLUGIN_NAME plugin if this error should not occur.</html>",
-                  AllIcons.General.BalloonInformation, SwingConstants.LEFT),
-          bag.nextLine().next().weightx(1.0).fillCellHorizontally().overrideTopInset(UIUtil.DEFAULT_VGAP))
+      add(
+        JBLabel(
+          "<html>Please create a bug for the $PLUGIN_NAME plugin if this error should not occur.</html>",
+          AllIcons.General.BalloonInformation,
+          SwingConstants.LEFT,
+        ),
+        bag
+          .nextLine()
+          .next()
+          .weightx(1.0)
+          .fillCellHorizontally()
+          .overrideTopInset(UIUtil.DEFAULT_VGAP),
+      )
     }
   }
 }

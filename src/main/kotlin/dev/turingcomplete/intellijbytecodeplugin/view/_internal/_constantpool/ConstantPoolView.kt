@@ -22,17 +22,17 @@ import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeView
 import javax.swing.JComponent
 import javax.swing.SwingConstants
 
-class ConstantPoolView(classFileContext: ClassFileContext)
-  : ByteCodeView(classFileContext, "Constant Pool"), DataProvider {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+class ConstantPoolView(classFileContext: ClassFileContext) :
+  ByteCodeView(classFileContext, "Constant Pool"), DataProvider {
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
-  private val centerComponent : SimpleToolWindowPanel by lazy { SimpleToolWindowPanel(true, false) }
+  private val centerComponent: SimpleToolWindowPanel by lazy { SimpleToolWindowPanel(true, false) }
 
   private var constantPoolTable: ConstantPoolTable? = null
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun createCenterComponent(): JComponent {
     return centerComponent.apply {
@@ -48,7 +48,9 @@ class ConstantPoolView(classFileContext: ClassFileContext)
 
   private fun asyncReadConstantPool() {
     constantPoolTable = null
-    centerComponent. setContent(JBLabel("Parsing constant pool...", AnimatedIcon.Default(), SwingConstants.CENTER))
+    centerComponent.setContent(
+      JBLabel("Parsing constant pool...", AnimatedIcon.Default(), SwingConstants.CENTER)
+    )
 
     val onSuccess: (ConstantPool) -> Unit = { constantPool ->
       ApplicationManager.getApplication().invokeLater {
@@ -56,34 +58,51 @@ class ConstantPoolView(classFileContext: ClassFileContext)
         centerComponent.setContent(ScrollPaneFactory.createScrollPane(constantPoolTable, true))
       }
     }
-    AsyncUtils.runAsync(classFileContext.project(), { ConstantPool.create(classFileContext.classFile()) },
-                        onSuccess, { cause -> onError("Failed to parse constant pool", cause) })
+    AsyncUtils.runAsync(
+      classFileContext.project(),
+      { ConstantPool.create(classFileContext.classFile()) },
+      onSuccess,
+      { cause -> onError("Failed to parse constant pool", cause) },
+    )
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun createToolbar(targetComponent: JComponent): JComponent {
-    val toolbarGroup = DefaultActionGroup().apply {
-      addAllByteCodeActions()
+    val toolbarGroup =
+      DefaultActionGroup().apply {
+        addAllByteCodeActions()
 
-      addSeparator()
+        addSeparator()
 
-      add(createResolveIndicesAction())
-    }
-    return ActionManager.getInstance().createActionToolbar("${ByteCodeToolWindowFactory.TOOLBAR_PLACE_PREFIX}.constantPoolView", toolbarGroup, true).run {
-      setTargetComponent(targetComponent)
-      component
-    }
+        add(createResolveIndicesAction())
+      }
+    return ActionManager.getInstance()
+      .createActionToolbar(
+        "${ByteCodeToolWindowFactory.TOOLBAR_PLACE_PREFIX}.constantPoolView",
+        toolbarGroup,
+        true,
+      )
+      .run {
+        setTargetComponent(targetComponent)
+        component
+      }
   }
 
   private fun createResolveIndicesAction(): ToggleAction {
-    return object : DumbAwareToggleAction("Resolve Referenced Indices in Values", null, AllIcons.Diff.MagicResolveToolbar) {
+    return object :
+      DumbAwareToggleAction(
+        "Resolve Referenced Indices in Values",
+        null,
+        AllIcons.Diff.MagicResolveToolbar,
+      ) {
 
       override fun update(e: AnActionEvent) {
         e.presentation.isEnabled = constantPoolTable != null
       }
 
-      override fun isSelected(e: AnActionEvent): Boolean = constantPoolTable?.resolveIndices ?: false
+      override fun isSelected(e: AnActionEvent): Boolean =
+        constantPoolTable?.resolveIndices ?: false
 
       override fun setSelected(e: AnActionEvent, state: Boolean) {
         constantPoolTable?.let { it.resolveIndices = state }
@@ -93,7 +112,7 @@ class ConstantPoolView(classFileContext: ClassFileContext)
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class MyCreator : Creator {
     override fun create(classFileContext: ClassFileContext) = ConstantPoolView(classFileContext)

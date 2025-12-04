@@ -10,14 +10,16 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.MethodNo
 import javax.swing.BorderFactory
 import javax.swing.JComponent
 
-class FramesDialog(methodNode: MethodNode,
-                   private val initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode,
-                   private val methodFrames: List<MethodFramesUtils.MethodFrame>,
-                   project: Project?) : DialogWrapper(project) {
+class FramesDialog(
+  methodNode: MethodNode,
+  private val initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode,
+  private val methodFrames: List<MethodFramesUtils.MethodFrame>,
+  project: Project?,
+) : DialogWrapper(project) {
 
-// -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Companion Object ------------------------------------------------------ //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   init {
     this.title = "Frames of Method '${methodNode.name}'"
@@ -26,18 +28,20 @@ class FramesDialog(methodNode: MethodNode,
     init()
   }
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun createCenterPanel(): JComponent {
     return BorderLayoutPanel().apply {
-      addToCenter(FramesPanel(initialTypeNameRenderMode, methodFrames).apply {
-        border = BorderFactory.createLineBorder(JBColor.border())
-      })
+      addToCenter(
+        FramesPanel(initialTypeNameRenderMode, methodFrames).apply {
+          border = BorderFactory.createLineBorder(JBColor.border())
+        }
+      )
     }
   }
 
   override fun createActions() = arrayOf(myOKAction)
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

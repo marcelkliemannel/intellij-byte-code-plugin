@@ -9,18 +9,20 @@ import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common.ValueNode
+import javax.swing.tree.TreeNode
 import junit.framework.AssertionFailedError
 import org.junit.Test
 import org.junit.runner.RunWith
-import javax.swing.tree.TreeNode
 
 /**
- * This test tries to parse all classes from the `java.base` module and from the
- * `kotlin-stdlib` into a [StructureTree].
+ * This test tries to parse all classes from the `java.base` module and from the `kotlin-stdlib`
+ * into a [StructureTree].
  */
 @RunWith(org.junit.runners.Parameterized::class)
-class StructureTreeTest(@Suppress("unused") testName: String, classFilePath: String)  : ClassFileConsumerTestCase(classFilePath) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+class StructureTreeTest(@Suppress("unused") testName: String, classFilePath: String) :
+  ClassFileConsumerTestCase(classFilePath) {
+  // -- Companion Object
+  // -------------------------------------------------------------------------------------------- //
 
   companion object {
     @org.junit.runners.Parameterized.Parameters(name = "{0}")
@@ -28,12 +30,17 @@ class StructureTreeTest(@Suppress("unused") testName: String, classFilePath: Str
     fun data(): List<Array<String>> = testData()
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties
+  // -------------------------------------------------------------------------------------------------- //
 
   private val structureTreeContextPermutations = mutableListOf<StructureTreeContext>()
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization
+  // ----------------------------------------------------------------------------------------------
+  // //
+  // -- Exposed Methods
+  // ---------------------------------------------------------------------------------------------
+  // //
 
   override fun setUp() {
     super.setUp()
@@ -44,20 +51,25 @@ class StructureTreeTest(@Suppress("unused") testName: String, classFilePath: Str
     val defaultStructureTreeContext = StructureTreeContext(project) {}
     structureTreeContextPermutations.add(defaultStructureTreeContext)
     TypeUtils.TypeNameRenderMode.values()
-            .filter { defaultStructureTreeContext.typeNameRenderMode != it }
-            .forEach {
-              structureTreeContextPermutations.add(StructureTreeContext(project) {}.apply { typeNameRenderMode = it })
-            }
+      .filter { defaultStructureTreeContext.typeNameRenderMode != it }
+      .forEach {
+        structureTreeContextPermutations.add(
+          StructureTreeContext(project) {}.apply { typeNameRenderMode = it }
+        )
+      }
     MethodDeclarationUtils.MethodDescriptorRenderMode.values()
-            .filter { defaultStructureTreeContext.methodDescriptorRenderMode != it }
-            .forEach {
-              structureTreeContextPermutations.add(StructureTreeContext(project) {}.apply { methodDescriptorRenderMode = it })
-            }
+      .filter { defaultStructureTreeContext.methodDescriptorRenderMode != it }
+      .forEach {
+        structureTreeContextPermutations.add(
+          StructureTreeContext(project) {}.apply { methodDescriptorRenderMode = it }
+        )
+      }
   }
 
   @Test
   fun testFullStructureTreeCreation() {
-    val classFileContext = DefaultClassFileContext(project, ClassFile(classFileAsVirtualFile, null), false)
+    val classFileContext =
+      DefaultClassFileContext(project, ClassFile(classFileAsVirtualFile, null), false)
     val tree = StructureTree(classFileContext, testRootDisposable)
     loadAllChildren(tree, tree.getChildren())
   }
@@ -75,9 +87,7 @@ class StructureTreeTest(@Suppress("unused") testName: String, classFilePath: Str
     } ?: throw AssertionFailedError("Children not loaded.")
   }
 
-  /**
-   * Test generation of the ValueNode values.
-   */
+  /** Test generation of the ValueNode values. */
   private fun testValueNode(valueNode: ValueNode) {
     structureTreeContextPermutations.forEach { structureTreeContext ->
       valueNode.displayValue(structureTreeContext)
@@ -85,6 +95,9 @@ class StructureTreeTest(@Suppress("unused") testName: String, classFilePath: Str
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods
+  // ---------------------------------------------------------------------------------------------
+  // //
+  // -- Inner Type
+  // -------------------------------------------------------------------------------------------------- //
 }

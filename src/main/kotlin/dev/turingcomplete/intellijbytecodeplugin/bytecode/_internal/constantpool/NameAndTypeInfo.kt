@@ -2,21 +2,23 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode._internal.constantpoo
 
 import java.io.DataInputStream
 
-internal class NameAndTypeInfo(dataInputStream: DataInputStream)
-  : ConstantPoolInfo("NameAndType", readValues(dataInputStream)) {
+internal class NameAndTypeInfo(dataInputStream: DataInputStream) :
+  ConstantPoolInfo("NameAndType", readValues(dataInputStream)) {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     fun readValues(dataInputStream: DataInputStream): List<Value> {
-      return listOf(ResolvableIndexValue("name", dataInputStream.readUnsignedShort()),
-                    ResolvableIndexValue("descriptor", dataInputStream.readUnsignedShort()))
+      return listOf(
+        ResolvableIndexValue("name", dataInputStream.readUnsignedShort()),
+        ResolvableIndexValue("descriptor", dataInputStream.readUnsignedShort()),
+      )
     }
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

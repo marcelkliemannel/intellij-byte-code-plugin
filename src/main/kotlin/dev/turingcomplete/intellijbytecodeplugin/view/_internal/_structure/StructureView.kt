@@ -26,16 +26,16 @@ import java.awt.GridBagLayout
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-internal class StructureView(classFileContext: ClassFileContext)
-  : ByteCodeView(classFileContext, "Structure"), DataProvider {
+internal class StructureView(classFileContext: ClassFileContext) :
+  ByteCodeView(classFileContext, "Structure"), DataProvider {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val tree: StructureTree by lazy { StructureTree(classFileContext, this) }
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun createCenterComponent(): JComponent {
     return SimpleToolWindowPanel(true, false).apply {
@@ -55,33 +55,45 @@ internal class StructureView(classFileContext: ClassFileContext)
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
-  private fun createToolbar(): JComponent = JPanel(GridBagLayout()).apply {
-    val bag = GridBag().withCommonsDefaults().setDefaultAnchor(GridBagConstraints.WEST)
-    add(createToolbarActionsComponent(this), bag.nextLine().next().fillCellHorizontally().weightx(1.0))
+  private fun createToolbar(): JComponent =
+    JPanel(GridBagLayout()).apply {
+      val bag = GridBag().withCommonsDefaults().setDefaultAnchor(GridBagConstraints.WEST)
+      add(
+        createToolbarActionsComponent(this),
+        bag.nextLine().next().fillCellHorizontally().weightx(1.0),
+      )
 
-    createOpenNestedClassLink()?.let {
-      add(it, bag.next().fillCellHorizontally().overrideLeftInset(2).overrideLeftInset(2))
+      createOpenNestedClassLink()?.let {
+        add(it, bag.next().fillCellHorizontally().overrideLeftInset(2).overrideLeftInset(2))
+      }
     }
-  }
 
   private fun createToolbarActionsComponent(targetComponent: JComponent): JComponent {
-    val toolbarGroup = DefaultActionGroup().apply {
-      addAllByteCodeActions()
+    val toolbarGroup =
+      DefaultActionGroup().apply {
+        addAllByteCodeActions()
 
-      addSeparator()
+        addSeparator()
 
-      addAll(tree.createToolBarActions())
-    }
-    return ActionManager.getInstance().createActionToolbar("${ByteCodeToolWindowFactory.TOOLBAR_PLACE_PREFIX}.structureView", toolbarGroup, true).run {
-      setTargetComponent(targetComponent)
-      component
-    }
+        addAll(tree.createToolBarActions())
+      }
+    return ActionManager.getInstance()
+      .createActionToolbar(
+        "${ByteCodeToolWindowFactory.TOOLBAR_PLACE_PREFIX}.structureView",
+        toolbarGroup,
+        true,
+      )
+      .run {
+        setTargetComponent(targetComponent)
+        component
+      }
   }
 
   private fun createOpenNestedClassLink(): JComponent? {
-    val relatedClassFilesToTitle = classFileContext.relatedClassFiles().map { it to it.nameWithoutExtension }
+    val relatedClassFilesToTitle =
+      classFileContext.relatedClassFiles().map { it to it.nameWithoutExtension }
     if (relatedClassFilesToTitle.size <= 1) {
       return null
     }
@@ -89,19 +101,24 @@ internal class StructureView(classFileContext: ClassFileContext)
     val createPopUp: (DropDownLink<Pair<VirtualFile?, String>>) -> JBPopup = {
       JBPopupFactory.getInstance()
         .createPopupChooserBuilder(relatedClassFilesToTitle)
-        .setRenderer(SimpleListCellRenderer { it.asSafely<Pair<VirtualFile?, String>>()?.second ?: "" })
+        .setRenderer(
+          SimpleListCellRenderer { it.asSafely<Pair<VirtualFile?, String>>()?.second ?: "" }
+        )
         .setItemChosenCallback {
-          classFileContext.project().getService(ByteCodeAnalyserOpenClassFileService::class.java)
+          classFileContext
+            .project()
+            .getService(ByteCodeAnalyserOpenClassFileService::class.java)
             .openClassFiles(listOf(ClassFile(it.first, classFileContext.classFile().sourceFile)))
         }
         .createPopup()
     }
-    return object : DropDownLink<Pair<VirtualFile?, String>>(Pair(null, "Open related class file"), createPopUp) {
+    return object :
+      DropDownLink<Pair<VirtualFile?, String>>(Pair(null, "Open related class file"), createPopUp) {
       override fun itemToString(item: Pair<VirtualFile?, String>) = item.second
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class MyCreator : Creator {
     override fun create(classFileContext: ClassFileContext) = StructureView(classFileContext)

@@ -7,32 +7,44 @@ import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.SwingConstants
 
-internal open class ValueNode(protected val preFix: String? = null,
-                              val displayValue: (StructureTreeContext) -> String,
-                              val rawValue: (StructureTreeContext) -> String = displayValue,
-                              protected val postFix: String? = null,
-                              protected val icon: Icon? = null,
-                              goToProvider: GoToProvider? = null) : StructureNode(goToProvider) {
+internal open class ValueNode(
+  protected val preFix: String? = null,
+  val displayValue: (StructureTreeContext) -> String,
+  val rawValue: (StructureTreeContext) -> String = displayValue,
+  protected val postFix: String? = null,
+  protected val icon: Icon? = null,
+  goToProvider: GoToProvider? = null,
+) : StructureNode(goToProvider) {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private var component: JComponent? = null
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
-  constructor(preFix: String? = null, displayValue: String, rawValue: String = displayValue, postFix: String? = null, icon: Icon? = null)
-          : this(preFix, { displayValue }, { rawValue }, postFix, icon)
+  constructor(
+    preFix: String? = null,
+    displayValue: String,
+    rawValue: String = displayValue,
+    postFix: String? = null,
+    icon: Icon? = null,
+  ) : this(preFix, { displayValue }, { rawValue }, postFix, icon)
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
-  override fun component(selected: Boolean, context: StructureTreeContext, componentValid: Boolean): JComponent {
+  override fun component(
+    selected: Boolean,
+    context: StructureTreeContext,
+    componentValid: Boolean,
+  ): JComponent {
     if (!componentValid) {
-      val text = StringBuilder().apply {
-        preFix?.let { append(it).append(" ") }
-        append(displayValue(context))
-        postFix?.let { append(" ").append(it) }
-      }
+      val text =
+        StringBuilder().apply {
+          preFix?.let { append(it).append(" ") }
+          append(displayValue(context))
+          postFix?.let { append(" ").append(it) }
+        }
       component = JBLabel("<html>$text</html>", icon, SwingConstants.LEFT)
     }
 
@@ -41,6 +53,6 @@ internal open class ValueNode(protected val preFix: String? = null,
 
   override fun searchText(context: StructureTreeContext): String = rawValue(context)
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

@@ -17,6 +17,7 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.table.JBTable
 import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodeToolWindowFactory
 import dev.turingcomplete.intellijbytecodeplugin._ui.CopyValueAction
+import dev.turingcomplete.intellijbytecodeplugin._ui.ToggleActionButton
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils
 import dev.turingcomplete.intellijbytecodeplugin._ui.UiUtils.Table.getSingleSelectedValue
 import dev.turingcomplete.intellijbytecodeplugin._ui.ViewValueAction
@@ -24,7 +25,6 @@ import dev.turingcomplete.intellijbytecodeplugin._ui.configureForCell
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodFramesUtils
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
-import dev.turingcomplete.intellijbytecodeplugin._ui.ToggleActionButton
 import java.awt.Component
 import javax.swing.JComponent
 import javax.swing.JTable
@@ -34,22 +34,24 @@ import kotlin.math.max
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
-class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, methodFrames: List<MethodFramesUtils.MethodFrame>)
-  : SimpleToolWindowPanel(false, true), DataProvider {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+class FramesPanel(
+  initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode,
+  methodFrames: List<MethodFramesUtils.MethodFrame>,
+) : SimpleToolWindowPanel(false, true), DataProvider {
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val stacksAndLocalsModel = FramesModel(initialTypeNameRenderMode, methodFrames)
   private val table: JBTable = createFramesTable()
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   init {
     toolbar = createToolbar(this)
     setContent(ScrollPaneFactory.createScrollPane(table, true))
   }
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun getData(dataId: String): Any? {
     return when {
@@ -58,17 +60,24 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun createToolbar(targetComponent: JComponent): JComponent {
-    val toolbarGroup = DefaultActionGroup(
-      createRenderOptionsActionGroup(),
-      createShowMultipleValuesVerticallyToggleAction()
-    )
-    return ActionManager.getInstance().createActionToolbar("${ByteCodeToolWindowFactory.TOOLBAR_PLACE_PREFIX}.methodFrames", toolbarGroup, false).run {
-      setTargetComponent(targetComponent)
-      component
-    }
+    val toolbarGroup =
+      DefaultActionGroup(
+        createRenderOptionsActionGroup(),
+        createShowMultipleValuesVerticallyToggleAction(),
+      )
+    return ActionManager.getInstance()
+      .createActionToolbar(
+        "${ByteCodeToolWindowFactory.TOOLBAR_PLACE_PREFIX}.methodFrames",
+        toolbarGroup,
+        false,
+      )
+      .run {
+        setTargetComponent(targetComponent)
+        component
+      }
   }
 
   private fun createRenderOptionsActionGroup(): DefaultActionGroup {
@@ -78,14 +87,25 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
         templatePresentation.icon = AllIcons.Actions.Edit
 
         TypeUtils.TypeNameRenderMode.values().forEach {
-          add(ToggleActionButton(it.title, { stacksAndLocalsModel.typeNameRenderMode = it; }, { stacksAndLocalsModel.typeNameRenderMode == it }))
+          add(
+            ToggleActionButton(
+              it.title,
+              { stacksAndLocalsModel.typeNameRenderMode = it },
+              { stacksAndLocalsModel.typeNameRenderMode == it },
+            )
+          )
         }
       }
     }
   }
 
   private fun createShowMultipleValuesVerticallyToggleAction(): ToggleAction {
-    return object : DumbAwareToggleAction("Show Multiple Values in Multiple Rows", null, AllIcons.Actions.SplitHorizontally) {
+    return object :
+      DumbAwareToggleAction(
+        "Show Multiple Values in Multiple Rows",
+        null,
+        AllIcons.Actions.SplitHorizontally,
+      ) {
 
       override fun isSelected(e: AnActionEvent): Boolean = stacksAndLocalsModel.frameAsMultipleRows
 
@@ -103,24 +123,27 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
   private fun createFramesTable(): JBTable {
     return JBTable(stacksAndLocalsModel).apply {
       setDefaultRenderer(String::class.java, FramesCellRenderer())
-      addMouseListener(UiUtils.Table.createContextMenuMouseListener(
-        FramesPanel::class.java.simpleName
-      ) {
-        DefaultActionGroup().apply {
-          add(CopyValueAction())
-          add(ViewValueAction())
+      addMouseListener(
+        UiUtils.Table.createContextMenuMouseListener(FramesPanel::class.java.simpleName) {
+          DefaultActionGroup().apply {
+            add(CopyValueAction())
+            add(ViewValueAction())
+          }
         }
-      })
+      )
       TableSpeedSearch.installOn(this)
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
-  private class FramesModel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode,
-                            private val frames: List<MethodFramesUtils.MethodFrame>) : AbstractTableModel() {
+  private class FramesModel(
+    initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode,
+    private val frames: List<MethodFramesUtils.MethodFrame>,
+  ) : AbstractTableModel() {
 
-    var typeNameRenderMode: TypeUtils.TypeNameRenderMode by Delegates.observable(initialTypeNameRenderMode, rebuildData())
+    var typeNameRenderMode: TypeUtils.TypeNameRenderMode by
+      Delegates.observable(initialTypeNameRenderMode, rebuildData())
     var frameAsMultipleRows: Boolean by Delegates.observable(true, rebuildData())
 
     private lateinit var data: Array<Array<String>>
@@ -151,45 +174,59 @@ class FramesPanel(initialTypeNameRenderMode: TypeUtils.TypeNameRenderMode, metho
       fireTableDataChanged()
     }
 
-    private fun <T> rebuildData(): (property: KProperty<*>, oldValue: T, newValue: T) -> Unit = { _, old, new ->
-      if (old != new) {
-        buildData()
+    private fun <T> rebuildData(): (property: KProperty<*>, oldValue: T, newValue: T) -> Unit =
+      { _, old, new ->
+        if (old != new) {
+          buildData()
+        }
       }
-    }
 
     private fun collectFrameAsSingleRow(): Array<Array<String>> {
-      return frames.map { frame ->
-        val locals = frame.locals.joinToString(" | ") { local ->
-          TypeUtils.toReadableType(local, typeNameRenderMode)
+      return frames
+        .map { frame ->
+          val locals =
+            frame.locals.joinToString(" | ") { local ->
+              TypeUtils.toReadableType(local, typeNameRenderMode)
+            }
+          val stackElements =
+            frame.stack.joinToString(" | ") { stackElement ->
+              TypeUtils.toReadableType(stackElement, typeNameRenderMode)
+            }
+          arrayOf(frame.textifiedInstruction, locals, stackElements)
         }
-        val stackElements = frame.stack.joinToString(" | ") { stackElement ->
-          TypeUtils.toReadableType(stackElement, typeNameRenderMode)
-        }
-        arrayOf(frame.textifiedInstruction, locals, stackElements)
-      }.toTypedArray()
+        .toTypedArray()
     }
 
     private fun collectFrameAsMultipleRows(): Array<Array<String>> {
-      return frames.map { frame ->
-        val maxRows = max(1, max(frame.locals.size, frame.stack.size))
-        val frameData = Array(maxRows) { Array(3) { "" } }
-        frameData[0][0] = frame.textifiedInstruction
-        frame.locals.forEachIndexed { localIndex, local ->
-          frameData[localIndex][1] = TypeUtils.toReadableType(local, typeNameRenderMode)
+      return frames
+        .map { frame ->
+          val maxRows = max(1, max(frame.locals.size, frame.stack.size))
+          val frameData = Array(maxRows) { Array(3) { "" } }
+          frameData[0][0] = frame.textifiedInstruction
+          frame.locals.forEachIndexed { localIndex, local ->
+            frameData[localIndex][1] = TypeUtils.toReadableType(local, typeNameRenderMode)
+          }
+          frame.stack.forEachIndexed { stackIndex, stackElement ->
+            frameData[stackIndex][2] = TypeUtils.toReadableType(stackElement, typeNameRenderMode)
+          }
+          frameData
         }
-        frame.stack.forEachIndexed { stackIndex, stackElement ->
-          frameData[stackIndex][2] = TypeUtils.toReadableType(stackElement, typeNameRenderMode)
-        }
-        frameData
-      }.reduceOrNull { acc, unit -> acc.plus(unit) } ?: arrayOf()
+        .reduceOrNull { acc, unit -> acc.plus(unit) } ?: arrayOf()
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class FramesCellRenderer : JBLabel(), TableCellRenderer {
 
-    override fun getTableCellRendererComponent(table: JTable, value: Any, selected: Boolean, hasFocus: Boolean, row: Int, column: Int): Component {
+    override fun getTableCellRendererComponent(
+      table: JTable,
+      value: Any,
+      selected: Boolean,
+      hasFocus: Boolean,
+      row: Int,
+      column: Int,
+    ): Component {
       text = value as String
       return this.configureForCell(table, selected, hasFocus)
     }

@@ -9,12 +9,12 @@ import com.intellij.util.ui.EmptyIcon
 internal class ToggleActionButton(
   title: String,
   private val setValue: () -> Unit,
-  private val isSelected: () -> Boolean
+  private val isSelected: () -> Boolean,
 ) : DumbAwareAction(title) {
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun update(e: AnActionEvent) {
     e.presentation.icon = if (isSelected()) PlatformIcons.CHECK_ICON else UNCHECKED_ICON
@@ -26,9 +26,9 @@ internal class ToggleActionButton(
 
   override fun getActionUpdateThread() = ActionUpdateThread.EDT
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
 

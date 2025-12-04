@@ -7,18 +7,22 @@ import javax.swing.JComponent
 import javax.swing.SwingConstants
 
 internal open class TextNode(private val text: String, icon: Icon? = null) : StructureNode() {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val component: JComponent by lazy { JBLabel(text, icon, SwingConstants.LEFT) }
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
-  override fun component(selected: Boolean, context: StructureTreeContext, componentValid: Boolean) = component
+  override fun component(
+    selected: Boolean,
+    context: StructureTreeContext,
+    componentValid: Boolean,
+  ) = component
 
   override fun searchText(context: StructureTreeContext) = text
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

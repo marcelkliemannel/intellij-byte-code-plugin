@@ -32,28 +32,32 @@ import javax.swing.text.AttributeSet
 import javax.swing.text.DocumentFilter
 
 internal object UiUtils {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exported Methods -------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exported Methods ---------------------------------------------------- //
 
   fun createLink(title: String, url: String): HyperlinkLabel {
-    return HyperlinkLabel(title).apply {
-      setHyperlinkTarget(url)
-    }
+    return HyperlinkLabel(title).apply { setHyperlinkTarget(url) }
   }
 
-  fun createAction(title: String, icon: Icon?, action: (ActionEvent?) -> Unit) = object : AbstractAction(title, icon) {
+  fun createAction(title: String, icon: Icon?, action: (ActionEvent?) -> Unit) =
+    object : AbstractAction(title, icon) {
 
-    init {
-      UIUtil.assignMnemonic(title, this)
+      init {
+        UIUtil.assignMnemonic(title, this)
+      }
+
+      override fun actionPerformed(e: ActionEvent?) {
+        action(e)
+      }
     }
 
-    override fun actionPerformed(e: ActionEvent?) {
-      action(e)
-    }
-  }
-
-  fun createOptionsAction(title: String, icon: Icon?, options: Array<Action>, action: (ActionEvent?) -> Unit): OptionAction =
+  fun createOptionsAction(
+    title: String,
+    icon: Icon?,
+    options: Array<Action>,
+    action: (ActionEvent?) -> Unit,
+  ): OptionAction =
     object : AbstractAction(title, icon), OptionAction {
 
       init {
@@ -67,57 +71,77 @@ internal object UiUtils {
       override fun getOptions(): Array<Action> = options
     }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   object Field {
 
     private var NUMBER_FIELD_REG_EX: Pattern = Pattern.compile("^\\d+$")
 
-    fun createNumberField(value: Int? = null, columns: Int = 20) = JFormattedTextField(DecimalFormat("0")).apply {
-      this.value = value
-      this.columns = columns
-      this.background = UIUtil.getTextFieldBackground()
+    fun createNumberField(value: Int? = null, columns: Int = 20) =
+      JFormattedTextField(DecimalFormat("0")).apply {
+        this.value = value
+        this.columns = columns
+        this.background = UIUtil.getTextFieldBackground()
 
-      (this.document as AbstractDocument).documentFilter = object : DocumentFilter() {
-        override fun replace(fb: FilterBypass?, offset: Int, length: Int, text: String, attrs: AttributeSet?) {
-          val matcher: Matcher = NUMBER_FIELD_REG_EX.matcher(text)
-          if (!matcher.matches()) {
-            return
-          }
-          super.replace(fb, offset, length, text, attrs)
-        }
+        (this.document as AbstractDocument).documentFilter =
+          object : DocumentFilter() {
+            override fun replace(
+              fb: FilterBypass?,
+              offset: Int,
+              length: Int,
+              text: String,
+              attrs: AttributeSet?,
+            ) {
+              val matcher: Matcher = NUMBER_FIELD_REG_EX.matcher(text)
+              if (!matcher.matches()) {
+                return
+              }
+              super.replace(fb, offset, length, text, attrs)
+            }
 
-        override fun insertString(fb: FilterBypass?, offset: Int, string: String?, attr: AttributeSet?) {
-          val matcher: Matcher = NUMBER_FIELD_REG_EX.matcher(text)
-          if (!matcher.matches()) {
-            return
+            override fun insertString(
+              fb: FilterBypass?,
+              offset: Int,
+              string: String?,
+              attr: AttributeSet?,
+            ) {
+              val matcher: Matcher = NUMBER_FIELD_REG_EX.matcher(text)
+              if (!matcher.matches()) {
+                return
+              }
+              super.insertString(fb, offset, string, attr)
+            }
           }
-          super.insertString(fb, offset, string, attr)
-        }
       }
-    }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   object Dialog {
-    fun show(title: String, content: JComponent, size: Dimension, project: Project?, ideModalityType: IdeModalityType = IdeModalityType.IDE) {
+    fun show(
+      title: String,
+      content: JComponent,
+      size: Dimension,
+      project: Project?,
+      ideModalityType: IdeModalityType = IdeModalityType.IDE,
+    ) {
       object : DialogWrapper(project, true, ideModalityType) {
-        init {
-          this.title = title
-          setSize(size.width, size.height)
-          init()
+          init {
+            this.title = title
+            setSize(size.width, size.height)
+            init()
+          }
+
+          override fun createActions() = arrayOf(myOKAction)
+
+          override fun createCenterPanel() = content
         }
-
-        override fun createActions() = arrayOf(myOKAction)
-
-        override fun createCenterPanel() = content
-      }.show()
+        .show()
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   object PopUp {
     fun showTextAreaPopup(value: String, dataContext: DataContext) {
@@ -139,11 +163,14 @@ internal object UiUtils {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   object Table {
 
-    fun createContextMenuMouseListener(place: String, actionGroup: (MouseEvent) -> ActionGroup?): MouseAdapter {
+    fun createContextMenuMouseListener(
+      place: String,
+      actionGroup: (MouseEvent) -> ActionGroup?,
+    ): MouseAdapter {
       return object : MouseAdapter() {
         override fun mousePressed(e: MouseEvent) {
           handleMouseEvent(e)
@@ -157,7 +184,8 @@ internal object UiUtils {
           if (e is MouseEvent && e.isPopupTrigger) {
             actionGroup(e)?.let {
               ActionManager.getInstance()
-                .createActionPopupMenu(place, it).component
+                .createActionPopupMenu(place, it)
+                .component
                 .show(e.getComponent(), e.x, e.y)
             }
           }
@@ -176,16 +204,14 @@ internal object UiUtils {
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   object Panel {
 
     class NotEditableTextArea(value: String, withoutBorder: Boolean = false) : BorderLayoutPanel() {
 
       init {
-        val textArea = JBTextArea(value).apply {
-          isEditable = false
-        }
+        val textArea = JBTextArea(value).apply { isEditable = false }
 
         addToCenter(ScrollPaneFactory.createScrollPane(textArea, withoutBorder))
       }

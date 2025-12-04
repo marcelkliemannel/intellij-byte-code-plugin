@@ -15,10 +15,10 @@ import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.ClassF
 
 @Service(Service.Level.PROJECT)
 class ByteCodeAnalyserOpenClassFileService(val project: Project) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun openPsiFiles(psiFiles: List<PsiFile>) {
     run { service -> service.findByPsiFiles(psiFiles) }
@@ -36,7 +36,7 @@ class ByteCodeAnalyserOpenClassFileService(val project: Project) {
     run { service -> service.findByClassFiles(classFiles) }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun run(findBy: (ClassFilesFinderService) -> Result) {
     val result = findBy(project.getService(ClassFilesFinderService::class.java))
@@ -44,8 +44,11 @@ class ByteCodeAnalyserOpenClassFileService(val project: Project) {
   }
 
   private fun handleResult(result: Result) {
-    val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(ByteCodeToolWindowFactory.TOOL_WINDOW_ID)
-      ?: throw IllegalStateException("Could not find tool window '${ByteCodeToolWindowFactory.TOOL_WINDOW_ID}'")
+    val toolWindow =
+      ToolWindowManager.getInstance(project).getToolWindow(ByteCodeToolWindowFactory.TOOL_WINDOW_ID)
+        ?: throw IllegalStateException(
+          "Could not find tool window '${ByteCodeToolWindowFactory.TOOL_WINDOW_ID}'"
+        )
 
     result.classFilesToOpen.forEach {
       ByteCodeToolWindowFactory.openClassFile(it, toolWindow, project)
@@ -53,24 +56,27 @@ class ByteCodeAnalyserOpenClassFileService(val project: Project) {
 
     if (result.classFilesToPrepare.isNotEmpty()) {
       val classFilesPreparatorService = project.getService(ClassFilesPreparatorService::class.java)
-      classFilesPreparatorService.prepareClassFiles(result.classFilesToPrepare, toolWindow.component) {
+      classFilesPreparatorService.prepareClassFiles(
+        result.classFilesToPrepare,
+        toolWindow.component,
+      ) {
         ByteCodeToolWindowFactory.openClassFile(it, toolWindow, project)
       }
     }
 
     if (result.errors.isNotEmpty()) {
-      val errorMessage = if (result.errors.size == 1) {
-        result.errors[0]
-      }
-      else {
-        "The following errors occurred: ${result.errors.joinToString(prefix = "<ul>", postfix = "</ul>") { "<li>$it</li>" }}"
-      }
+      val errorMessage =
+        if (result.errors.size == 1) {
+          result.errors[0]
+        } else {
+          "The following errors occurred: ${result.errors.joinToString(prefix = "<ul>", postfix = "</ul>") { "<li>$it</li>" }}"
+        }
       ApplicationManager.getApplication().invokeLater {
         Messages.showErrorDialog(project, errorMessage, "Analyse Class Files")
       }
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
 }

@@ -14,41 +14,76 @@ import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._comm
 import java.util.*
 import javax.swing.Icon
 
-internal class MethodStructureNode(private val methodNode: MethodNode, private val classNode: ClassNode)
-  : ValueNode(displayValue = createDisplayValueProvider(methodNode, classNode),
-              rawValue = createRawValueProvider(methodNode, classNode),
-              icon = createIcon(methodNode)) {
+internal class MethodStructureNode(
+  private val methodNode: MethodNode,
+  private val classNode: ClassNode,
+) :
+  ValueNode(
+    displayValue = createDisplayValueProvider(methodNode, classNode),
+    rawValue = createRawValueProvider(methodNode, classNode),
+    icon = createIcon(methodNode),
+  ) {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
 
-    private fun createDisplayValueProvider(methodNode: MethodNode, classNode: ClassNode): (StructureTreeContext) -> String = { ctx ->
-      MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, true)
+    private fun createDisplayValueProvider(
+      methodNode: MethodNode,
+      classNode: ClassNode,
+    ): (StructureTreeContext) -> String = { ctx ->
+      MethodDeclarationUtils.toReadableDeclaration(
+        methodNode.name,
+        methodNode.desc,
+        classNode.name,
+        ctx.typeNameRenderMode,
+        ctx.methodDescriptorRenderMode,
+        true,
+      )
     }
 
-    private fun createRawValueProvider(methodNode: MethodNode, classNode: ClassNode): (StructureTreeContext) -> String = { ctx ->
-      MethodDeclarationUtils.toReadableDeclaration(methodNode.name, methodNode.desc, classNode.name, ctx.typeNameRenderMode, ctx.methodDescriptorRenderMode, false)
+    private fun createRawValueProvider(
+      methodNode: MethodNode,
+      classNode: ClassNode,
+    ): (StructureTreeContext) -> String = { ctx ->
+      MethodDeclarationUtils.toReadableDeclaration(
+        methodNode.name,
+        methodNode.desc,
+        classNode.name,
+        ctx.typeNameRenderMode,
+        ctx.methodDescriptorRenderMode,
+        false,
+      )
     }
 
     private fun createIcon(methodNode: MethodNode): Icon {
-      return if (Access.ABSTRACT.check(methodNode.access)) AllIcons.Nodes.AbstractMethod else AllIcons.Nodes.Method
+      return if (Access.ABSTRACT.check(methodNode.access)) AllIcons.Nodes.AbstractMethod
+      else AllIcons.Nodes.Method
     }
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
-  private val sortedLocalVariables : List<LocalVariableNode>? = methodNode.localVariables?.sortedBy { it.index }
+  private val sortedLocalVariables: List<LocalVariableNode>? =
+    methodNode.localVariables?.sortedBy { it.index }
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   init {
     asyncAdd(true) {
       addAccessNode(methodNode.access, AccessGroup.METHOD)
       addReturnTypeNode()
       addSignatureNode(methodNode.signature)
-      addAnnotationsNode("Annotations", methodNode.visibleAnnotations, methodNode.invisibleAnnotations)
-      addAnnotationsNode("Type Annotations", methodNode.visibleTypeAnnotations, methodNode.invisibleTypeAnnotations)
+      addAnnotationsNode(
+        "Annotations",
+        methodNode.visibleAnnotations,
+        methodNode.invisibleAnnotations,
+      )
+      addAnnotationsNode(
+        "Type Annotations",
+        methodNode.visibleTypeAnnotations,
+        methodNode.invisibleTypeAnnotations,
+      )
       addMethodExceptionsNode()
       addAttributesNode(methodNode.attrs)
       addMethodParametersNode()
@@ -59,11 +94,11 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
     }
   }
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun searchText(context: StructureTreeContext) = rawValue(context)
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun addReturnTypeNode() {
     val hasReturnType = methodNode.name != "<clinit>" && methodNode.name != "<init>"
@@ -72,16 +107,25 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
     }
 
     val methodType = Type.getMethodType(methodNode.desc)
-    add(ValueNode("Return type:",
-                  { ctx -> TypeUtils.toReadableType(methodType.returnType, ctx.typeNameRenderMode) },
-                  icon = AllIcons.Actions.Rollback))
+    add(
+      ValueNode(
+        "Return type:",
+        { ctx -> TypeUtils.toReadableType(methodType.returnType, ctx.typeNameRenderMode) },
+        icon = AllIcons.Actions.Rollback,
+      )
+    )
   }
 
   private fun addMethodExceptionsNode() {
-    addTitleNodeWithElements(methodNode.exceptions, { TextNode("Exceptions", AllIcons.Nodes.ExceptionClass) }) { _, exception ->
-      ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(exception, ctx.typeNameRenderMode) },
-                icon = AllIcons.Nodes.ExceptionClass,
-                goToProvider = GoToProvider.Class(exception))
+    addTitleNodeWithElements(
+      methodNode.exceptions,
+      { TextNode("Exceptions", AllIcons.Nodes.ExceptionClass) },
+    ) { _, exception ->
+      ValueNode(
+        displayValue = { ctx -> TypeUtils.toReadableName(exception, ctx.typeNameRenderMode) },
+        icon = AllIcons.Nodes.ExceptionClass,
+        goToProvider = GoToProvider.Class(exception),
+      )
     }
   }
 
@@ -91,33 +135,45 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
       return
     }
 
-    add(TextNode("Parameters", AllIcons.Nodes.Parameter).apply {
-      val namesToAccess = collectMethodParametersNameToAccess(methodParameterTypes)
-      methodParameterTypes.mapIndexed { index, type ->
-        val nameToAccess = namesToAccess.getOrNull(index)
-        val name = nameToAccess?.first ?: "var$index"
-        add(ValueNode(displayValue = { ctx -> "$name: ${TypeUtils.toReadableType(type, ctx.typeNameRenderMode)}" }, icon = AllIcons.Nodes.Parameter).apply {
-          nameToAccess?.second?.let { access ->
-            addAccessNode(access, AccessGroup.PARAMETER)
-          }
-          addAnnotationsNode("Annotations", methodNode.visibleParameterAnnotations?.get(index), methodNode.invisibleParameterAnnotations?.get(index))
-        })
+    add(
+      TextNode("Parameters", AllIcons.Nodes.Parameter).apply {
+        val namesToAccess = collectMethodParametersNameToAccess(methodParameterTypes)
+        methodParameterTypes.mapIndexed { index, type ->
+          val nameToAccess = namesToAccess.getOrNull(index)
+          val name = nameToAccess?.first ?: "var$index"
+          add(
+            ValueNode(
+                displayValue = { ctx ->
+                  "$name: ${TypeUtils.toReadableType(type, ctx.typeNameRenderMode)}"
+                },
+                icon = AllIcons.Nodes.Parameter,
+              )
+              .apply {
+                nameToAccess?.second?.let { access -> addAccessNode(access, AccessGroup.PARAMETER) }
+                addAnnotationsNode(
+                  "Annotations",
+                  methodNode.visibleParameterAnnotations?.get(index),
+                  methodNode.invisibleParameterAnnotations?.get(index),
+                )
+              }
+          )
+        }
       }
-    })
+    )
   }
 
-  private fun collectMethodParametersNameToAccess(methodParameterTypes: Array<Type>): List<Pair<String?, Int>> {
+  private fun collectMethodParametersNameToAccess(
+    methodParameterTypes: Array<Type>
+  ): List<Pair<String?, Int>> {
     return if (methodNode.parameters != null) {
       methodNode.parameters.map { parameter -> parameter.name to parameter.access }
-    }
-    else if (sortedLocalVariables != null) {
+    } else if (sortedLocalVariables != null) {
       // Get name from local variables
       val offset = if (Access.STATIC.check(methodNode.access)) 0 else 1
-      IntRange(offset, (methodParameterTypes.size - 1) + offset).map { i ->
-        sortedLocalVariables.elementAtOrNull(i)?.name to 0
-      }.toList()
-    }
-    else {
+      IntRange(offset, (methodParameterTypes.size - 1) + offset)
+        .map { i -> sortedLocalVariables.elementAtOrNull(i)?.name to 0 }
+        .toList()
+    } else {
       return listOf()
     }
   }
@@ -125,55 +181,82 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
   private fun addMethodInstructionsNode() {
     methodNode.instructions ?: return
 
-    add(TextNode("Instructions", AllIcons.Actions.ListFiles).apply {
-      asyncAdd(true) {
-        val (labelNames, methodFrames) = MethodFramesUtils.collectFrames(methodNode, classNode)
-        methodFrames.forEach { methodFrame ->
-          val postFix = when {
-            (methodFrame.instruction.opcode >= 0) -> "<span class=\"contextHelp\">Opcode: ${methodFrame.instruction.opcode}</span>"
-            (methodFrame.instruction is LabelNode) -> "<span class=\"contextHelp\">Label</span>"
-            else -> null
+    add(
+      TextNode("Instructions", AllIcons.Actions.ListFiles).apply {
+        asyncAdd(true) {
+          val (labelNames, methodFrames) = MethodFramesUtils.collectFrames(methodNode, classNode)
+          methodFrames.forEach { methodFrame ->
+            val postFix =
+              when {
+                (methodFrame.instruction.opcode >= 0) ->
+                  "<span class=\"contextHelp\">Opcode: ${methodFrame.instruction.opcode}</span>"
+                (methodFrame.instruction is LabelNode) -> "<span class=\"contextHelp\">Label</span>"
+                else -> null
+              }
+            add(
+              HtmlTextNode(
+                displayValue = methodFrame.textifiedInstruction,
+                rawValue = methodFrame.textifiedInstruction.trim(),
+                postFix = postFix,
+              )
+            )
           }
-          add(HtmlTextNode(displayValue = methodFrame.textifiedInstruction,
-                           rawValue = methodFrame.textifiedInstruction.trim(),
-                           postFix = postFix))
+
+          add(ShowFramesNode(methodFrames, methodNode))
+
+          addTryCatchBlockNode(labelNames)
+
+          add(
+            TextNode(
+              "Max locals: ${methodNode.maxLocals}; stack: ${methodNode.maxStack}",
+              icon = AllIcons.General.Information,
+            )
+          )
         }
-
-        add(ShowFramesNode(methodFrames, methodNode))
-
-        addTryCatchBlockNode(labelNames)
-
-        add(TextNode("Max locals: ${methodNode.maxLocals}; stack: ${methodNode.maxStack}", icon = AllIcons.General.Information))
       }
-    })
+    )
   }
 
   private fun addLocalVariablesNode() {
-    addTitleNodeWithElements(sortedLocalVariables, { TextNode("Local Variables", AllIcons.Nodes.Variable) }) { index, localVariable ->
-      ValueNode(displayValue = { ctx -> "#${localVariable.index} ${localVariable.name}: ${TypeUtils.toReadableType(localVariable.desc, ctx.typeNameRenderMode)}" },
-                icon = AllIcons.Nodes.Variable).apply {
-        asyncAdd {
-          addSignatureNode(localVariable.signature)
+    addTitleNodeWithElements(
+      sortedLocalVariables,
+      { TextNode("Local Variables", AllIcons.Nodes.Variable) },
+    ) { index, localVariable ->
+      ValueNode(
+          displayValue = { ctx ->
+            "#${localVariable.index} ${localVariable.name}: ${TypeUtils.toReadableType(localVariable.desc, ctx.typeNameRenderMode)}"
+          },
+          icon = AllIcons.Nodes.Variable,
+        )
+        .apply {
+          asyncAdd {
+            addSignatureNode(localVariable.signature)
 
-          val visibleLocalVariableAnnotations = methodNode.visibleLocalVariableAnnotations
-                  ?.flatMap { it.index.map { i -> i to it } }
-                  ?.groupBy({ it.first }, { it.second })
-          val invisibleLocalVariableAnnotations = methodNode.invisibleLocalVariableAnnotations
-                  ?.flatMap { it.index.map { i -> i to it } }
-                  ?.groupBy({ it.first }, { it.second })
+            val visibleLocalVariableAnnotations =
+              methodNode.visibleLocalVariableAnnotations
+                ?.flatMap { it.index.map { i -> i to it } }
+                ?.groupBy({ it.first }, { it.second })
+            val invisibleLocalVariableAnnotations =
+              methodNode.invisibleLocalVariableAnnotations
+                ?.flatMap { it.index.map { i -> i to it } }
+                ?.groupBy({ it.first }, { it.second })
 
-          addAnnotationsNode("Type Annotations",
-                             visibleLocalVariableAnnotations?.getOrDefault(index, null),
-                             invisibleLocalVariableAnnotations?.getOrDefault(index, null))
+            addAnnotationsNode(
+              "Type Annotations",
+              visibleLocalVariableAnnotations?.getOrDefault(index, null),
+              invisibleLocalVariableAnnotations?.getOrDefault(index, null),
+            )
+          }
         }
-      }
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
-  private class ShowFramesNode(private val methodFrames: List<MethodFramesUtils.MethodFrame>,
-                               private val methodNode: MethodNode) : HyperLinkNode("Show frames") {
+  private class ShowFramesNode(
+    private val methodFrames: List<MethodFramesUtils.MethodFrame>,
+    private val methodNode: MethodNode,
+  ) : HyperLinkNode("Show frames") {
     init {
       addHyperLinkListener { _, ctx ->
         FramesDialog(methodNode, ctx.typeNameRenderMode, methodFrames, ctx.project).show()
@@ -187,7 +270,9 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
       return
     }
 
-    addTitleNodeWithElements(tryCatchBlocks, { TextNode("Try Catch Blocks") }, true) { _, tryCatchBlock ->
+    addTitleNodeWithElements(tryCatchBlocks, { TextNode("Try Catch Blocks") }, true) {
+      _,
+      tryCatchBlock ->
       val startLabelName = labelNames.getOrDefault(tryCatchBlock.start.label, "unknown")
       val endLabelName = labelNames.getOrDefault(tryCatchBlock.end.label, "unknown")
 
@@ -197,11 +282,14 @@ internal class MethodStructureNode(private val methodNode: MethodNode, private v
       }
 
       if (tryCatchBlock.type != null) {
-        ValueNode(displayValue = { ctx -> TypeUtils.toReadableName(tryCatchBlock.type, ctx.typeNameRenderMode) },
-                  postFix = postFix,
-                  goToProvider = GoToProvider.Class(tryCatchBlock.type))
-      }
-      else {
+        ValueNode(
+          displayValue = { ctx ->
+            TypeUtils.toReadableName(tryCatchBlock.type, ctx.typeNameRenderMode)
+          },
+          postFix = postFix,
+          goToProvider = GoToProvider.Class(tryCatchBlock.type),
+        )
+      } else {
         TextNode(postFix.replaceFirstChar { it.titlecase(Locale.getDefault()) })
       }
     }

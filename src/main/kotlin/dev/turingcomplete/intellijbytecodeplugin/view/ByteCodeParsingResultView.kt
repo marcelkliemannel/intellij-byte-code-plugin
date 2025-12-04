@@ -55,11 +55,11 @@ abstract class ByteCodeParsingResultView(
   classFileContext: ClassFileContext,
   title: String,
   private val goToMethodsRegex: Regex? = null,
-  private val parsingOptionsAvailable: Boolean = true
+  private val parsingOptionsAvailable: Boolean = true,
 ) : ByteCodeView(classFileContext, title) {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private val editor: EditorEx by lazy { createEditor() }
   private var editorCreated: Boolean = false
@@ -70,25 +70,30 @@ abstract class ByteCodeParsingResultView(
   private val goToMethods = mutableListOf<Pair<Int, String>>()
   private val goToMethodsLink: DropDownLink<Pair<Int, String>> by lazy { createGoToMethodsLink() }
 
-  private var skipDebug by Delegates.observable(ByteCodeAnalyserSettingsService.instance.skipDebug) { _, _, new ->
-    ByteCodeAnalyserSettingsService.instance.skipDebug = new
-  }
-  private var skipCode by Delegates.observable(ByteCodeAnalyserSettingsService.instance.skipCode) { _, _, new ->
-    ByteCodeAnalyserSettingsService.instance.skipCode = new
-  }
-  private var skipFrame by Delegates.observable(ByteCodeAnalyserSettingsService.instance.skipFrame) { _, _, new ->
-    ByteCodeAnalyserSettingsService.instance.skipFrame = new
-  }
+  private var skipDebug by
+    Delegates.observable(ByteCodeAnalyserSettingsService.instance.skipDebug) { _, _, new ->
+      ByteCodeAnalyserSettingsService.instance.skipDebug = new
+    }
+  private var skipCode by
+    Delegates.observable(ByteCodeAnalyserSettingsService.instance.skipCode) { _, _, new ->
+      ByteCodeAnalyserSettingsService.instance.skipCode = new
+    }
+  private var skipFrame by
+    Delegates.observable(ByteCodeAnalyserSettingsService.instance.skipFrame) { _, _, new ->
+      ByteCodeAnalyserSettingsService.instance.skipFrame = new
+    }
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   init {
     // Sync editor colors after IntelliJ appearance changed
-    ApplicationManager.getApplication().messageBus.connect(this)
+    ApplicationManager.getApplication()
+      .messageBus
+      .connect(this)
       .subscribe(LafManagerListener.TOPIC, LafManagerListener { editor.syncEditorColors() })
   }
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun doSelected() {
     editor.component.requestFocusInWindow()
@@ -96,12 +101,22 @@ abstract class ByteCodeParsingResultView(
 
   override fun createCenterComponent(): JComponent {
     return SimpleToolWindowPanel(true, false).apply {
-      toolbar = JPanel(GridBagLayout()).apply {
-        val bag = GridBag().withCommonsDefaults().setDefaultAnchor(GridBagConstraints.WEST)
-        add(createToolbarActionsComponent(this), bag.nextLine().next().fillCellHorizontally().weightx(1.0))
-        add(parsingIndicatorLabel.apply { border = JBUI.Borders.empty(2) }, bag.next().fillCellVertically())
-        add(goToMethodsLink, bag.next().fillCellHorizontally().overrideLeftInset(2).overrideLeftInset(2))
-      }
+      toolbar =
+        JPanel(GridBagLayout()).apply {
+          val bag = GridBag().withCommonsDefaults().setDefaultAnchor(GridBagConstraints.WEST)
+          add(
+            createToolbarActionsComponent(this),
+            bag.nextLine().next().fillCellHorizontally().weightx(1.0),
+          )
+          add(
+            parsingIndicatorLabel.apply { border = JBUI.Borders.empty(2) },
+            bag.next().fillCellVertically(),
+          )
+          add(
+            goToMethodsLink,
+            bag.next().fillCellHorizontally().overrideLeftInset(2).overrideLeftInset(2),
+          )
+        }
 
       setContent(editor.component)
 
@@ -109,7 +124,8 @@ abstract class ByteCodeParsingResultView(
     }
   }
 
-  protected open fun openInEditorFileName(): String = "${classFileContext.classFile().file.nameWithoutExtension}.txt"
+  protected open fun openInEditorFileName(): String =
+    "${classFileContext.classFile().file.nameWithoutExtension}.txt"
 
   protected open fun additionalToolBarActions(): ActionGroup? = null
 
@@ -137,13 +153,17 @@ abstract class ByteCodeParsingResultView(
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun createGoToMethodsLink(): DropDownLink<Pair<Int, String>> {
     val createPopUp: (DropDownLink<Pair<Int, String>>) -> JBPopup = {
       JBPopupFactory.getInstance()
         .createPopupChooserBuilder(goToMethods)
-        .setRenderer(SimpleListCellRenderer { it.asSafely<Pair<Int, String>>()?.let { "${it.second} (line: ${it.first + 1})" } ?: "" })
+        .setRenderer(
+          SimpleListCellRenderer {
+            it.asSafely<Pair<Int, String>>()?.let { "${it.second} (line: ${it.first + 1})" } ?: ""
+          }
+        )
         .setItemChosenCallback { goToMethod(it.first) }
         .createPopup()
     }
@@ -155,71 +175,106 @@ abstract class ByteCodeParsingResultView(
   private fun goToMethod(line: Int) {
     if (line > 0) {
       val logicalPosition = LogicalPosition(line, 0)
-      this@ByteCodeParsingResultView.editor.scrollingModel.scrollTo(logicalPosition, ScrollType.MAKE_VISIBLE)
+      this@ByteCodeParsingResultView.editor.scrollingModel.scrollTo(
+        logicalPosition,
+        ScrollType.MAKE_VISIBLE,
+      )
       this@ByteCodeParsingResultView.editor.caretModel.addCaret(logicalPosition, true)
     }
   }
 
   private fun createToolbarActionsComponent(targetComponent: JComponent): JComponent {
-    val toolbarActionsGroup = DefaultActionGroup().apply {
-      addAllByteCodeActions()
+    val toolbarActionsGroup =
+      DefaultActionGroup().apply {
+        addAllByteCodeActions()
 
-      addSeparator()
+        addSeparator()
 
-      if (parsingOptionsAvailable) {
-        add(object : DefaultActionGroup("Parsing Options", true) {
-          init {
-            templatePresentation.icon = AllIcons.General.Filter
+        if (parsingOptionsAvailable) {
+          add(
+            object : DefaultActionGroup("Parsing Options", true) {
+              init {
+                templatePresentation.icon = AllIcons.General.Filter
 
-            add(ToggleParsingOptionAction("Skip Debug Information", { skipDebug }, { skipDebug = !skipDebug }))
-            add(ToggleParsingOptionAction("Skip Method Code", { skipCode }, { skipCode = !skipCode }))
-            add(ToggleParsingOptionAction("Skip Frames", { skipFrame }, { skipFrame = !skipFrame }))
-          }
+                add(
+                  ToggleParsingOptionAction(
+                    "Skip Debug Information",
+                    { skipDebug },
+                    { skipDebug = !skipDebug },
+                  )
+                )
+                add(
+                  ToggleParsingOptionAction(
+                    "Skip Method Code",
+                    { skipCode },
+                    { skipCode = !skipCode },
+                  )
+                )
+                add(
+                  ToggleParsingOptionAction(
+                    "Skip Frames",
+                    { skipFrame },
+                    { skipFrame = !skipFrame },
+                  )
+                )
+              }
 
-          override fun update(e: AnActionEvent) {
-            val enabled = isByteCodeParsingResultAvailable()
-            e.presentation.isEnabled = enabled
-          }
+              override fun update(e: AnActionEvent) {
+                val enabled = isByteCodeParsingResultAvailable()
+                e.presentation.isEnabled = enabled
+              }
 
-          override fun getActionUpdateThread() = ActionUpdateThread.BGT
-        })
+              override fun getActionUpdateThread() = ActionUpdateThread.BGT
+            }
+          )
+        }
+
+        addSeparator()
+
+        add(OpenInEditorAction())
+
+        additionalToolBarActions()?.let { addAll(it) }
       }
 
-      addSeparator()
-
-      add(OpenInEditorAction())
-
-      additionalToolBarActions()?.let { addAll(it) }
-    }
-
-    return ActionManager.getInstance().createActionToolbar("${TOOLBAR_PLACE_PREFIX}.parsingResultView", toolbarActionsGroup, true).run {
-      setTargetComponent(targetComponent)
-      component
-    }
+    return ActionManager.getInstance()
+      .createActionToolbar("${TOOLBAR_PLACE_PREFIX}.parsingResultView", toolbarActionsGroup, true)
+      .run {
+        setTargetComponent(targetComponent)
+        component
+      }
   }
 
   private fun createEditor(): EditorEx {
     val document = EditorFactory.getInstance().createDocument("")
-    return EditorFactory.getInstance().createViewer(document, classFileContext.project()).let { it as EditorEx }.apply {
-      val syntaxHighlighter = SyntaxHighlighterFactory.getSyntaxHighlighter(JavaFileType.INSTANCE, project, null)
-      highlighter = EditorHighlighterFactory.getInstance().createEditorHighlighter(syntaxHighlighter, EditorColorsManager.getInstance().globalScheme)
+    return EditorFactory.getInstance()
+      .createViewer(document, classFileContext.project())
+      .let { it as EditorEx }
+      .apply {
+        val syntaxHighlighter =
+          SyntaxHighlighterFactory.getSyntaxHighlighter(JavaFileType.INSTANCE, project, null)
+        highlighter =
+          EditorHighlighterFactory.getInstance()
+            .createEditorHighlighter(
+              syntaxHighlighter,
+              EditorColorsManager.getInstance().globalScheme,
+            )
 
-      (this as EditorImpl).setDropHandler(FilesDropHandler(classFileContext.project()))
+        (this as EditorImpl).setDropHandler(FilesDropHandler(classFileContext.project()))
 
-      syncEditorColors()
+        syncEditorColors()
 
-      setBorder(JBUI.Borders.empty())
-      setCaretVisible(true)
+        setBorder(JBUI.Borders.empty())
+        setCaretVisible(true)
 
-      settings.apply {
-        isLineMarkerAreaShown = true
-        isIndentGuidesShown = true
-        isLineNumbersShown = true
-        isFoldingOutlineShown = true
+        settings.apply {
+          isLineMarkerAreaShown = true
+          isIndentGuidesShown = true
+          isLineNumbersShown = true
+          isFoldingOutlineShown = true
+        }
+
+        editorCreated = true
       }
-
-      editorCreated = true
-    }
   }
 
   private fun asyncParseByteCode() {
@@ -227,22 +282,23 @@ abstract class ByteCodeParsingResultView(
 
     val parsingOptions = calculateParsingOptions()
     if (parsingResultCache.containsKey(parsingOptions)) {
-      parsingResultCache[parsingOptions]?.let {
-        setByteCodeParsingResult(it.text, it.goToMethods)
-      }
-    }
-    else {
+      parsingResultCache[parsingOptions]?.let { setByteCodeParsingResult(it.text, it.goToMethods) }
+    } else {
       parsingIndicatorLabel.isVisible = true
 
       val setParsingResult: (String) -> Unit = { newText ->
         val newGoToMethods = parseGoToMethods(newText)
-        parsingResultCache.computeIfAbsent(parsingOptions) { ByteCodeParsingResult(newText, newGoToMethods) }
+        parsingResultCache.computeIfAbsent(parsingOptions) {
+          ByteCodeParsingResult(newText, newGoToMethods)
+        }
         setByteCodeParsingResult(newText, newGoToMethods)
         ApplicationManager.getApplication().invokeLater { parsingIndicatorLabel.isVisible = false }
       }
-      runAsync(classFileContext.project(),
-               { asyncParseByteCode(parsingOptions, setParsingResult) },
-               { cause -> onError("Failed to parse byte code", cause) })
+      runAsync(
+        classFileContext.project(),
+        { asyncParseByteCode(parsingOptions, setParsingResult) },
+        { cause -> onError("Failed to parse byte code", cause) },
+      )
     }
   }
 
@@ -298,26 +354,29 @@ abstract class ByteCodeParsingResultView(
 
     val isLaFDark = ColorUtil.isDark(UIUtil.getPanelBackground())
     val isEditorDark = EditorColorsManager.getInstance().isDarkEditor
-    colorsScheme = if (isLaFDark == isEditorDark) {
-      EditorColorsManager.getInstance().globalScheme
-    }
-    else {
-      EditorColorsManager.getInstance().schemeForCurrentUITheme
-    }
+    colorsScheme =
+      if (isLaFDark == isEditorDark) {
+        EditorColorsManager.getInstance().globalScheme
+      } else {
+        EditorColorsManager.getInstance().schemeForCurrentUITheme
+      }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class ByteCodeParsingResult(val text: String, val goToMethods: Map<Int, String>)
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
-  private inner class ToggleParsingOptionAction(@NlsActions.ActionText text: String,
-                                                private val isSelected: () -> Boolean,
-                                                private val toggleSelected: () -> Unit) : DumbAwareAction(text) {
+  private inner class ToggleParsingOptionAction(
+    @NlsActions.ActionText text: String,
+    private val isSelected: () -> Boolean,
+    private val toggleSelected: () -> Unit,
+  ) : DumbAwareAction(text) {
 
     override fun update(e: AnActionEvent) {
-      e.presentation.icon = if (isSelected()) PlatformIcons.CHECK_ICON else EmptyIcon.create(PlatformIcons.CHECK_ICON)
+      e.presentation.icon =
+        if (isSelected()) PlatformIcons.CHECK_ICON else EmptyIcon.create(PlatformIcons.CHECK_ICON)
     }
 
     override fun actionPerformed(e: AnActionEvent) {

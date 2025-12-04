@@ -1,44 +1,57 @@
 [versions]
-asm = "9.7.1"
-commons-text = "1.11.0"
-assertj = "3.24.2"
-junit5 = "5.10.1"
+asm = "9.9"
+assertj = "3.27.6"
+changelog = "2.5.0"
+commons-lang3 = "3.20.0"
+commons-text = "1.14.0"
+groovy = "3.0.25"
+intellij-platform = "2.10.5"
 junit4 = "4.13.2"
-groovy = "3.0.16"
-commons-lang3 = "3.12.0"
+junit5 = "6.0.1"
 # See bundled version: https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
-kotlin = "1.9.24"
-intellij-platform = "2.2.1"
-changelog = "2.2.0"
-shadow = "8.1.1"
+kotlin = "2.2.20"
+shadow = "9.2.2"
+spotless = "8.1.0"
+version-catalog-update = "1.0.1"
 
 [libraries]
-asm = { group = "org.ow2.asm", name = "asm", version.ref = "asm" }
-asm-analysis = { group = "org.ow2.asm", name = "asm-analysis", version.ref = "asm" }
-asm-util = { group = "org.ow2.asm", name = "asm-util", version.ref = "asm" }
-asm-commons = { group = "org.ow2.asm", name = "asm-commons", version.ref = "asm" }
-
-commons-text = { group = "org.apache.commons", name = "commons-text", version.ref = "commons-text" }
-
-assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
-
-junit-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit5" }
-junit-jupiter-params = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junit5" }
-junit-jupiter-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit5" }
-junit-vintage-engine = { group = "org.junit.vintage", name = "junit-vintage-engine", version.ref = "junit5" }
-junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
-
-groovy = { group = "org.codehaus.groovy", name = "groovy", version.ref = "groovy" }
-kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
-commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commons-lang3" }
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+asm-analysis = { module = "org.ow2.asm:asm-analysis", version.ref = "asm" }
+asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
+asm-util = { module = "org.ow2.asm:asm-util", version.ref = "asm" }
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
+commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }
+groovy = { module = "org.codehaus.groovy:groovy", version.ref = "groovy" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit5" }
+junit-platform-launcher = "org.junit.platform:junit-platform-launcher:2.0.1"
+junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit5" }
+junit4 = { module = "junit:junit", version.ref = "junit4" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 
 [bundles]
-asm = ["asm", "asm-analysis", "asm-util", "asm-commons"]
-junit-implementation = ["junit-jupiter-api", "junit-jupiter-params", "junit4"]
-junit-runtime = ["junit-jupiter-engine", "junit-vintage-engine"]
+asm = [
+    "asm",
+    "asm-analysis",
+    "asm-commons",
+    "asm-util",
+]
+junit-implementation = [
+    "junit-jupiter-api",
+    "junit-jupiter-params",
+    "junit4",
+]
+junit-runtime = [
+    "junit-jupiter-engine",
+    "junit-vintage-engine",
+]
 
 [plugins]
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-intellij-platform = { id = "org.jetbrains.intellij.platform", version.ref = "intellij-platform" }
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+intellij-platform = { id = "org.jetbrains.intellij.platform", version.ref = "intellij-platform" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+version-catalog-update = { id = "nl.littlerobots.version-catalog-update", version.ref = "version-catalog-update" }

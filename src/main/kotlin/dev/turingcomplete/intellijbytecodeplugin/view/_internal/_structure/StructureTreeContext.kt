@@ -7,25 +7,32 @@ import dev.turingcomplete.intellijbytecodeplugin.settings.ByteCodeAnalyserSettin
 import kotlin.properties.Delegates
 
 internal class StructureTreeContext(val project: Project, private val syncStructure: () -> Unit) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
-  var typeNameRenderMode: TypeNameRenderMode by Delegates.observable(ByteCodeAnalyserSettingsService.instance.typeNameRenderMode) { _, old, new ->
-    ByteCodeAnalyserSettingsService.instance.typeNameRenderMode = new
-    syncStructure(new, old)
-  }
-  var methodDescriptorRenderMode: MethodDescriptorRenderMode by Delegates.observable(ByteCodeAnalyserSettingsService.instance.methodDescriptorRenderMode) { _, old, new ->
-    ByteCodeAnalyserSettingsService.instance.methodDescriptorRenderMode = new
-    syncStructure(new, old)
-  }
-  var showAccessAsHex: Boolean by Delegates.observable(ByteCodeAnalyserSettingsService.instance.showAccessAsHex) { _, old, new ->
-    ByteCodeAnalyserSettingsService.instance.showAccessAsHex = new
-    syncStructure(new, old)
-  }
+  var typeNameRenderMode: TypeNameRenderMode by
+    Delegates.observable(ByteCodeAnalyserSettingsService.instance.typeNameRenderMode) { _, old, new
+      ->
+      ByteCodeAnalyserSettingsService.instance.typeNameRenderMode = new
+      syncStructure(new, old)
+    }
+  var methodDescriptorRenderMode: MethodDescriptorRenderMode by
+    Delegates.observable(ByteCodeAnalyserSettingsService.instance.methodDescriptorRenderMode) {
+      _,
+      old,
+      new ->
+      ByteCodeAnalyserSettingsService.instance.methodDescriptorRenderMode = new
+      syncStructure(new, old)
+    }
+  var showAccessAsHex: Boolean by
+    Delegates.observable(ByteCodeAnalyserSettingsService.instance.showAccessAsHex) { _, old, new ->
+      ByteCodeAnalyserSettingsService.instance.showAccessAsHex = new
+      syncStructure(new, old)
+    }
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun <T> syncStructure(new: T, old: T) {
     if (new != old) {
@@ -33,5 +40,5 @@ internal class StructureTreeContext(val project: Project, private val syncStruct
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

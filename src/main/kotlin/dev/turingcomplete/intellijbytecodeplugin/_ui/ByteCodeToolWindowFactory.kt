@@ -33,7 +33,7 @@ import java.awt.dnd.DropTarget
 import javax.swing.Icon
 
 internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     private val LOGGER = Logger.getInstance(ByteCodeToolWindowFactory::class.java)
@@ -44,13 +44,16 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
 
     fun <T> getData(dataProvider: DataProvider, dataKey: DataKey<T>): Any? {
       val project = PROJECT.getData(dataProvider) ?: return null
-      val byteCodeToolWindow = ToolWindowManager.getInstance(project).getToolWindow(TOOL_WINDOW_ID) ?: return null
+      val byteCodeToolWindow =
+        ToolWindowManager.getInstance(project).getToolWindow(TOOL_WINDOW_ID) ?: return null
 
-      val classFileTab = byteCodeToolWindow.contentManager.selectedContent?.getUserData(ClassFileTab.CLASS_FILE_TAB_KEY)
+      val classFileTab =
+        byteCodeToolWindow.contentManager.selectedContent?.getUserData(
+          ClassFileTab.CLASS_FILE_TAB_KEY
+        )
       return if (dataKey.`is`(ClassFileTab.CLASS_FILE_TAB_KEY.toString())) {
         classFileTab
-      }
-      else {
+      } else {
         return classFileTab?.getData(dataKey.name)
       }
     }
@@ -60,23 +63,22 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
         val newClassFileTab = ClassFileTab(project, classFile)
         Disposer.register(toolWindow.disposable, newClassFileTab)
         val contentManager = toolWindow.contentManager
-        val content = contentManager.factory.createContent(
-          newClassFileTab.createComponent(true),
-          classFile.file.nameWithoutExtension,
-          true
-        )
+        val content =
+          contentManager.factory.createContent(
+            newClassFileTab.createComponent(true),
+            classFile.file.nameWithoutExtension,
+            true,
+          )
         content.putUserData(ClassFileTab.CLASS_FILE_TAB_KEY, newClassFileTab)
         contentManager.addContent(content)
-        toolWindow.show {
-          contentManager.setSelectedContent(content, true)
-        }
+        toolWindow.show { contentManager.setSelectedContent(content, true) }
       }
     }
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
     assert(toolWindow.id == TOOL_WINDOW_ID)
@@ -88,7 +90,7 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun ToolWindow.initDropTarget(project: Project) {
     ApplicationManager.getApplication().invokeLater {
@@ -103,14 +105,15 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
         val toolWindowDropTarget = component.dropTarget
         if (toolWindowDropTarget != null) {
           toolWindowDropTarget.addDropTargetListener(FilesDropHandler(project))
-        }
-        else {
-          contentManager.component.dropTarget = DropTarget(contentManager.component, FilesDropHandler(project))
+        } else {
+          contentManager.component.dropTarget =
+            DropTarget(contentManager.component, FilesDropHandler(project))
         }
       } catch (e: Exception) {
         // This method sometimes throws exceptions, because the UI is in an
         // invalid state. For example:
-        // - `ContentManager#getComponent()` -> `NullPointerException` -> "because "this.myUI" is null"
+        // - `ContentManager#getComponent()` -> `NullPointerException` -> "because "this.myUI" is
+        // null"
         // - `DropTarget#addDropTargetListener()` -> `TooManyListenersException`
         LOGGER.warnWithDebug("snh: Failed to set drop target listener.", e)
       }
@@ -130,7 +133,11 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
 
         isCenterAlignText = false
 
-        appendLine("To open class files, do one of the following:", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
+        appendLine(
+          "To open class files, do one of the following:",
+          SimpleTextAttributes.REGULAR_ATTRIBUTES,
+          null,
+        )
 
         // The following code is used to create some indent to highlight the
         // following options from the previous line.
@@ -143,21 +150,34 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
             wrapperIcon.setIcon(fakeIndentIconAsIconBackground, 0)
             wrapperIcon.setIcon(icon, 1, leftIndent, 0)
             wrapperIcon
-          }
-          else {
+          } else {
             fakeIndentIcon
           }
         }
 
-        appendLine(indentIcon(null), "From the context menu action '${AnalyzeByteCodeAction.TITLE}'", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
+        appendLine(
+          indentIcon(null),
+          "From the context menu action '${AnalyzeByteCodeAction.TITLE}'",
+          SimpleTextAttributes.REGULAR_ATTRIBUTES,
+          null,
+        )
 
         OpenClassFilesToolWindowAction.EP.extensions.forEach { openClassFilesAction ->
-          appendLine(indentIcon(openClassFilesAction.icon), openClassFilesAction.linkTitle, SimpleTextAttributes.LINK_ATTRIBUTES) {
+          appendLine(
+            indentIcon(openClassFilesAction.icon),
+            openClassFilesAction.linkTitle,
+            SimpleTextAttributes.LINK_ATTRIBUTES,
+          ) {
             openClassFilesAction.execute(project)
           }
         }
 
-        appendLine(indentIcon(AllIcons.Actions.Download), "Drop class files here to open", SimpleTextAttributes.REGULAR_ATTRIBUTES, null)
+        appendLine(
+          indentIcon(AllIcons.Actions.Download),
+          "Drop class files here to open",
+          SimpleTextAttributes.REGULAR_ATTRIBUTES,
+          null,
+        )
 
         component.background = JBColor.background()
       }
@@ -166,30 +186,36 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
 
   private fun ToolWindow.initActions(project: Project) {
     ApplicationManager.getApplication().invokeLater {
-      val byteCodeToolsActionGroup = DefaultActionGroup("Byte Code Tools", true).apply {
-        templatePresentation.icon = AllIcons.General.ExternalTools
-        ByteCodeTool.EP.extensions.forEach { add(it.toAction()) }
+      val byteCodeToolsActionGroup =
+        DefaultActionGroup("Byte Code Tools", true).apply {
+          templatePresentation.icon = AllIcons.General.ExternalTools
+          ByteCodeTool.EP.extensions.forEach { add(it.toAction()) }
 
-        addSeparator()
+          addSeparator()
 
-        addAll(ByteCodeRelatedLinksActionsGroup(), ReportAnIssueAction())
-      }
+          addAll(ByteCodeRelatedLinksActionsGroup(), ReportAnIssueAction())
+        }
       setTitleActions(listOf(byteCodeToolsActionGroup))
 
       if (this is ToolWindowEx) {
-        val newSessionActionsGroup = DefaultActionGroup(OpenClassFilesOptionsAction(project, contentManager))
+        val newSessionActionsGroup =
+          DefaultActionGroup(OpenClassFilesOptionsAction(project, contentManager))
         setTabActions(newSessionActionsGroup)
       }
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
-  private class OpenClassFilesOptionsAction(project: Project, private val contentManager: ContentManager)
-    : DefaultActionGroup("Open Class Files", null, AllIcons.General.Add) {
+  private class OpenClassFilesOptionsAction(
+    project: Project,
+    private val contentManager: ContentManager,
+  ) : DefaultActionGroup("Open Class Files", null, AllIcons.General.Add) {
 
     init {
-      OpenClassFilesToolWindowAction.EP.extensions.forEach { add(it.createAsEmbeddedAction(project)) }
+      OpenClassFilesToolWindowAction.EP.extensions.forEach {
+        add(it.createAsEmbeddedAction(project))
+      }
       isPopup = true
     }
 
@@ -200,37 +226,49 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
     override fun getActionUpdateThread() = ActionUpdateThread.BGT
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private class ReportAnIssueAction : DumbAwareAction("Report an Issue") {
 
     override fun actionPerformed(e: AnActionEvent) {
-      AsyncUtils.browseAsync(e.project, "https://github.com/marcelkliemannel/intellij-byte-code-plugin/issues")
+      AsyncUtils.browseAsync(
+        e.project,
+        "https://github.com/marcelkliemannel/intellij-byte-code-plugin/issues",
+      )
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
-  private class ByteCodeRelatedLinksActionsGroup : DefaultActionGroup("Byte Code Related Links", true) {
+  private class ByteCodeRelatedLinksActionsGroup :
+    DefaultActionGroup("Byte Code Related Links", true) {
 
-    val links = mapOf(
-      Pair("Oracle: Java Language and Virtual Machine Specifications", "https://docs.oracle.com/javase/specs/index.html"),
-      Pair("Wikipedia: Java class file", "https://en.wikipedia.org/wiki/Java_class_file"),
-      Pair("Wikipedia: Java bytecode instruction listings", "https://en.wikipedia.org/wiki/Java_bytecode_instruction_listings"),
-      Pair("ASM: Java bytecode manipulation and analysis framework", "https://asm.ow2.io")
-    )
+    val links =
+      mapOf(
+        Pair(
+          "Oracle: Java Language and Virtual Machine Specifications",
+          "https://docs.oracle.com/javase/specs/index.html",
+        ),
+        Pair("Wikipedia: Java class file", "https://en.wikipedia.org/wiki/Java_class_file"),
+        Pair(
+          "Wikipedia: Java bytecode instruction listings",
+          "https://en.wikipedia.org/wiki/Java_bytecode_instruction_listings",
+        ),
+        Pair("ASM: Java bytecode manipulation and analysis framework", "https://asm.ow2.io"),
+      )
 
     init {
       links.forEach { (title, link) -> add(createLinkAction(title, link)) }
     }
 
-    private fun createLinkAction(title: String, link: String): AnAction = object : DumbAwareAction(title) {
+    private fun createLinkAction(title: String, link: String): AnAction =
+      object : DumbAwareAction(title) {
 
-      override fun actionPerformed(e: AnActionEvent) {
-        AsyncUtils.browseAsync(e.project, link)
+        override fun actionPerformed(e: AnActionEvent) {
+          AsyncUtils.browseAsync(e.project, link)
+        }
       }
-    }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

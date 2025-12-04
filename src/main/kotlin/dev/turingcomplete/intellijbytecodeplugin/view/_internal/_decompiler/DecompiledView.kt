@@ -9,12 +9,12 @@ import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeParsingResultView
 
-internal class DecompiledView(classFileContext: ClassFileContext)
-  : ByteCodeParsingResultView(classFileContext, "Decompiled", parsingOptionsAvailable = false) {
+internal class DecompiledView(classFileContext: ClassFileContext) :
+  ByteCodeParsingResultView(classFileContext, "Decompiled", parsingOptionsAvailable = false) {
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun asyncParseByteCode(parsingOptions: Int, onSuccess: (String) -> Unit) {
     val classFile = classFileContext.classFile()
@@ -27,17 +27,21 @@ internal class DecompiledView(classFileContext: ClassFileContext)
     // do a fallback to its default decompiler, which may not be able to
     // decompile method bodies of Java class files.
     ApplicationManager.getApplication().invokeAndWait {
-      classFileContext.project().messageBus.syncPublisher(FileEditorManagerListener.Before.FILE_EDITOR_MANAGER)
+      classFileContext
+        .project()
+        .messageBus
+        .syncPublisher(FileEditorManagerListener.Before.FILE_EDITOR_MANAGER)
         .beforeFileOpened(FileEditorManager.getInstance(classFileContext.project()), classFile.file)
     }
 
     val decompiledSourceCode = DecompilerUtils.decompile(classFile.file, classFileContext.project())
     if (decompiledSourceCode != null) {
       onSuccess(decompiledSourceCode)
-    }
-    else {
-      var errorMessage = "The class file could not be decompiled by any of the available decompilers."
-      val decompilerPlugin = PluginManagerCore.getPlugin(PluginId.getId("org.jetbrains.java.decompiler"))
+    } else {
+      var errorMessage =
+        "The class file could not be decompiled by any of the available decompilers."
+      val decompilerPlugin =
+        PluginManagerCore.getPlugin(PluginId.getId("org.jetbrains.java.decompiler"))
       if (decompilerPlugin == null || !decompilerPlugin.isEnabled) {
         errorMessage += " Try to install or enable JetBrain's 'Java Bytecode Decompiler' plugin."
       }
@@ -53,12 +57,12 @@ internal class DecompiledView(classFileContext: ClassFileContext)
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class MyCreator : Creator {
     override fun create(classFileContext: ClassFileContext) = DecompiledView(classFileContext)
   }
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 }

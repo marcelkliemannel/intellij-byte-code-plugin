@@ -3,27 +3,30 @@ package dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.joinAsNaturalLanguage
-import org.jsoup.internal.StringUtil.StringJoiner
 import java.nio.file.Path
 import kotlin.io.path.relativeToOrNull
+import org.jsoup.internal.StringUtil.StringJoiner
 
-sealed class ClassFileCandidates private constructor(val primaryPath: Path, private val fallbackPaths: List<Path> = emptyList()) {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exported Methods -------------------------------------------------------------------------------------------- //
+sealed class ClassFileCandidates
+private constructor(val primaryPath: Path, private val fallbackPaths: List<Path> = emptyList()) {
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exported Methods ---------------------------------------------------- //
 
   fun allPaths() = listOf(primaryPath) + fallbackPaths
 
   fun formatNotFoundError(postfix: String = "cannot be found.", project: Project? = null): String =
-    StringJoiner(" ").apply {
-      add("Class file")
-      add("'${formatPath(primaryPath, project)}'")
-      if (fallbackPaths.isNotEmpty()) {
-        add("or possible fallback class file${if (fallbackPaths.size >= 2) "s" else ""}")
-        add(fallbackPaths.joinAsNaturalLanguage { "'${formatPath(it, project)}'" })
+    StringJoiner(" ")
+      .apply {
+        add("Class file")
+        add("'${formatPath(primaryPath, project)}'")
+        if (fallbackPaths.isNotEmpty()) {
+          add("or possible fallback class file${if (fallbackPaths.size >= 2) "s" else ""}")
+          add(fallbackPaths.joinAsNaturalLanguage { "'${formatPath(it, project)}'" })
+        }
+        add(postfix)
       }
-      add(postfix)
-    }.complete()
+      .complete()
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -45,29 +48,28 @@ sealed class ClassFileCandidates private constructor(val primaryPath: Path, priv
     return "ClassFileCandidates(primaryPath=$primaryPath, fallbackPaths=$fallbackPaths)"
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun formatPath(path: Path, project: Project?): String {
     val projectDir = project?.guessProjectDir()?.toNioPath()
     return if (projectDir != null) {
       path.relativeToOrNull(projectDir)?.toString() ?: path.toString()
-    }
-    else {
+    } else {
       path.toString()
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
-  class RelativeClassFileCandidates(primaryPath: Path, fallbackPaths: List<Path>)
-    : ClassFileCandidates(primaryPath, fallbackPaths)
+  class RelativeClassFileCandidates(primaryPath: Path, fallbackPaths: List<Path>) :
+    ClassFileCandidates(primaryPath, fallbackPaths)
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
-  class AbsoluteClassFileCandidates(primaryPath: Path, fallbackPaths: List<Path>)
-    : ClassFileCandidates(primaryPath, fallbackPaths)
+  class AbsoluteClassFileCandidates(primaryPath: Path, fallbackPaths: List<Path>) :
+    ClassFileCandidates(primaryPath, fallbackPaths)
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
 
@@ -76,7 +78,10 @@ sealed class ClassFileCandidates private constructor(val primaryPath: Path, priv
       assert(paths.isNotEmpty())
 
       val fallbackPaths = if (paths.size > 1) paths.sliceArray(1 until paths.size) else emptyArray()
-      return RelativeClassFileCandidates(primaryPath = paths.first(), fallbackPaths = fallbackPaths.toList())
+      return RelativeClassFileCandidates(
+        primaryPath = paths.first(),
+        fallbackPaths = fallbackPaths.toList(),
+      )
     }
 
     fun fromAbsolutePaths(vararg paths: Path): AbsoluteClassFileCandidates {
@@ -84,7 +89,10 @@ sealed class ClassFileCandidates private constructor(val primaryPath: Path, priv
       assert(paths.isNotEmpty())
 
       val fallbackPaths = if (paths.size > 1) paths.sliceArray(1 until paths.size) else emptyArray()
-      return AbsoluteClassFileCandidates(primaryPath = paths.first(), fallbackPaths = fallbackPaths.toList())
+      return AbsoluteClassFileCandidates(
+        primaryPath = paths.first(),
+        fallbackPaths = fallbackPaths.toList(),
+      )
     }
   }
 }

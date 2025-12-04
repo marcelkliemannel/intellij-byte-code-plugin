@@ -11,25 +11,25 @@ import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.Annotati
 import dev.turingcomplete.intellijbytecodeplugin.tool._internal.SignatureParserTool
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.GoToProvider
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureTreeContext
-import org.apache.commons.text.StringEscapeUtils
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.JComponent
 import javax.swing.tree.DefaultMutableTreeNode
+import org.apache.commons.text.StringEscapeUtils
 
-internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
-  : DefaultMutableTreeNode(), LeafState.Supplier {
+internal abstract class StructureNode(val goToProvider: GoToProvider? = null) :
+  DefaultMutableTreeNode(), LeafState.Supplier {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
   private var componentValid = false
   private var asyncAddChildrenInExecution = AtomicBoolean()
   private var asyncAddChildren: (() -> Unit)? = null
   private var willAlwaysHaveAsyncChildren = false
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun component(selected: Boolean, context: StructureTreeContext): JComponent {
     val component = component(selected, context, componentValid)
@@ -37,7 +37,11 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
     return component
   }
 
-  protected abstract fun component(selected: Boolean, context: StructureTreeContext, componentValid: Boolean): JComponent
+  protected abstract fun component(
+    selected: Boolean,
+    context: StructureTreeContext,
+    componentValid: Boolean,
+  ): JComponent
 
   /**
    * Gets the text which is used for the search inside the structure tree.
@@ -53,15 +57,12 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
   override fun getLeafState(): LeafState {
     return if (asyncAddChildren != null) {
       if (willAlwaysHaveAsyncChildren) LeafState.NEVER else LeafState.ASYNC
-    }
-    else {
+    } else {
       LeafState.DEFAULT
     }
   }
 
-  /**
-   * Returns true if async loading is in process.
-   */
+  /** Returns true if async loading is in process. */
   fun asyncLoadChildren(workAsync: Boolean): Boolean {
     return when {
       asyncAddChildren == null -> {
@@ -80,15 +81,13 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
           ApplicationManager.getApplication().executeOnPooledThread {
             try {
               asyncAddChildren!!()
-            }
-            finally {
+            } finally {
               asyncAddChildren = null
               asyncAddChildrenInExecution.set(false)
             }
           }
           true
-        }
-        else {
+        } else {
           asyncAddChildren!!()
           asyncAddChildren = null
           false
@@ -98,34 +97,38 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
   }
 
   /**
-   * @param willAlwaysHaveAsyncChildren if true, the collapse/expand icon will
-   * always be shown, without triggering the costly calculation of the number
-   * of children.
+   * @param willAlwaysHaveAsyncChildren if true, the collapse/expand icon will always be shown,
+   *   without triggering the costly calculation of the number of children.
    */
   fun asyncAdd(willAlwaysHaveAsyncChildren: Boolean = false, asyncAddChildren: (() -> Unit)) {
     this.willAlwaysHaveAsyncChildren = willAlwaysHaveAsyncChildren
     this.asyncAddChildren = asyncAddChildren
   }
 
-  fun <T : Any> addTitleNodeWithElements(elements: List<T>?,
-                                         createTitleNode: () -> TextNode,
-                                         addElementsAsync: Boolean = false,
-                                         mapElement: (Int, T) -> StructureNode?) {
+  fun <T : Any> addTitleNodeWithElements(
+    elements: List<T>?,
+    createTitleNode: () -> TextNode,
+    addElementsAsync: Boolean = false,
+    mapElement: (Int, T) -> StructureNode?,
+  ) {
 
     if (!elements.isNullOrEmpty()) {
       val addElements: TextNode.() -> Unit = {
-        elements.mapIndexedNotNull(mapElement).forEach { elementNode ->
-          add(elementNode)
-        }
+        elements.mapIndexedNotNull(mapElement).forEach { elementNode -> add(elementNode) }
       }
-      add(createTitleNode().apply {
-        if (addElementsAsync) asyncAdd(true) { addElements() } else addElements()
-      })
+      add(
+        createTitleNode().apply {
+          if (addElementsAsync) asyncAdd(true) { addElements() } else addElements()
+        }
+      )
     }
   }
 
   fun addAttributesNode(attributes: List<Attribute>?) {
-    addTitleNodeWithElements(attributes, { TextNode("Attributes", AllIcons.Nodes.ObjectTypeAttribute) }) { _, attribute ->
+    addTitleNodeWithElements(
+      attributes,
+      { TextNode("Attributes", AllIcons.Nodes.ObjectTypeAttribute) },
+    ) { _, attribute ->
       ValueNode(displayValue = attribute.type)
     }
   }
@@ -134,9 +137,13 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
     add(
       HtmlTextNode(
         "Access:",
-        { ctx -> if (ctx.showAccessAsHex) "0x${Integer.toHexString(access).uppercase(Locale.getDefault())}" else access.toString() },
-        postFix = "<span class=\"contextHelp\">${accessGroup.toReadableAccess(access).joinToString(", ")}</span>",
-        icon = AllIcons.Nodes.RwAccess
+        { ctx ->
+          if (ctx.showAccessAsHex) "0x${Integer.toHexString(access).uppercase(Locale.getDefault())}"
+          else access.toString()
+        },
+        postFix =
+          "<span class=\"contextHelp\">${accessGroup.toReadableAccess(access).joinToString(", ")}</span>",
+        icon = AllIcons.Nodes.RwAccess,
       )
     )
   }
@@ -146,58 +153,96 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
       return
     }
 
-    add(TextNode("Signature", AllIcons.Nodes.Type).apply {
-      asyncAdd {
-        add(ValueNode("Raw:", StringEscapeUtils.escapeHtml4(signature), signature))
+    add(
+      TextNode("Signature", AllIcons.Nodes.Type).apply {
+        asyncAdd {
+          add(ValueNode("Raw:", StringEscapeUtils.escapeHtml4(signature), signature))
 
-        val parsingResult = SignatureParserTool.parseSignature(signature)
-        if (parsingResult.error == null) {
-          val parsedSignature = parsingResult.signature
-          if (parsedSignature.returnType != null) {
-            add(ValueNode("Return type:", StringEscapeUtils.escapeHtml4(parsedSignature.returnType), parsedSignature.returnType))
-          }
-          if (parsedSignature.formalTypeParameter != null) {
-            add(ValueNode("Type parameter:", StringEscapeUtils.escapeHtml4(parsedSignature.formalTypeParameter), parsedSignature.formalTypeParameter))
-          }
-          add(ValueNode("Declaration:", StringEscapeUtils.escapeHtml4(parsedSignature.declaration), parsedSignature.declaration))
-          if (parsedSignature.exceptions != null) {
-            add(ValueNode("Exceptions:", StringEscapeUtils.escapeHtml4(parsedSignature.exceptions), parsedSignature.exceptions))
+          val parsingResult = SignatureParserTool.parseSignature(signature)
+          if (parsingResult.error == null) {
+            val parsedSignature = parsingResult.signature
+            if (parsedSignature.returnType != null) {
+              add(
+                ValueNode(
+                  "Return type:",
+                  StringEscapeUtils.escapeHtml4(parsedSignature.returnType),
+                  parsedSignature.returnType,
+                )
+              )
+            }
+            if (parsedSignature.formalTypeParameter != null) {
+              add(
+                ValueNode(
+                  "Type parameter:",
+                  StringEscapeUtils.escapeHtml4(parsedSignature.formalTypeParameter),
+                  parsedSignature.formalTypeParameter,
+                )
+              )
+            }
+            add(
+              ValueNode(
+                "Declaration:",
+                StringEscapeUtils.escapeHtml4(parsedSignature.declaration),
+                parsedSignature.declaration,
+              )
+            )
+            if (parsedSignature.exceptions != null) {
+              add(
+                ValueNode(
+                  "Exceptions:",
+                  StringEscapeUtils.escapeHtml4(parsedSignature.exceptions),
+                  parsedSignature.exceptions,
+                )
+              )
+            }
           }
         }
       }
-    })
+    )
   }
 
-  fun addAnnotationsNode(title: String,
-                         visibleAnnotations: List<AnnotationNode>?,
-                         invisibleAnnotations: List<AnnotationNode>?) {
+  fun addAnnotationsNode(
+    title: String,
+    visibleAnnotations: List<AnnotationNode>?,
+    invisibleAnnotations: List<AnnotationNode>?,
+  ) {
 
     if (visibleAnnotations.isNullOrEmpty() && invisibleAnnotations.isNullOrEmpty()) {
       return
     }
 
-    add(TextNode(title, AllIcons.Nodes.Annotationtype).apply {
-      asyncAdd(true) {
-        visibleAnnotations?.forEach { add(createAnnotationNode(it)) }
-        invisibleAnnotations?.forEach { add(createAnnotationNode(it, " <span class=\"contextHelp\">invisible</span>")) }
+    add(
+      TextNode(title, AllIcons.Nodes.Annotationtype).apply {
+        asyncAdd(true) {
+          visibleAnnotations?.forEach { add(createAnnotationNode(it)) }
+          invisibleAnnotations?.forEach {
+            add(createAnnotationNode(it, " <span class=\"contextHelp\">invisible</span>"))
+          }
+        }
       }
-    })
+    )
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
-  private fun createAnnotationNode(annotation: AnnotationNode, postFix: String? = null): StructureNode {
-    val values = annotation.values?.let { values ->
-      generateSequence(0) { if ((it + 2) < values.size) it + 2 else null }
-        .map { "${values[it]} = ${formatAnnotationValue(values[it + 1])}" }
-        .joinToString(", ", prefix = "(", postfix = ")")
-    } ?: ""
+  private fun createAnnotationNode(
+    annotation: AnnotationNode,
+    postFix: String? = null,
+  ): StructureNode {
+    val values =
+      annotation.values?.let { values ->
+        generateSequence(0) { if ((it + 2) < values.size) it + 2 else null }
+          .map { "${values[it]} = ${formatAnnotationValue(values[it + 1])}" }
+          .joinToString(", ", prefix = "(", postfix = ")")
+      } ?: ""
     val internalName = Type.getType(annotation.desc).internalName
     return HtmlTextNode(
-      displayValue = { ctx -> TypeUtils.toReadableName(internalName, ctx.typeNameRenderMode) + values },
+      displayValue = { ctx ->
+        TypeUtils.toReadableName(internalName, ctx.typeNameRenderMode) + values
+      },
       postFix = postFix,
       icon = AllIcons.Nodes.Annotationtype,
-      goToProvider = GoToProvider.Class(internalName)
+      goToProvider = GoToProvider.Class(internalName),
     )
   }
 
@@ -210,5 +255,5 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null)
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

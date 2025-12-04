@@ -5,9 +5,9 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.VirtualFile
 
 sealed class SourceFile private constructor(val file: VirtualFile) {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exported Methods -------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exported Methods ---------------------------------------------------- //
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -22,8 +22,8 @@ sealed class SourceFile private constructor(val file: VirtualFile) {
     return file.hashCode()
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class CompilableSourceFile(file: VirtualFile, val module: Module) : SourceFile(file) {
 
@@ -43,12 +43,12 @@ sealed class SourceFile private constructor(val file: VirtualFile) {
     override fun toString(): String = "CompilableSourceFile(file=$file, module=$module)"
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class NonCompilableSourceFile(file: VirtualFile) : SourceFile(file) {
 
     override fun toString(): String = "NonCompilableSourceFile(file=$file)"
   }
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 }

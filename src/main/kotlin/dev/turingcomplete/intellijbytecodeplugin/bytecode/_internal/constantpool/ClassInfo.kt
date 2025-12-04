@@ -2,8 +2,9 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode._internal.constantpoo
 
 import java.io.DataInputStream
 
-internal class ClassInfo(dataInputStream: DataInputStream) : ConstantPoolInfo("Class", readValues(dataInputStream)) {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+internal class ClassInfo(dataInputStream: DataInputStream) :
+  ConstantPoolInfo("Class", readValues(dataInputStream)) {
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     fun readValues(dataInputStream: DataInputStream): List<Value> {
@@ -11,9 +12,9 @@ internal class ClassInfo(dataInputStream: DataInputStream) : ConstantPoolInfo("C
     }
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 }

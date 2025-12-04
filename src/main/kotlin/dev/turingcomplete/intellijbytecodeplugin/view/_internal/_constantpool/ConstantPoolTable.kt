@@ -22,17 +22,18 @@ import javax.swing.table.TableCellRenderer
 import kotlin.properties.Delegates
 
 internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTable(), DataProvider {
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
-  var resolveIndices: Boolean by Delegates.observable(false) { _, old, new ->
-    if (old != new) {
-      revalidate()
-      repaint()
+  var resolveIndices: Boolean by
+    Delegates.observable(false) { _, old, new ->
+      if (old != new) {
+        revalidate()
+        repaint()
+      }
     }
-  }
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
 
   init {
     model = MyTableModel()
@@ -54,40 +55,43 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
       }
     }
 
-    addMouseListener(UiUtils.Table.createContextMenuMouseListener(
-      ConstantPoolTable::class.java.simpleName
-    ) {
-      DefaultActionGroup().apply {
-        // Go to indices
-        getSingleSelectedConstantPoolInfo()?.let { constantPoolInfo ->
-          val selectTableRow: (Int) -> Unit = { row ->
-            this@ConstantPoolTable.setRowSelectionInterval(row, row)
-            scrollRectToVisible(Rectangle(this@ConstantPoolTable.getCellRect(row, 0, true)))
+    addMouseListener(
+      UiUtils.Table.createContextMenuMouseListener(ConstantPoolTable::class.java.simpleName) {
+        DefaultActionGroup().apply {
+          // Go to indices
+          getSingleSelectedConstantPoolInfo()?.let { constantPoolInfo ->
+            val selectTableRow: (Int) -> Unit = { row ->
+              this@ConstantPoolTable.setRowSelectionInterval(row, row)
+              scrollRectToVisible(Rectangle(this@ConstantPoolTable.getCellRect(row, 0, true)))
+            }
+            constantPoolInfo.goToIndices.forEach { goToIndex ->
+              add(GoToIndexAction(goToIndex, selectTableRow))
+            }
+
+            addSeparator()
+
+            // Copy & view action
+            add(CopyValueAction())
+            add(ViewValueAction())
           }
-          constantPoolInfo.goToIndices.forEach { goToIndex -> add(GoToIndexAction(goToIndex, selectTableRow)) }
-
-          addSeparator()
-
-          // Copy & view action
-          add(CopyValueAction())
-          add(ViewValueAction())
         }
       }
-    })
+    )
 
     installSearchHandler()
   }
 
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun getData(dataId: String): Any? {
     return when {
-      CommonDataKeys.VALUE.`is`(dataId) -> getSingleSelectedConstantPoolInfo()?.let { toDisplayText(it) }
+      CommonDataKeys.VALUE.`is`(dataId) ->
+        getSingleSelectedConstantPoolInfo()?.let { toDisplayText(it) }
       else -> null
     }
   }
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
 
   private fun installSearchHandler() {
     val cellValueToSearchString: (Any) -> String? = { cellValue ->
@@ -101,20 +105,20 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
   }
 
   private fun toDisplayText(value: ConstantPoolInfo): String {
-    return if (resolveIndices) value.resolvedDisplayText(constantPool) else value.unresolvedDisplayText
+    return if (resolveIndices) value.resolvedDisplayText(constantPool)
+    else value.unresolvedDisplayText
   }
 
   private fun getSingleSelectedConstantPoolInfo(): ConstantPoolInfo? {
     val selectedRow = this@ConstantPoolTable.selectedRow
     return if (selectedRow >= 0 && this@ConstantPoolTable.selectedRowCount == 1) {
       constantPool.entries[selectedRow]
-    }
-    else {
+    } else {
       null
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private inner class MyTableModel : DefaultTableModel() {
 
@@ -124,28 +128,37 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
 
     override fun getColumnCount() = 3
 
-    override fun getColumnName(column: Int) = when (column) {
-      0 -> "Index"
-      1 -> "Type"
-      2 -> "Value"
-      else -> throw IllegalArgumentException("snh: Unknown column: $column")
-    }
+    override fun getColumnName(column: Int) =
+      when (column) {
+        0 -> "Index"
+        1 -> "Type"
+        2 -> "Value"
+        else -> throw IllegalArgumentException("snh: Unknown column: $column")
+      }
 
-    override fun getValueAt(row: Int, column: Int): Any = when (column) {
-      0 -> row + 1
-      1 -> constantPool.entries[row].type
-      2 -> constantPool.entries[row]
-      else -> throw IllegalArgumentException("snh: Unknown column: $column")
-    }
+    override fun getValueAt(row: Int, column: Int): Any =
+      when (column) {
+        0 -> row + 1
+        1 -> constantPool.entries[row].type
+        2 -> constantPool.entries[row]
+        else -> throw IllegalArgumentException("snh: Unknown column: $column")
+      }
 
     override fun isCellEditable(row: Int, column: Int) = false
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   private inner class ConstantPoolInfoValueTableCellRenderer : JBLabel(), TableCellRenderer {
 
-    override fun getTableCellRendererComponent(table: JTable, value: Any?, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int): Component {
+    override fun getTableCellRendererComponent(
+      table: JTable,
+      value: Any?,
+      isSelected: Boolean,
+      hasFocus: Boolean,
+      row: Int,
+      column: Int,
+    ): Component {
       value as ConstantPoolInfo
       text = toDisplayText(value)
       configureForCell(table, isSelected, hasFocus)
@@ -153,10 +166,10 @@ internal class ConstantPoolTable(private val constantPool: ConstantPool) : JBTab
     }
   }
 
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
-  private class GoToIndexAction(private val index: Int, private val selectTableRow: (Int) -> Unit)
-    : DumbAwareAction("Go To Index $index") {
+  private class GoToIndexAction(private val index: Int, private val selectTableRow: (Int) -> Unit) :
+    DumbAwareAction("Go To Index $index") {
 
     override fun actionPerformed(e: AnActionEvent) {
       selectTableRow(index - 1)

@@ -3,12 +3,12 @@ package dev.turingcomplete.intellijbytecodeplugin.bytecode
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
 
 object TypeUtils {
-  // -- Properties -------------------------------------------------------------------------------------------------- //
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   fun toReadableName(internalName: String, renderMode: TypeNameRenderMode): String {
-    return when(renderMode) {
+    return when (renderMode) {
       TypeNameRenderMode.INTERNAL -> internalName
       TypeNameRenderMode.QUALIFIED -> internalName.replace("/", ".")
       TypeNameRenderMode.SIMPLE -> {
@@ -37,13 +37,13 @@ object TypeUtils {
       else -> toReadableName(type.internalName, renderMode)
     }
   }
-  
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   enum class TypeNameRenderMode(val title: String) {
     INTERNAL("Internal Name"),
     QUALIFIED("Qualified Class Name"),
-    SIMPLE("Simple Class Name")
+    SIMPLE("Simple Class Name"),
   }
 }

@@ -20,6 +20,8 @@ plugins {
   alias(libs.plugins.intellij.platform)
   alias(libs.plugins.changelog)
   alias(libs.plugins.shadow)
+  alias(libs.plugins.spotless)
+  alias(libs.plugins.version.catalog.update)
 }
 
 group = properties("pluginGroup")
@@ -52,7 +54,7 @@ val shadowAsmJar = tasks.register<ShadowJar>("shadowAsmJar") {
 dependencies {
   intellijPlatform {
     val platformVersion = properties("platformVersion")
-    create(properties("platform"), platformVersion, platformVersion == "LATEST-EAP-SNAPSHOT")
+    create(properties("platform"), platformVersion) { this.useInstaller = platformVersion == "LATEST-EAP-SNAPSHOT" }
 
     bundledPlugins(properties("platformBundledPlugins").split(','))
 
@@ -75,6 +77,7 @@ dependencies {
   testImplementation(libs.assertj.core)
   testImplementation(libs.bundles.junit.implementation)
   testRuntimeOnly(libs.bundles.junit.runtime)
+  testRuntimeOnly(libs.junit.platform.launcher)
 
   testData(libs.groovy)
   testData(libs.kotlin.stdlib)
@@ -131,6 +134,8 @@ changelog {
   groups.set(listOf("Added", "Changed", "Removed", "Fixed"))
 }
 
+spotless { kotlin { ktfmt().googleStyle() } }
+
 tasks {
   runIde {
     // Enable to test Kotlin K2 beta mode
@@ -146,5 +151,19 @@ tasks {
 
   withType<Test> {
     useJUnitPlatform()
+  }
+
+  named("check") { dependsOn("spotlessCheck") }
+}
+
+versionCatalogUpdate {
+  pin {
+    versions.set(
+      listOf(
+        // Must be updated in conjunction with the minimum platform version
+        // https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
+        "kotlin"
+      )
+    )
   }
 }

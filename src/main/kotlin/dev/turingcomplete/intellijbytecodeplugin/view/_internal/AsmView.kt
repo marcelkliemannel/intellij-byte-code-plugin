@@ -16,43 +16,50 @@ import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeParsingResultView
 class AsmView(classFileContext: ClassFileContext) :
   ByteCodeParsingResultView(classFileContext, "ASM", METHOD_LINE_REGEX) {
 
-  // -- Companion Object -------------------------------------------------------------------------------------------- //
+  // -- Companion Object ---------------------------------------------------- //
 
   companion object {
     // Example: "methodVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);"
-    private val METHOD_LINE_REGEX = Regex("^.*classWriter\\.visitMethod\\(.*?,\\s\"(?<name>.+?)\".*\$")
+    private val METHOD_LINE_REGEX =
+      Regex("^.*classWriter\\.visitMethod\\(.*?,\\s\"(?<name>.+?)\".*\$")
   }
 
-  // -- Properties -------------------------------------------------------------------------------------------------- //
+  // -- Properties ---------------------------------------------------------- //
 
-  // -- Initialization ---------------------------------------------------------------------------------------------- //
-  // -- Exposed Methods --------------------------------------------------------------------------------------------- //
+  // -- Initialization ------------------------------------------------------ //
+  // -- Exposed Methods ----------------------------------------------------- //
 
   override fun asyncParseByteCode(parsingOptions: Int, onSuccess: (String) -> Unit) {
     val asmifiedText = traceVisit(classFileContext.classReader(), parsingOptions, ASMifier())
 
-    val asmifiedTextPsiFile = ApplicationManager.getApplication().runReadAction(Computable<PsiFile?> {
-      val lightVirtualFile = LightVirtualFile(openInEditorFileName(), JavaFileType.INSTANCE, asmifiedText)
-      PsiManager.getInstance(classFileContext.project()).findFile(lightVirtualFile)
-    })
+    val asmifiedTextPsiFile =
+      ApplicationManager.getApplication()
+        .runReadAction(
+          Computable<PsiFile?> {
+            val lightVirtualFile =
+              LightVirtualFile(openInEditorFileName(), JavaFileType.INSTANCE, asmifiedText)
+            PsiManager.getInstance(classFileContext.project()).findFile(lightVirtualFile)
+          }
+        )
 
     if (asmifiedTextPsiFile != null) {
       ApplicationManager.getApplication().invokeAndWait {
-        val reformatProcessor = ReformatCodeProcessor(classFileContext.project(), asmifiedTextPsiFile, null, false)
+        val reformatProcessor =
+          ReformatCodeProcessor(classFileContext.project(), asmifiedTextPsiFile, null, false)
         val rearrangeProcessor = RearrangeCodeProcessor(reformatProcessor)
         rearrangeProcessor.setPostRunnable { onSuccess(asmifiedTextPsiFile.text) }
         rearrangeProcessor.run()
       }
-    }
-    else {
+    } else {
       onSuccess(asmifiedText)
     }
   }
 
-  override fun openInEditorFileName() = "${classFileContext.classFile().file.nameWithoutExtension}Dump.java"
+  override fun openInEditorFileName() =
+    "${classFileContext.classFile().file.nameWithoutExtension}Dump.java"
 
-  // -- Private Methods --------------------------------------------------------------------------------------------- //
-  // -- Inner Type -------------------------------------------------------------------------------------------------- //
+  // -- Private Methods ----------------------------------------------------- //
+  // -- Inner Type ---------------------------------------------------------- //
 
   class MyCreator : Creator {
     override fun create(classFileContext: ClassFileContext) = AsmView(classFileContext)

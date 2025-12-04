@@ -10,6 +10,12 @@
 
 ### Fixed
 
+## 4.4.0 - 2025-12-04
+
+### Added
+
+- Support for Java 25 using ASM 9.9
+
 ## 4.3.0 - 2025-01-15
 
 ### Added
