@@ -77,7 +77,8 @@ internal class FilesDropHandler(private val project: Project) :
       if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
         val transferData = transferable.getTransferData(DataFlavor.javaFileListFlavor)
         if (transferData is TransferableWrapper) {
-          transferData.psiElements?.associate { it to null }
+          transferData.psiElements
+            ?.associate { it to null }
             ?.takeIf { it.isNotEmpty() }
             ?.let {
               project

@@ -77,6 +77,7 @@ dependencies {
   testImplementation(libs.assertj.core)
   testImplementation(libs.bundles.junit.implementation)
   testRuntimeOnly(libs.bundles.junit.runtime)
+  testRuntimeOnly(libs.junit.platform.launcher)
 
   testData(libs.groovy)
   testData(libs.kotlin.stdlib)

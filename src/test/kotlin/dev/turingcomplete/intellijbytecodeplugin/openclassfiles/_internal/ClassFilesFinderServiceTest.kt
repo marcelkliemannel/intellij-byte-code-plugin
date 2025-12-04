@@ -1336,7 +1336,7 @@ class ClassFilesFinderServiceTest {
 
   class SourcePsiElementTestVectors : ArgumentsProvider {
 
-    override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> =
+    override fun provideArguments(context: ExtensionContext): Stream<out Arguments> =
       myExecutionTestCase.psiElementTestVectors.map { Arguments.of(it) }.stream()
   }
 
@@ -1345,7 +1345,7 @@ class ClassFilesFinderServiceTest {
 
   class ClassPsiElementTestVectors : ArgumentsProvider {
 
-    override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> =
+    override fun provideArguments(context: ExtensionContext): Stream<out Arguments> =
       myExecutionTestCase.psiElementTestVectors
         .filter { !it.sourceFileOnly }
         .map { Arguments.of(it) }

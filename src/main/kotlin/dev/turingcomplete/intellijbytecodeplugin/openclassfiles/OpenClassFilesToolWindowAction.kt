@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nls
 
 abstract class OpenClassFilesToolWindowAction(
   @NlsActions.ActionText val actionTitle: String,
-  @Nls(capitalization = Nls.Capitalization.Sentence) val linkTitle: String,
+  @Nls val linkTitle: String,
   val icon: Icon? = null,
 ) {
   // -- Companion Object ---------------------------------------------------- //
