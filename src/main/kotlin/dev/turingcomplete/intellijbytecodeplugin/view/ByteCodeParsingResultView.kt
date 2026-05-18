@@ -47,6 +47,7 @@ import dev.turingcomplete.intellijbytecodeplugin.view.ByteCodeAction.Companion.a
 import dev.turingcomplete.intellijbytecodeplugin.view.common.OpenInEditorAction
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
+import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.JComponent
 import javax.swing.JPanel
 import kotlin.properties.Delegates
@@ -66,6 +67,7 @@ abstract class ByteCodeParsingResultView(
   private val parsingIndicatorLabel = JBLabel("Parsing...")
 
   private val parsingResultCache: MutableMap<Int, ByteCodeParsingResult> = mutableMapOf()
+  private val parsingRequestId = AtomicInteger()
 
   private val goToMethods = mutableListOf<Pair<Int, String>>()
   private val goToMethodsLink: DropDownLink<Pair<Int, String>> by lazy { createGoToMethodsLink() }
@@ -286,37 +288,49 @@ abstract class ByteCodeParsingResultView(
     } else {
       parsingIndicatorLabel.isVisible = true
 
+      val requestId = parsingRequestId.incrementAndGet()
       val setParsingResult: (String) -> Unit = { newText ->
         val newGoToMethods = parseGoToMethods(newText)
-        parsingResultCache.computeIfAbsent(parsingOptions) {
-          ByteCodeParsingResult(newText, newGoToMethods)
+        ApplicationManager.getApplication().invokeLater {
+          if (requestId != parsingRequestId.get() || classFileContext.project().isDisposed) {
+            return@invokeLater
+          }
+
+          val parsingResult =
+            parsingResultCache.computeIfAbsent(parsingOptions) {
+              ByteCodeParsingResult(newText, newGoToMethods)
+            }
+          setByteCodeParsingResult(parsingResult.text, parsingResult.goToMethods)
+          parsingIndicatorLabel.isVisible = false
         }
-        setByteCodeParsingResult(newText, newGoToMethods)
-        ApplicationManager.getApplication().invokeLater { parsingIndicatorLabel.isVisible = false }
       }
       runAsync(
         classFileContext.project(),
         { asyncParseByteCode(parsingOptions, setParsingResult) },
-        { cause -> onError("Failed to parse byte code", cause) },
+        { cause ->
+          if (requestId == parsingRequestId.get()) {
+            onError("Failed to parse byte code", cause)
+          }
+        },
       )
     }
   }
 
   private fun setByteCodeParsingResult(newText: String, newGoToMethods: Map<Int, String>) {
+    ApplicationManager.getApplication().assertIsDispatchThread()
+
     goToMethods.clear()
     goToMethods.addAll(newGoToMethods.toList().sortedBy { it.second })
 
-    ApplicationManager.getApplication().invokeLater {
-      goToMethodsLink.isEnabled = newGoToMethods.isNotEmpty()
+    goToMethodsLink.isEnabled = newGoToMethods.isNotEmpty()
 
-      DocumentUtil.writeInRunUndoTransparentAction {
-        editor.document.apply {
-          setReadOnly(false)
-          setText(newText)
-          setReadOnly(true)
-        }
-        editor.component.requestFocusInWindow()
+    DocumentUtil.writeInRunUndoTransparentAction {
+      editor.document.apply {
+        setReadOnly(false)
+        setText(newText)
+        setReadOnly(true)
       }
+      editor.component.requestFocusInWindow()
     }
   }
 
