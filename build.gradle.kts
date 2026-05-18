@@ -54,7 +54,7 @@ val shadowAsmJar = tasks.register<ShadowJar>("shadowAsmJar") {
 dependencies {
   intellijPlatform {
     val platformVersion = properties("platformVersion")
-    create(properties("platform"), platformVersion) { this.useInstaller = platformVersion == "LATEST-EAP-SNAPSHOT" }
+    intellijIdea(platformVersion) { this.useInstaller = platformVersion == "LATEST-EAP-SNAPSHOT" }
 
     bundledPlugins(properties("platformBundledPlugins").split(','))
 
