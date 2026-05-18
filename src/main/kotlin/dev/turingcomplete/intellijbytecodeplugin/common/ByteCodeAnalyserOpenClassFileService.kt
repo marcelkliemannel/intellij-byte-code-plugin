@@ -39,8 +39,18 @@ class ByteCodeAnalyserOpenClassFileService(val project: Project) {
   // -- Private Methods ----------------------------------------------------- //
 
   private fun run(findBy: (ClassFilesFinderService) -> Result) {
-    val result = findBy(project.getService(ClassFilesFinderService::class.java))
-    handleResult(result)
+    ApplicationManager.getApplication().executeOnPooledThread {
+      if (project.isDisposed) {
+        return@executeOnPooledThread
+      }
+
+      val result = findBy(project.getService(ClassFilesFinderService::class.java))
+      ApplicationManager.getApplication().invokeLater {
+        if (!project.isDisposed) {
+          handleResult(result)
+        }
+      }
+    }
   }
 
   private fun handleResult(result: Result) {
