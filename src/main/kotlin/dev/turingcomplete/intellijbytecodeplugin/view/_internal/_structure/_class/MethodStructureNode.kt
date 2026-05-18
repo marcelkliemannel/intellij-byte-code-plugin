@@ -86,6 +86,7 @@ internal class MethodStructureNode(
       )
       addMethodExceptionsNode()
       addAttributesNode(methodNode.attrs)
+      addAnnotationDefaultNode()
       addMethodParametersNode()
       if (!Access.ABSTRACT.check(methodNode.access)) {
         addMethodInstructionsNode()
@@ -126,6 +127,12 @@ internal class MethodStructureNode(
         icon = AllIcons.Nodes.ExceptionClass,
         goToProvider = GoToProvider.Class(exception),
       )
+    }
+  }
+
+  private fun addAnnotationDefaultNode() {
+    methodNode.annotationDefault?.let { defaultValue ->
+      add(ValueNode("Annotation default:", formatAnnotationValue(defaultValue)))
     }
   }
 
