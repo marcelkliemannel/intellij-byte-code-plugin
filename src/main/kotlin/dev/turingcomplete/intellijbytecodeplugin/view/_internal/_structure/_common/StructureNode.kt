@@ -1,7 +1,6 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure._common
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.ui.tree.LeafState
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.AccessGroup
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
@@ -63,7 +62,7 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null) :
   }
 
   /** Returns true if async loading is in process. */
-  fun asyncLoadChildren(workAsync: Boolean): Boolean {
+  fun asyncLoadChildren(@Suppress("UNUSED_PARAMETER") workAsync: Boolean): Boolean {
     return when {
       asyncAddChildren == null -> {
         // No children to load
@@ -76,22 +75,15 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null) :
       }
 
       else -> {
-        // Load children
-        if (workAsync) {
-          ApplicationManager.getApplication().executeOnPooledThread {
-            try {
-              asyncAddChildren!!()
-            } finally {
-              asyncAddChildren = null
-              asyncAddChildrenInExecution.set(false)
-            }
-          }
-          true
-        } else {
+        // AsyncTreeModel already invokes tree loading on its model invoker, so keep child mutation
+        // on that path instead of racing it from a second pooled thread.
+        try {
           asyncAddChildren!!()
+        } finally {
           asyncAddChildren = null
-          false
+          asyncAddChildrenInExecution.set(false)
         }
+        false
       }
     }
   }
