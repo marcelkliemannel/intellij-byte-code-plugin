@@ -104,11 +104,21 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
         val component = contentManager.component ?: return@invokeLater
 
         val toolWindowDropTarget = component.dropTarget
+        val filesDropHandler = FilesDropHandler(project)
         if (toolWindowDropTarget != null) {
-          toolWindowDropTarget.addDropTargetListener(FilesDropHandler(project))
+          toolWindowDropTarget.addDropTargetListener(filesDropHandler)
+          Disposer.register(disposable) {
+            toolWindowDropTarget.removeDropTargetListener(filesDropHandler)
+          }
         } else {
-          contentManager.component.dropTarget =
-            DropTarget(contentManager.component, FilesDropHandler(project))
+          val newDropTarget = DropTarget(component, filesDropHandler)
+          component.dropTarget = newDropTarget
+          Disposer.register(disposable) {
+            newDropTarget.removeDropTargetListener(filesDropHandler)
+            if (component.dropTarget === newDropTarget) {
+              component.dropTarget = null
+            }
+          }
         }
       } catch (e: Exception) {
         // This method sometimes throws exceptions, because the UI is in an
