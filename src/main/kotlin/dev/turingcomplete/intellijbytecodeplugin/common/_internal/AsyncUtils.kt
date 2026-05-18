@@ -1,6 +1,7 @@
 package dev.turingcomplete.intellijbytecodeplugin.common._internal
 
 import com.intellij.ide.BrowserUtil
+import com.intellij.ide.actions.RevealFileAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
@@ -53,6 +54,10 @@ internal object AsyncUtils {
 
   fun browseAsync(project: Project?, path: Path) {
     browseAsync(project, { BrowserUtil.browse(path) }, path.toString())
+  }
+
+  fun openDirectoryAsync(project: Project?, path: Path) {
+    browseAsync(project, { RevealFileAction.openDirectory(path) }, path.toString())
   }
 
   // -- Private Methods ----------------------------------------------------- //

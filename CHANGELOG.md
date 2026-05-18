@@ -23,6 +23,7 @@
 - Fix the "Open Class Files" chooser allowing only one class file
 - Fix "Analyze Current Editor File" silently doing nothing when no processable editor file is open
 - Fix "Analyze Byte Code" processing only one item from some project-view multi-selections
+- Fix open file actions will now open the file explorer and not the browser
 
 ## 4.4.0 - 2025-12-04
 

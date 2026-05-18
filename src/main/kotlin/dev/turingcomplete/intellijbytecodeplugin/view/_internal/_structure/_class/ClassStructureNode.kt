@@ -348,7 +348,7 @@ internal class ClassStructureNode(
           if (parentDirectory != null && parentDirectory.isInLocalFileSystem) {
             add(
               HyperLinkNode("Open enclosing directory") { _, _ ->
-                AsyncUtils.browseAsync(null, parentDirectory.toNioPath())
+                AsyncUtils.openDirectoryAsync(null, parentDirectory.toNioPath())
               }
             )
           }
