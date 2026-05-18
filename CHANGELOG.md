@@ -12,6 +12,7 @@
 
 ### Fixed
 
+- Fix invalid tool window data values breaking action updates
 - Fix opening the structure view's class file in the editor
 - Fix toolbar creation triggering IntelliJ Platform action-group errors
 - Fix outdated and missing class file checks blocking the UI before the compile prompt appears
