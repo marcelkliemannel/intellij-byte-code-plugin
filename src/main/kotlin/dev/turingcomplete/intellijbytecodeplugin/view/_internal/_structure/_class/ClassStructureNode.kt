@@ -107,8 +107,7 @@ internal class ClassStructureNode(
     val classVersion = toClassVersion(classNode.version)
     val classVersionSpecification =
       classVersion?.specification?.let { specification ->
-        if (isPreviewClassVersion(classNode.version)) "$specification, preview"
-        else specification
+        if (isPreviewClassVersion(classNode.version)) "$specification, preview" else specification
       }
     add(
       HtmlTextNode(
@@ -239,7 +238,9 @@ internal class ClassStructureNode(
       { TextNode("Inner classes", AllIcons.Nodes.Class) },
     ) { _, innerClass ->
       ValueNode(
-          displayValue = { ctx -> TypeUtils.toReadableName(innerClass.name, ctx.typeNameRenderMode) },
+          displayValue = { ctx ->
+            TypeUtils.toReadableName(innerClass.name, ctx.typeNameRenderMode)
+          },
           icon = AllIcons.Nodes.Class,
           goToProvider = GoToProvider.Class(innerClass.name),
         )
