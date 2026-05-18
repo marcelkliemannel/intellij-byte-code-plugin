@@ -288,16 +288,25 @@ internal class MethodStructureNode(
         postFix += ", handled in ${labelNames.getOrDefault(it.label, "unknown")}"
       }
 
-      if (tryCatchBlock.type != null) {
-        ValueNode(
-          displayValue = { ctx ->
-            TypeUtils.toReadableName(tryCatchBlock.type, ctx.typeNameRenderMode)
-          },
-          postFix = postFix,
-          goToProvider = GoToProvider.Class(tryCatchBlock.type),
+      val tryCatchBlockNode =
+        if (tryCatchBlock.type != null) {
+          ValueNode(
+            displayValue = { ctx ->
+              TypeUtils.toReadableName(tryCatchBlock.type, ctx.typeNameRenderMode)
+            },
+            postFix = postFix,
+            goToProvider = GoToProvider.Class(tryCatchBlock.type),
+          )
+        } else {
+          TextNode(postFix.replaceFirstChar { it.titlecase(Locale.getDefault()) })
+        }
+
+      tryCatchBlockNode.apply {
+        addAnnotationsNode(
+          "Type Annotations",
+          tryCatchBlock.visibleTypeAnnotations,
+          tryCatchBlock.invisibleTypeAnnotations,
         )
-      } else {
-        TextNode(postFix.replaceFirstChar { it.titlecase(Locale.getDefault()) })
       }
     }
   }
