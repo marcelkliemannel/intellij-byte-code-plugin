@@ -12,6 +12,7 @@
 
 ### Fixed
 
+- Fix "Analyze Current Editor File" silently doing nothing when no processable editor file is open
 - Fix "Analyze Byte Code" processing only one item from some project-view multi-selections
 
 ## 4.4.0 - 2025-12-04
