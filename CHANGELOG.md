@@ -4,6 +4,8 @@
 
 ### Added
 
+- Add Support for Java 26 and 27
+
 ### Changed
 
 - Raise minimum IntelliJ version to 2026.1
