@@ -77,7 +77,7 @@ internal class StructureView(classFileContext: ClassFileContext) :
 
         addSeparator()
 
-        addAll(tree.createToolBarActions().getChildren(null).toList())
+        addAll(tree.createToolBarActions().getChildActionsOrStubs().toList())
       }
     return ActionManager.getInstance()
       .createActionToolbar(

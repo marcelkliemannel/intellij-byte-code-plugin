@@ -5,7 +5,6 @@ import com.intellij.ide.DefaultTreeExpander
 import com.intellij.ide.actions.CollapseAllAction
 import com.intellij.ide.actions.ExpandAllAction
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.PlatformDataKeys
@@ -99,7 +98,7 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
     structureTreeModel.reload()
   }
 
-  fun createToolBarActions(): ActionGroup {
+  fun createToolBarActions(): DefaultActionGroup {
     return DefaultActionGroup().apply {
       add(RenderOptionsGroup())
 
