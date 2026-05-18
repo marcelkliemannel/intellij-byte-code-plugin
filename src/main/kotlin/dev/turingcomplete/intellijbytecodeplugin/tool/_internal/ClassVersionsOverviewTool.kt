@@ -33,9 +33,9 @@ class ClassVersionsOverviewTool : ByteCodeTool("Class Versions Overview") {
       BorderLayoutPanel().apply {
         val model =
           DefaultTableModel(
-            ClassVersionUtils.CLASS_VERSIONS.map { arrayOf(it.specification, it.major) }
+            ClassVersionUtils.CLASS_VERSIONS.map { arrayOf<Any>(it.specification, it.major) }
               .toTypedArray(),
-            arrayOf("Specification", "Class Version"),
+            arrayOf<Any>("Specification", "Class Version"),
           )
         val table = ClassVersionsTable(model)
         addToCenter(ScrollPaneFactory.createScrollPane(table))

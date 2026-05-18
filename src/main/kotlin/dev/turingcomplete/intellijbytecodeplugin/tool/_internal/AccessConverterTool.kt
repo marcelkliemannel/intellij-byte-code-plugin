@@ -230,9 +230,9 @@ internal class AccessConverterTool :
   ) :
     DefaultTableModel(
       accessGroup.accesses
-        .map { arrayOf(false, it.name.lowercase(Locale.getDefault()), it.value) }
+        .map { arrayOf<Any>(false, it.name.lowercase(Locale.getDefault()), it.value) }
         .toTypedArray(),
-      arrayOf("", "Name", "Value"),
+      arrayOf<Any>("", "Name", "Value"),
     ) {
 
     init {

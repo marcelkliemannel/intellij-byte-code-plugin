@@ -56,7 +56,7 @@ internal class ClassFilesFinderService(private val project: Project) {
     ClassNameProvider(
       project,
       GlobalSearchScope.allScope(project),
-      ClassNameProvider.Configuration.DEFAULT.copy(alwaysReturnLambdaParentClass = true),
+      ClassNameProviderConfigurations.defaultReturningLambdaParentClass(),
     )
   }
 
