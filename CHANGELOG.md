@@ -4,6 +4,16 @@
 
 ### Added
 
+### Changed
+
+### Removed
+
+### Fixed
+
+## 5.0.0 - 2026-05-18
+
+### Added
+
 - Add support for Java 26 and 27
 - Show preview class file versions in the structure view
 - Show annotation method default values in the structure view
@@ -14,8 +24,6 @@
 ### Changed
 
 - Raise minimum IntelliJ version to 2026.1
-
-### Removed
 
 ### Fixed
 
