@@ -151,6 +151,7 @@ tasks {
 
   withType<Test> {
     useJUnitPlatform()
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceIn(1, 2)
   }
 
   named("check") { dependsOn("spotlessCheck") }
