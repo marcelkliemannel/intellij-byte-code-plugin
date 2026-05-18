@@ -12,6 +12,7 @@
 
 ### Fixed
 
+- Fix outdated and missing class file checks blocking the UI before the compile prompt appears
 - Fix class file resolution blocking the UI while opening source or class files
 - Fix stale byte code parsing results overwriting newer parse results after quick option changes
 - Fix the "Open Class Files" chooser allowing only one class file

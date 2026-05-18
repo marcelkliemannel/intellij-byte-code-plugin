@@ -41,8 +41,22 @@ internal class ClassFilesPreparatorService(private val project: Project) {
       return
     }
 
+    ApplicationManager.getApplication().executeOnPooledThread {
+      val preparationState = collectPreparationState(preparationTasks)
+      ApplicationManager.getApplication().invokeLater {
+        if (!project.isDisposed) {
+          prepareClassFiles(preparationState, parentComponent, consumeClassFile)
+        }
+      }
+    }
+  }
+
+  private fun collectPreparationState(
+    preparationTasks: List<ClassFilePreparationTask>
+  ): PreparationState {
     val outdatedClassFiles = mutableListOf<ClassFilePreparationTask>()
     val missingClassFiles = mutableListOf<ClassFilePreparationTask>()
+    val classFilesToOpen = mutableListOf<ClassFile>()
 
     preparationTasks.forEach { classFilePreparationContext ->
       val classFile =
@@ -76,20 +90,30 @@ internal class ClassFilesPreparatorService(private val project: Project) {
       ) {
         outdatedClassFiles.add(classFilePreparationContext)
       } else {
-        consumeClassFile(ClassFile(classFile, sourceFile))
+        classFilesToOpen.add(ClassFile(classFile, sourceFile))
       }
     }
+
+    return PreparationState(classFilesToOpen, outdatedClassFiles, missingClassFiles)
+  }
+
+  private fun prepareClassFiles(
+    preparationState: PreparationState,
+    parentComponent: JComponent?,
+    consumeClassFile: (ClassFile) -> Unit,
+  ) {
+    preparationState.classFilesToOpen.forEach(consumeClassFile)
 
     val compileScope =
       sequenceOf(
           determineCompileScope(
-            outdatedClassFiles,
+            preparationState.outdatedClassFiles,
             PrepareReason.OUT_DATED,
             parentComponent,
             consumeClassFile,
           ),
           determineCompileScope(
-            missingClassFiles,
+            preparationState.missingClassFiles,
             PrepareReason.MISSING,
             parentComponent,
             consumeClassFile,
@@ -102,7 +126,7 @@ internal class ClassFilesPreparatorService(private val project: Project) {
       compilerManager.compile(
         compileScope,
         OpenClassFilesAfterCompilationHandler(
-          outdatedClassFiles.plus(missingClassFiles),
+          preparationState.outdatedClassFiles.plus(preparationState.missingClassFiles),
           consumeClassFile,
         ),
       )
@@ -159,6 +183,14 @@ internal class ClassFilesPreparatorService(private val project: Project) {
   internal data class ClassFilePreparationTask(
     val compilerOutputClassFileCandidates: AbsoluteClassFileCandidates,
     val sourceFile: CompilableSourceFile,
+  )
+
+  // -- Inner Type ---------------------------------------------------------- //
+
+  private data class PreparationState(
+    val classFilesToOpen: List<ClassFile>,
+    val outdatedClassFiles: MutableList<ClassFilePreparationTask>,
+    val missingClassFiles: MutableList<ClassFilePreparationTask>,
   )
 
   // -- Inner Type ---------------------------------------------------------- //
