@@ -68,7 +68,8 @@ internal class ClassFileTab(private val project: Project, private var classFile:
   private fun doReParseClassNodeContext() {
     ApplicationManager.getApplication().invokeLater {
       val previousSelectedByteCodeViewIndex = byteCodeViewTabs?.selectedByteCodeViewIndex
-      loadClassNodeContext(previousSelectedByteCodeViewIndex)
+      val previousByteCodeViewStates = byteCodeViewTabs?.saveByteCodeViewStates()
+      loadClassNodeContext(previousSelectedByteCodeViewIndex, previousByteCodeViewStates)
     }
   }
 
@@ -83,7 +84,10 @@ internal class ClassFileTab(private val project: Project, private var classFile:
 
   // -- Private Methods ----------------------------------------------------- //
 
-  private fun loadClassNodeContext(selectedByteCodeViewIndex: Int? = 0) {
+  private fun loadClassNodeContext(
+    selectedByteCodeViewIndex: Int? = 0,
+    byteCodeViewStates: List<Any?>? = null,
+  ) {
     setCenter(
       JBLabel(
         "Parsing '${classFile.file.nameWithoutExtension}'...",
@@ -104,7 +108,7 @@ internal class ClassFileTab(private val project: Project, private var classFile:
     }
     val onSuccess: (ClassFileContext) -> Unit = { classFileContext ->
       ApplicationManager.getApplication().invokeLater {
-        loadTabs(classFileContext, selectedByteCodeViewIndex ?: 0)
+        loadTabs(classFileContext, selectedByteCodeViewIndex ?: 0, byteCodeViewStates)
       }
     }
     val onError: (Throwable) -> Unit = { cause ->
@@ -113,7 +117,11 @@ internal class ClassFileTab(private val project: Project, private var classFile:
     AsyncUtils.runAsync(project, createClassFileContext, onSuccess, onError)
   }
 
-  private fun loadTabs(classFileContext: ClassFileContext, selectedByteCodeViewIndex: Int) {
+  private fun loadTabs(
+    classFileContext: ClassFileContext,
+    selectedByteCodeViewIndex: Int,
+    byteCodeViewStates: List<Any?>? = null,
+  ) {
     if (project.isDisposed) {
       return
     }
@@ -121,6 +129,7 @@ internal class ClassFileTab(private val project: Project, private var classFile:
     byteCodeViewTabs = ByteCodeViewTabs(classFileContext, this)
     // We are inside the EDT -> no threading issues
     setCenter(byteCodeViewTabs!!.component)
+    byteCodeViewTabs!!.restoreByteCodeViewStates(byteCodeViewStates)
 
     if (selectedByteCodeViewIndex != 0) {
       // We are inside the EDT -> no threading issues
@@ -162,6 +171,16 @@ internal class ClassFileTab(private val project: Project, private var classFile:
     }
 
     fun selectedBytecodeView() = byteCodeViews[selectedByteCodeViewIndex]
+
+    fun saveByteCodeViewStates(): List<Any?> = byteCodeViews.map { it.saveState() }
+
+    fun restoreByteCodeViewStates(byteCodeViewStates: List<Any?>?) {
+      byteCodeViewStates?.forEachIndexed { index, state ->
+        if (state != null) {
+          byteCodeViews.getOrNull(index)?.restoreState(state)
+        }
+      }
+    }
 
     fun selectBytecodeViewIndex(index: Int) {
       setSelectedIndex(index, true)

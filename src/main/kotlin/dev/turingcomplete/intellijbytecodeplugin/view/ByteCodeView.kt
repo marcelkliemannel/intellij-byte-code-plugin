@@ -34,6 +34,12 @@ abstract class ByteCodeView(val classFileContext: ClassFileContext, val title: S
     // Override if needed
   }
 
+  open fun saveState(): Any? = null
+
+  open fun restoreState(state: Any) {
+    // Override if needed
+  }
+
   override fun getData(dataId: String): Any? =
     when {
       CommonDataKeys.CLASS_FILE_CONTEXT_DATA_KEY.`is`(dataId) -> classFileContext

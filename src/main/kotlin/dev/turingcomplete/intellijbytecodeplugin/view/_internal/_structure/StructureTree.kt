@@ -16,6 +16,7 @@ import com.intellij.ui.TreeUIHelper
 import com.intellij.ui.scale.JBUIScale
 import com.intellij.ui.tree.AsyncTreeModel
 import com.intellij.ui.tree.BaseTreeModel
+import com.intellij.ui.tree.TreeVisitor
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.concurrency.Invoker
 import com.intellij.util.concurrency.InvokerSupplier
@@ -44,18 +45,28 @@ import java.util.*
 import javax.swing.AbstractCellEditor
 import javax.swing.JLabel
 import javax.swing.JTree
+import javax.swing.SwingUtilities
 import javax.swing.tree.TreeCellEditor
 import javax.swing.tree.TreeCellRenderer
 import javax.swing.tree.TreeNode
+import javax.swing.tree.TreePath
 import org.jetbrains.annotations.TestOnly
 
-internal class StructureTree(classFileContext: ClassFileContext, parent: Disposable) :
-  Tree(AsyncTreeModel(StructureTreeModel(classFileContext), true, parent)), DataProvider {
+internal class StructureTree
+private constructor(
+  classFileContext: ClassFileContext,
+  parent: Disposable,
+  private val structureTreeModel: StructureTreeModel,
+) : Tree(AsyncTreeModel(structureTreeModel, true, parent)), DataProvider {
   // -- Companion Object ---------------------------------------------------- //
   // -- Properties ---------------------------------------------------------- //
 
-  private val structureTreeModel = StructureTreeModel(classFileContext)
   private val context = StructureTreeContext(classFileContext.project(), syncTree())
+
+  constructor(
+    classFileContext: ClassFileContext,
+    parent: Disposable,
+  ) : this(classFileContext, parent, StructureTreeModel(classFileContext))
 
   // -- Initialization ------------------------------------------------------ //
 
@@ -95,7 +106,15 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
   // -- Exposed Methods ----------------------------------------------------- //
 
   fun reload() {
+    val state = saveState()
     structureTreeModel.reload()
+    restoreState(state)
+  }
+
+  fun saveState(): State = State(collectExpandedTreePaths())
+
+  fun restoreState(state: State) {
+    restoreExpandedTreePaths(state.expandedTreePaths)
   }
 
   fun createToolBarActions(): DefaultActionGroup {
@@ -112,12 +131,12 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
 
   @TestOnly
   internal fun getChildren(): List<TreeNode>? {
-    return structureTreeModel.getChildren()
+    return getLoadedChildren(structureTreeModel.root)
   }
 
   @TestOnly
   internal fun getChildren(parent: Any): List<TreeNode>? {
-    return structureTreeModel.getChildren(parent)
+    return getLoadedChildren(parent)
   }
 
   override fun getData(dataId: String): Any? {
@@ -156,6 +175,96 @@ internal class StructureTree(classFileContext: ClassFileContext, parent: Disposa
 
     this@StructureTree.revalidate()
     this@StructureTree.repaint()
+  }
+
+  @TestOnly
+  private fun getLoadedChildren(parent: Any): List<TreeNode>? {
+    repeat(100) {
+      structureTreeModel.getChildren(parent)?.let {
+        return it
+      }
+
+      Thread.sleep(10)
+    }
+
+    return null
+  }
+
+  private fun collectExpandedTreePaths(): List<List<ExpandedTreePathSegment>> =
+    (0 until rowCount)
+      .mapNotNull { row -> getPathForRow(row) }
+      .filter { path -> isExpanded(path) }
+      .mapNotNull { path -> path.toExpandedTreePathSegments() }
+
+  private fun TreePath.toExpandedTreePathSegments(): List<ExpandedTreePathSegment>? {
+    val segments = mutableListOf<ExpandedTreePathSegment>()
+    path.asList().zipWithNext().forEach { (parent, child) ->
+      val parentNode = parent as? TreeNode ?: return null
+      val childNode = child as? StructureNode ?: return null
+      val childSignature = childNode.expandedTreePathSignature()
+      val occurrenceIndex =
+        parentNode
+          .children()
+          .asSequence()
+          .filterIsInstance<StructureNode>()
+          .takeWhile { it !== childNode }
+          .count { it.expandedTreePathSignature() == childSignature }
+      segments.add(ExpandedTreePathSegment(childSignature, occurrenceIndex))
+    }
+
+    return segments
+  }
+
+  private fun StructureNode.expandedTreePathSignature(): String {
+    return "${javaClass.name}:${searchText(context)}"
+  }
+
+  private fun restoreExpandedTreePaths(expandedTreePaths: List<List<ExpandedTreePathSegment>>) {
+    if (expandedTreePaths.isEmpty()) {
+      return
+    }
+
+    SwingUtilities.invokeLater {
+      expandedTreePaths
+        .sortedBy { it.size }
+        .forEach { segments ->
+          TreeUtil.promiseExpand(this@StructureTree, ExpandedTreePathVisitor(segments))
+        }
+    }
+  }
+
+  // -- Inner Type ---------------------------------------------------------- //
+
+  class State
+  internal constructor(internal val expandedTreePaths: List<List<ExpandedTreePathSegment>>)
+
+  // -- Inner Type ---------------------------------------------------------- //
+
+  data class ExpandedTreePathSegment(val signature: String, val occurrenceIndex: Int)
+
+  // -- Inner Type ---------------------------------------------------------- //
+
+  private inner class ExpandedTreePathVisitor(private val segments: List<ExpandedTreePathSegment>) :
+    TreeVisitor {
+
+    override fun visit(path: TreePath): TreeVisitor.Action {
+      val pathSegments =
+        path.toExpandedTreePathSegments() ?: return TreeVisitor.Action.SKIP_CHILDREN
+
+      if (pathSegments.size > segments.size) {
+        return TreeVisitor.Action.SKIP_CHILDREN
+      }
+
+      if (!segments.take(pathSegments.size).equals(pathSegments)) {
+        return TreeVisitor.Action.SKIP_CHILDREN
+      }
+
+      return if (pathSegments.size == segments.size) {
+        TreeVisitor.Action.INTERRUPT
+      } else {
+        TreeVisitor.Action.CONTINUE
+      }
+    }
   }
 
   // -- Inner Type ---------------------------------------------------------- //
