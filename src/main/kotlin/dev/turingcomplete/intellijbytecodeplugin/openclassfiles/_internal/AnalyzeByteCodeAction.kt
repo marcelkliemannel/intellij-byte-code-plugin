@@ -46,6 +46,12 @@ internal class AnalyzeByteCodeAction :
   override fun actionPerformed(e: AnActionEvent) {
     val project = CommonDataKeys.PROJECT.getData(e.dataContext) ?: return
 
+    val files = CommonDataKeys.VIRTUAL_FILE_ARRAY.getData(e.dataContext)?.toList().orEmpty()
+    if (CommonDataKeys.EDITOR.getData(e.dataContext) == null && files.isNotEmpty()) {
+      project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openVirtualFiles(files)
+      return
+    }
+
     val result = findPsiElement(project, e.dataContext)
     val psiElement = result.first
     val editorPsiFile = result.second
@@ -56,11 +62,8 @@ internal class AnalyzeByteCodeAction :
       return
     }
 
-    val files = CommonDataKeys.VIRTUAL_FILE_ARRAY.getData(e.dataContext)
-    if (files != null) {
-      project
-        .getService(ByteCodeAnalyserOpenClassFileService::class.java)
-        .openVirtualFiles(files.toList())
+    if (files.isNotEmpty()) {
+      project.getService(ByteCodeAnalyserOpenClassFileService::class.java).openVirtualFiles(files)
     }
   }
 
