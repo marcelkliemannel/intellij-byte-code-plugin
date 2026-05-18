@@ -50,7 +50,7 @@ internal class StructureView(classFileContext: ClassFileContext) :
 
   override fun getData(dataId: String): Any? {
     return when {
-      CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.`is`(dataId) -> classFileContext.classFile()
+      CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.`is`(dataId) -> classFileContext.classFile().file
       else -> super.getData(dataId)
     }
   }
