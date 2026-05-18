@@ -5,7 +5,6 @@ import com.intellij.execution.ExecutionTestCase
 import com.intellij.lang.Language
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -372,7 +371,7 @@ class ClassFilesFinderServiceTest {
       val classVirtualFile =
         VirtualFileManager.getInstance()
           .findFileByNioPath(toClassFileInModuleOutputDir(baseFqClassName))
-      val classPsiFile = runReadAction {
+      val classPsiFile = runBlockingReadAction {
         PsiManager.getInstance(project).findFile(classVirtualFile!!)
       }
       val actualResult = classFilesFinderService.findByPsiFiles(listOf(classPsiFile!!))
@@ -391,7 +390,7 @@ class ClassFilesFinderServiceTest {
     ) {
       val sourceFileFromLibrary =
         myExecutionTestCase.getSourceVirtualFileFromLibrary(fileTestVector.relativeSourceFilePath)
-      val sourcePsiFileFromLibrary = runReadAction {
+      val sourcePsiFileFromLibrary = runBlockingReadAction {
         PsiManager.getInstance(project).findFile(sourceFileFromLibrary)
       }
       val actualResult = classFilesFinderService.findByPsiFiles(listOf(sourcePsiFileFromLibrary!!))
@@ -432,7 +431,7 @@ class ClassFilesFinderServiceTest {
         myExecutionTestCase.getClassVirtualFileFromLibrary(
           baseFqClassName.toRelativeFilePath("class")
         )
-      val classPsiFileFromLibrary = runReadAction {
+      val classPsiFileFromLibrary = runBlockingReadAction {
         PsiManager.getInstance(project).findFile(classFileFromLibrary)
       }
       val actualResult = classFilesFinderService.findByPsiFiles(listOf(classPsiFileFromLibrary!!))
@@ -459,7 +458,7 @@ class ClassFilesFinderServiceTest {
     @Test
     fun `Given a PSI file from a light virtual file (which does not have a physical file), When using findByPsiFiles, Then get the expected error`() {
       val lightVirtualFile = LightVirtualFile("Test.java", "class Foo() {}")
-      val lightPsiFile = runReadAction {
+      val lightPsiFile = runBlockingReadAction {
         PsiManager.getInstance(project).findFile(lightVirtualFile)!!
       }
 
@@ -528,7 +527,7 @@ class ClassFilesFinderServiceTest {
         )
       val actualResult =
         classFilesFinderService.findByPsiElements(
-          mapOf(testPsiElement to runReadAction { testPsiElement.containingFile })
+          mapOf(testPsiElement to runBlockingReadAction { testPsiElement.containingFile })
         )
 
       val expectedClassFilesToOpen =
@@ -558,14 +557,14 @@ class ClassFilesFinderServiceTest {
         myExecutionTestCase.getSourceVirtualFileFromLibrary(
           psiElementTestVector.relativeSourceFilePath
         )
-      val sourceFileFromLibraryPsiFile = runReadAction {
+      val sourceFileFromLibraryPsiFile = runBlockingReadAction {
         PsiManager.getInstance(project).findFile(sourceFileFromLibrary)!!
       }
       val testPsiElement =
         psiElementTestVector.psiElementReference.find(sourceFileFromLibraryPsiFile)
       val actualResult =
         classFilesFinderService.findByPsiElements(
-          mapOf(testPsiElement to runReadAction { testPsiElement.containingFile })
+          mapOf(testPsiElement to runBlockingReadAction { testPsiElement.containingFile })
         )
 
       val expectedResult =
@@ -612,14 +611,14 @@ class ClassFilesFinderServiceTest {
         myExecutionTestCase.getClassVirtualFileFromLibrary(
           psiElementTestVector.baseFqClassName.toRelativeFilePath("class")
         )
-      val classFileFromLibraryPsiFile = runReadAction {
+      val classFileFromLibraryPsiFile = runBlockingReadAction {
         PsiManager.getInstance(project).findFile(classFileFromLibrary)!!
       }
       val testPsiElement =
         psiElementTestVector.psiElementReference.find(classFileFromLibraryPsiFile)
       val actualResult =
         classFilesFinderService.findByPsiElements(
-          mapOf(testPsiElement to runReadAction { testPsiElement.containingFile })
+          mapOf(testPsiElement to runBlockingReadAction { testPsiElement.containingFile })
         )
 
       val expectedClassFilesToOpen =
@@ -657,7 +656,7 @@ class ClassFilesFinderServiceTest {
     @Test
     fun `Given a PSI file from a light virtual file (which does not have a physical file), When using findByPsiFiles, Then get the expected error`() {
       val lightVirtualFile = LightVirtualFile("Test.java", "class Foo() { void method() {  } }")
-      val lightPsiFile = runReadAction {
+      val lightPsiFile = runBlockingReadAction {
         PsiManager.getInstance(project).findFile(lightVirtualFile)!!
       }
       val lightPsiElement = PsiMethodReference(listOf("Foo"), "method").find(lightPsiFile)
@@ -778,7 +777,7 @@ class ClassFilesFinderServiceTest {
 
       psiFile.accept(
         recursivelyVisitPsiElement { element ->
-          runReadAction {
+          runBlockingReadAction {
             if (element is KtLambdaExpression || element is PsiLambdaExpression) {
               val parentMethod: PsiNamedElement? =
                 element.getParentOfTypes2<KtNamedFunction, PsiMethod>().asSafely<PsiNamedElement>()
@@ -814,7 +813,7 @@ class ClassFilesFinderServiceTest {
 
       psiFile.accept(
         recursivelyVisitPsiElement { element ->
-          runReadAction {
+          runBlockingReadAction {
             if (
               element is KtNamedFunction &&
                 element.name == methodName &&
@@ -850,7 +849,7 @@ class ClassFilesFinderServiceTest {
 
       psiFile.accept(
         recursivelyVisitPsiElement { element ->
-          runReadAction {
+          runBlockingReadAction {
             if (element is PsiJavaModule) {
               assertThat(result).isNull()
               result = element.exports.find { it.packageName == packageName }
@@ -877,7 +876,7 @@ class ClassFilesFinderServiceTest {
 
       psiFile.accept(
         recursivelyVisitPsiElement { element ->
-          runReadAction {
+          runBlockingReadAction {
             if (element is KtEnumEntry && element.name == valueName) {
               assertThat(result).isNull()
               result = element
@@ -1023,7 +1022,7 @@ class ClassFilesFinderServiceTest {
           .getJarRootForLocalFile(sourcesJar)
           ?.findFile(relativeSourceFilePath.toString())
       assertThat(fileInSourceJar).describedAs(relativeSourceFilePath.toString()).isNotNull()
-      assertThat(runReadAction { LibraryUtil.findLibraryEntry(fileInSourceJar!!, project) })
+      assertThat(runBlockingReadAction { LibraryUtil.findLibraryEntry(fileInSourceJar!!, project) })
         .isNotNull()
       return fileInSourceJar!!
     }
@@ -1031,7 +1030,9 @@ class ClassFilesFinderServiceTest {
     fun getClassVirtualFileFromLibrary(relativeClassFilePath: Path): VirtualFile {
       val fileInClassesJar = findClassVirtualFileFromLibrary(relativeClassFilePath)
       assertThat(fileInClassesJar).describedAs(relativeClassFilePath.toString()).isNotNull()
-      assertThat(runReadAction { LibraryUtil.findLibraryEntry(fileInClassesJar!!, project) })
+      assertThat(
+          runBlockingReadAction { LibraryUtil.findLibraryEntry(fileInClassesJar!!, project) }
+        )
         .isNotNull()
       return fileInClassesJar!!
     }
@@ -1336,6 +1337,7 @@ class ClassFilesFinderServiceTest {
 
   class SourcePsiElementTestVectors : ArgumentsProvider {
 
+    @Suppress("OVERRIDE_DEPRECATION")
     override fun provideArguments(context: ExtensionContext): Stream<out Arguments> =
       myExecutionTestCase.psiElementTestVectors.map { Arguments.of(it) }.stream()
   }
@@ -1345,6 +1347,7 @@ class ClassFilesFinderServiceTest {
 
   class ClassPsiElementTestVectors : ArgumentsProvider {
 
+    @Suppress("OVERRIDE_DEPRECATION")
     override fun provideArguments(context: ExtensionContext): Stream<out Arguments> =
       myExecutionTestCase.psiElementTestVectors
         .filter { !it.sourceFileOnly }
@@ -1357,6 +1360,7 @@ class ClassFilesFinderServiceTest {
 
   class SourceFileTestVectors : ArgumentsProvider {
 
+    @Suppress("OVERRIDE_DEPRECATION")
     override fun provideArguments(context: ExtensionContext): Stream<Arguments> {
       @Suppress("DEPRECATION")
       val filterTestVectors =
@@ -1375,6 +1379,7 @@ class ClassFilesFinderServiceTest {
 
   class ClassFileTestVectors : ArgumentsProvider {
 
+    @Suppress("OVERRIDE_DEPRECATION")
     override fun provideArguments(context: ExtensionContext): Stream<Arguments> {
       val isOnlyNestedClasses = context.tags.contains(ONLY_NON_NESTED_CLASSES_TAG)
       return myExecutionTestCase.fileTestVectors
@@ -1445,12 +1450,24 @@ class ClassFilesFinderServiceTest {
 
           // Using `PsiElement#children` may not include all `PsiComment`
           // elements.
-          var psiChild: PsiElement? = runReadAction { element.firstChild }
+          var psiChild: PsiElement? = runBlockingReadAction { element.firstChild }
           while (psiChild != null) {
             psiChild.accept(recursivelyVisitPsiElement(visitPsiElement))
-            psiChild = runReadAction { psiChild!!.nextSibling }
+            psiChild = runBlockingReadAction { psiChild!!.nextSibling }
           }
         }
       }
   }
+}
+
+private fun <T> runBlockingReadAction(action: () -> T): T {
+  var result: T? = null
+  var initialized = false
+  ApplicationManager.getApplication().runReadAction {
+    result = action()
+    initialized = true
+  }
+  check(initialized)
+  @Suppress("UNCHECKED_CAST")
+  return result as T
 }
