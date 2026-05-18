@@ -12,6 +12,7 @@
 
 ### Fixed
 
+- Fix the "Open Class Files" chooser allowing only one class file
 - Fix "Analyze Current Editor File" silently doing nothing when no processable editor file is open
 - Fix "Analyze Byte Code" processing only one item from some project-view multi-selections
 

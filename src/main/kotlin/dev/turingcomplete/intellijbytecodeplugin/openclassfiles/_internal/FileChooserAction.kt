@@ -22,7 +22,7 @@ internal class FileChooserAction :
 
   override fun execute(project: Project) {
     val descriptor =
-      FileChooserDescriptorFactory.singleFile()
+      FileChooserDescriptorFactory.createMultipleFilesNoJarsDescriptor()
         .withTitle("Open Class Files")
         .withExtensionFilter("class")
     val dialog = FileChooserDialogImpl(descriptor, project)
