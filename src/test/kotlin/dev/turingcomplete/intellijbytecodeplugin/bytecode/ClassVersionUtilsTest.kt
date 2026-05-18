@@ -19,11 +19,21 @@ class ClassVersionUtilsTest {
         .fields
         .filter { it.name.matches(CLASS_VERSION_OPCODE_NAME_PATTERN) }
         .filter { Modifier.isStatic(it.modifiers) && it.type == Int::class.javaPrimitiveType }
-        .map { it.name to it.getInt(null).toByte() }
+        .map { it.name to (it.getInt(null) and 0xFFFF) }
         .filterNot { (_, major) -> major in mappedClassVersions }
         .map { (name, major) -> "$name ($major)" }
 
     assertThat(unmappedOpcodes).isEmpty()
+  }
+
+  @Test
+  fun `Given preview class version, Then major and minor version are shown`() {
+    val previewVersion = Opcodes.V26 or Opcodes.V_PREVIEW
+
+    assertThat(ClassVersionUtils.toMajorMinorString(previewVersion)).isEqualTo("70.65535")
+    assertThat(ClassVersionUtils.toClassVersion(previewVersion)?.specification)
+      .isEqualTo("Java SE 26")
+    assertThat(ClassVersionUtils.isPreviewClassVersion(previewVersion)).isTrue()
   }
 
   // -- Companion Object

@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.newvfs.ArchiveFileSystem
 import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.util.text.DateFormatUtil
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.AccessGroup
+import dev.turingcomplete.intellijbytecodeplugin.bytecode.ClassVersionUtils.isPreviewClassVersion
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.ClassVersionUtils.toClassVersion
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.ClassVersionUtils.toMajorMinorString
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
@@ -103,14 +104,17 @@ internal class ClassStructureNode(
   // -- Private Methods ----------------------------------------------------- //
 
   private fun addClassVersionNode() {
+    val classVersion = toClassVersion(classNode.version)
+    val classVersionSpecification =
+      classVersion?.specification?.let { specification ->
+        if (isPreviewClassVersion(classNode.version)) "$specification, preview"
+        else specification
+      }
     add(
       HtmlTextNode(
         "Class version:",
         toMajorMinorString(classNode.version),
-        postFix =
-          toClassVersion(classNode.version)?.let {
-            "<span class=\"contextHelp\">${it.specification}</span>"
-          },
+        postFix = classVersionSpecification?.let { "<span class=\"contextHelp\">$it</span>" },
         icon = AllIcons.FileTypes.Java,
       )
     )
