@@ -239,10 +239,23 @@ internal class ClassStructureNode(
       { TextNode("Inner classes", AllIcons.Nodes.Class) },
     ) { _, innerClass ->
       ValueNode(
-        displayValue = { ctx -> TypeUtils.toReadableName(innerClass.name, ctx.typeNameRenderMode) },
-        icon = AllIcons.Nodes.Class,
-        goToProvider = GoToProvider.Class(innerClass.name),
-      )
+          displayValue = { ctx -> TypeUtils.toReadableName(innerClass.name, ctx.typeNameRenderMode) },
+          icon = AllIcons.Nodes.Class,
+          goToProvider = GoToProvider.Class(innerClass.name),
+        )
+        .apply {
+          innerClass.outerName?.let { outerName ->
+            add(
+              ValueNode(
+                "Outer class:",
+                { ctx -> TypeUtils.toReadableName(outerName, ctx.typeNameRenderMode) },
+                goToProvider = GoToProvider.Class(outerName),
+              )
+            )
+          }
+          innerClass.innerName?.let { innerName -> add(ValueNode("Inner name:", innerName)) }
+          addAccessNode(innerClass.access, AccessGroup.CLASS)
+        }
     }
   }
 

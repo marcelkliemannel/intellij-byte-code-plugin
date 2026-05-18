@@ -7,6 +7,7 @@
 - Add Support for Java 26 and 27
 - Show preview class file versions in the structure view
 - Show annotation method default values in the structure view
+- Show inner class details in the structure view
 
 ### Changed
 
