@@ -12,6 +12,7 @@ import com.intellij.ui.HyperlinkLabel
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.table.JBTable
+import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import java.awt.Dimension
@@ -208,10 +209,21 @@ internal object UiUtils {
 
   object Panel {
 
-    class NotEditableTextArea(value: String, withoutBorder: Boolean = false) : BorderLayoutPanel() {
+    class NotEditableTextArea(
+      value: String,
+      withoutBorder: Boolean = false,
+      rows: Int = 6,
+      columns: Int = 60,
+    ) : BorderLayoutPanel() {
 
       init {
-        val textArea = JBTextArea(value).apply { isEditable = false }
+        val textArea =
+          JBTextArea(value, rows, columns).apply {
+            isEditable = false
+            lineWrap = true
+            wrapStyleWord = true
+            margin = JBUI.insets(8)
+          }
 
         addToCenter(ScrollPaneFactory.createScrollPane(textArea, withoutBorder))
       }
