@@ -215,6 +215,15 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null) :
     )
   }
 
+  protected fun formatAnnotationValue(value: Any?): String {
+    return when (value) {
+      null -> "null"
+      is Collection<*> -> "[${value.joinToString(", ") { formatAnnotationValue(it) }}]"
+      is Array<*> -> "[${value.joinToString(", ") { formatAnnotationValue(it) }}]"
+      else -> value.toString()
+    }
+  }
+
   // -- Private Methods ----------------------------------------------------- //
 
   private fun createAnnotationNode(
@@ -236,15 +245,6 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null) :
       icon = AllIcons.Nodes.Annotationtype,
       goToProvider = GoToProvider.Class(internalName),
     )
-  }
-
-  private fun formatAnnotationValue(value: Any?): String {
-    return when (value) {
-      null -> "null"
-      is Collection<*> -> "[${value.joinToString(", ") { formatAnnotationValue(it) }}]"
-      is Array<*> -> "[${value.joinToString(", ") { formatAnnotationValue(it) }}]"
-      else -> value.toString()
-    }
   }
 
   // -- Inner Type ---------------------------------------------------------- //
