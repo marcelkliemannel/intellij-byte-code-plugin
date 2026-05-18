@@ -48,6 +48,14 @@ internal class StructureView(classFileContext: ClassFileContext) :
     tree.reload()
   }
 
+  override fun saveState(): Any = tree.saveState()
+
+  override fun restoreState(state: Any) {
+    if (state is StructureTree.State) {
+      tree.restoreState(state)
+    }
+  }
+
   override fun getData(dataId: String): Any? {
     return when {
       CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.`is`(dataId) -> classFileContext.classFile().file
