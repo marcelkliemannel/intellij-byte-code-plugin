@@ -14,6 +14,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.openapi.wm.ToolWindowManager
@@ -24,6 +25,8 @@ import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.content.ContentManager
 import com.intellij.util.ui.EmptyIcon
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
+import dev.turingcomplete.intellijbytecodeplugin.common.ClassFileContext
+import dev.turingcomplete.intellijbytecodeplugin.common.CommonDataKeys
 import dev.turingcomplete.intellijbytecodeplugin.common._internal.AsyncUtils
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles.OpenClassFilesToolWindowAction
 import dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal.AnalyzeByteCodeAction
@@ -51,13 +54,30 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
         byteCodeToolWindow.contentManager.selectedContent?.getUserData(
           ClassFileTab.CLASS_FILE_TAB_KEY
         )
+      val data =
+        if (dataKey.`is`(ClassFileTab.CLASS_FILE_TAB_KEY.toString())) {
+          classFileTab
+        } else {
+          classFileTab?.getData(dataKey.name)
+        } ?: return null
+
+      val typedData: Any? =
+        if (dataKey.`is`(ClassFileTab.CLASS_FILE_TAB_KEY.toString())) {
+          data as? ClassFileTab
+        } else if (CommonDataKeys.CLASS_FILE_CONTEXT_DATA_KEY.`is`(dataKey.name)) {
+          data as? ClassFileContext
+        } else if (CommonDataKeys.ON_ERROR_DATA_KEY.`is`(dataKey.name)) {
+          data.takeIf { it is Function2<*, *, *> }
+        } else if (CommonDataKeys.OPEN_IN_EDITOR_DATA_KEY.`is`(dataKey.name)) {
+          data as? VirtualFile
+        } else if (CommonDataKeys.VALUE.`is`(dataKey.name)) {
+          data as? String
+        } else {
+          data
+        }
+
       @Suppress("UNCHECKED_CAST")
-      return if (dataKey.`is`(ClassFileTab.CLASS_FILE_TAB_KEY.toString())) {
-        classFileTab
-      } else {
-        classFileTab?.getData(dataKey.name)
-      }
-        as T?
+      return typedData as T?
     }
 
     fun openClassFile(classFile: ClassFile, toolWindow: ToolWindow, project: Project) {
