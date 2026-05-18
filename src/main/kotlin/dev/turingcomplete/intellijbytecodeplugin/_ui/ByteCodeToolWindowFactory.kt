@@ -5,8 +5,8 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT
-import com.intellij.openapi.actionSystem.DataMap
 import com.intellij.openapi.actionSystem.DataKey
+import com.intellij.openapi.actionSystem.DataMap
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -56,7 +56,8 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
         classFileTab
       } else {
         classFileTab?.getData(dataKey.name)
-      } as T?
+      }
+        as T?
     }
 
     fun openClassFile(classFile: ClassFile, toolWindow: ToolWindow, project: Project) {
