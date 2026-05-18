@@ -1,32 +1,37 @@
-# Compiled class file
+# Java/Kotlin build outputs
 *.class
+build/
+out/
+.kotlin/
 
-# Log file
-*.log
-
-# Package Files #
+# Packaged artifacts
 *.jar
-!gradle/wrapper/gradle-wrapper.jar
+!/gradle/wrapper/gradle-wrapper.jar
 *.war
 *.ear
 *.zip
 *.tar.gz
 *.rar
 
-# Virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# Logs and JVM diagnostics
+*.log
 hs_err_pid*
-
-# Intellij
-.idea
-/out/
-.intellijPlatform
+replay_pid*
+*.hprof
 
 # Gradle
-.gradle
-/build/
+.gradle/
 gradle-app.setting
-!gradle-wrapper.jar
 .gradletasknamecache
+local.properties
 
-# Mac
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+!testProject/testProject.iml
+.intellijPlatform/
+
+# OS files
 .DS_Store
+Thumbs.db
