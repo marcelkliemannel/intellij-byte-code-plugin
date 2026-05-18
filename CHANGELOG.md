@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- Fix "Analyze Byte Code" processing only one item from some project-view multi-selections
+
 ## 4.4.0 - 2025-12-04
 
 ### Added
