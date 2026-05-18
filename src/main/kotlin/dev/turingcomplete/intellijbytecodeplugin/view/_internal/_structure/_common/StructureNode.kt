@@ -6,7 +6,9 @@ import dev.turingcomplete.intellijbytecodeplugin.bytecode.AccessGroup
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.TypeUtils
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Attribute
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.Type
+import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.TypeReference
 import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.AnnotationNode
+import dev.turingcomplete.intellijbytecodeplugin.org.objectweb.asm.tree.TypeAnnotationNode
 import dev.turingcomplete.intellijbytecodeplugin.tool._internal.SignatureParserTool
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.GoToProvider
 import dev.turingcomplete.intellijbytecodeplugin.view._internal._structure.StructureTreeContext
@@ -238,13 +240,53 @@ internal abstract class StructureNode(val goToProvider: GoToProvider? = null) :
       } ?: ""
     val internalName = Type.getType(annotation.desc).internalName
     return HtmlTextNode(
-      displayValue = { ctx ->
-        TypeUtils.toReadableName(internalName, ctx.typeNameRenderMode) + values
-      },
-      postFix = postFix,
-      icon = AllIcons.Nodes.Annotationtype,
-      goToProvider = GoToProvider.Class(internalName),
-    )
+        displayValue = { ctx ->
+          TypeUtils.toReadableName(internalName, ctx.typeNameRenderMode) + values
+        },
+        postFix = postFix,
+        icon = AllIcons.Nodes.Annotationtype,
+        goToProvider = GoToProvider.Class(internalName),
+      )
+      .apply {
+        if (annotation is TypeAnnotationNode) {
+          addTypeAnnotationMetadata(annotation)
+        }
+      }
+  }
+
+  private fun StructureNode.addTypeAnnotationMetadata(annotation: TypeAnnotationNode) {
+    val typeReference = TypeReference(annotation.typeRef)
+    add(ValueNode("Type reference:", "0x${annotation.typeRef.toUInt().toString(16).uppercase()}"))
+    add(ValueNode("Type target:", typeReferenceSortName(typeReference.sort)))
+    annotation.typePath?.let { typePath -> add(ValueNode("Type path:", typePath.toString())) }
+  }
+
+  private fun typeReferenceSortName(sort: Int): String {
+    return when (sort) {
+      TypeReference.CLASS_TYPE_PARAMETER -> "class type parameter"
+      TypeReference.METHOD_TYPE_PARAMETER -> "method type parameter"
+      TypeReference.CLASS_EXTENDS -> "class extends"
+      TypeReference.CLASS_TYPE_PARAMETER_BOUND -> "class type parameter bound"
+      TypeReference.METHOD_TYPE_PARAMETER_BOUND -> "method type parameter bound"
+      TypeReference.FIELD -> "field"
+      TypeReference.METHOD_RETURN -> "method return"
+      TypeReference.METHOD_RECEIVER -> "method receiver"
+      TypeReference.METHOD_FORMAL_PARAMETER -> "method formal parameter"
+      TypeReference.THROWS -> "throws"
+      TypeReference.LOCAL_VARIABLE -> "local variable"
+      TypeReference.RESOURCE_VARIABLE -> "resource variable"
+      TypeReference.EXCEPTION_PARAMETER -> "exception parameter"
+      TypeReference.INSTANCEOF -> "instanceof"
+      TypeReference.NEW -> "new"
+      TypeReference.CONSTRUCTOR_REFERENCE -> "constructor reference"
+      TypeReference.METHOD_REFERENCE -> "method reference"
+      TypeReference.CAST -> "cast"
+      TypeReference.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT -> "constructor invocation type argument"
+      TypeReference.METHOD_INVOCATION_TYPE_ARGUMENT -> "method invocation type argument"
+      TypeReference.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT -> "constructor reference type argument"
+      TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT -> "method reference type argument"
+      else -> "unknown ($sort)"
+    }
   }
 
   // -- Inner Type ---------------------------------------------------------- //
