@@ -1,8 +1,5 @@
 package dev.turingcomplete.intellijbytecodeplugin.view._internal._structure
 
-import com.intellij.ide.highlighter.ArchiveFileType
-import com.intellij.openapi.application.WriteAction
-import com.intellij.openapi.fileTypes.FileTypeManager
 import dev.turingcomplete.intellijbytecodeplugin.ClassFileConsumerTestCase
 import dev.turingcomplete.intellijbytecodeplugin._ui.DefaultClassFileContext
 import dev.turingcomplete.intellijbytecodeplugin.bytecode.MethodDeclarationUtils
@@ -19,15 +16,15 @@ import org.junit.runner.RunWith
  * into a [StructureTree].
  */
 @RunWith(org.junit.runners.Parameterized::class)
-class StructureTreeTest(@Suppress("unused") testName: String, classFilePath: String) :
-  ClassFileConsumerTestCase(classFilePath) {
+class StructureTreeTest(@Suppress("unused") testName: String, classFilePaths: List<String>) :
+  ClassFileConsumerTestCase(classFilePaths) {
   // -- Companion Object
   // -------------------------------------------------------------------------------------------- //
 
   companion object {
     @org.junit.runners.Parameterized.Parameters(name = "{0}")
     @JvmStatic
-    fun data(): List<Array<String>> = testData()
+    fun data(): List<Array<Any>> = testData()
   }
 
   // -- Properties
@@ -44,9 +41,6 @@ class StructureTreeTest(@Suppress("unused") testName: String, classFilePath: Str
 
   override fun setUp() {
     super.setUp()
-    WriteAction.runAndWait<Throwable> {
-      FileTypeManager.getInstance().associateExtension(ArchiveFileType.INSTANCE, "jmod")
-    }
 
     val defaultStructureTreeContext = StructureTreeContext(project) {}
     structureTreeContextPermutations.add(defaultStructureTreeContext)
@@ -68,10 +62,12 @@ class StructureTreeTest(@Suppress("unused") testName: String, classFilePath: Str
 
   @Test
   fun testFullStructureTreeCreation() {
-    val classFileContext =
-      DefaultClassFileContext(project, ClassFile(classFileAsVirtualFile, null), false)
-    val tree = StructureTree(classFileContext, testRootDisposable)
-    loadAllChildren(tree, tree.getChildren())
+    consumeClassFiles { classFileAsVirtualFile ->
+      val classFileContext =
+        DefaultClassFileContext(project, ClassFile(classFileAsVirtualFile, null), false)
+      val tree = StructureTree(classFileContext, testRootDisposable)
+      loadAllChildren(tree, tree.getChildren())
+    }
   }
 
   private fun loadAllChildren(tree: StructureTree, children: List<TreeNode>?) {

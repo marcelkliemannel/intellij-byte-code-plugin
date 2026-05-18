@@ -7,15 +7,17 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(org.junit.runners.Parameterized::class)
-class ConstantPoolTest(@Suppress("UNUSED_PARAMETER") testName: String, classFilePath: String) :
-  ClassFileConsumerTestCase(classFilePath) {
+class ConstantPoolTest(
+  @Suppress("UNUSED_PARAMETER") testName: String,
+  classFilePaths: List<String>,
+) : ClassFileConsumerTestCase(classFilePaths) {
   // -- Companion Object
   // -------------------------------------------------------------------------------------------- //
 
   companion object {
     @org.junit.runners.Parameterized.Parameters(name = "{0}")
     @JvmStatic
-    fun data(): List<Array<String>> = testData()
+    fun data(): List<Array<Any>> = testData()
   }
 
   // -- Properties
@@ -34,7 +36,9 @@ class ConstantPoolTest(@Suppress("UNUSED_PARAMETER") testName: String, classFile
   fun testCreationOfConstantPool() {
     // We don't have an expected result here to compare with. This test should only
     // ensure, that there are no exceptions.
-    ConstantPool.create(ClassFile(classFileAsVirtualFile))
+    consumeClassFiles { classFileAsVirtualFile ->
+      ConstantPool.create(ClassFile(classFileAsVirtualFile))
+    }
   }
 
   // -- Inner Type
