@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
@@ -14,6 +15,9 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiUtilBase
 import dev.turingcomplete.intellijbytecodeplugin._ui.ByteCodePluginIcons
 import dev.turingcomplete.intellijbytecodeplugin.common.ByteCodeAnalyserOpenClassFileService
+
+private inline fun <T> runReadAction(crossinline action: () -> T): T =
+  ReadAction.computeBlocking<T, RuntimeException> { action() }
 
 internal class AnalyzeByteCodeAction :
   DumbAwareAction(TITLE, null, ByteCodePluginIcons.ACTION_ICON) {
@@ -74,10 +78,10 @@ internal class AnalyzeByteCodeAction :
   private fun findPsiElement(
     project: Project,
     dataContext: DataContext,
-  ): Pair<PsiElement?, PsiFile?> {
+  ): Pair<PsiElement?, PsiFile?> = runReadAction {
     val editor =
       dataContext.getData(CommonDataKeys.EDITOR)
-        ?: return Pair(
+        ?: return@runReadAction Pair(
           dataContext.getData(CommonDataKeys.PSI_ELEMENT),
           dataContext.getData(CommonDataKeys.PSI_FILE),
         )
@@ -86,7 +90,7 @@ internal class AnalyzeByteCodeAction :
     val psiElement =
       findPsiElementInInjectedEditor(editor, editorPsiFile, project)
         ?: editorPsiFile?.findElementAt(editor.caretModel.offset)
-    return Pair(psiElement, editorPsiFile)
+    return@runReadAction Pair(psiElement, editorPsiFile)
   }
 
   private fun findPsiElementInInjectedEditor(
