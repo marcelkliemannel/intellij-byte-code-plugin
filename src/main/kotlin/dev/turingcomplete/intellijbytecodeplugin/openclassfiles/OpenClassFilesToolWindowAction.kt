@@ -9,8 +9,8 @@ import javax.swing.Icon
 import org.jetbrains.annotations.Nls
 
 abstract class OpenClassFilesToolWindowAction(
-  @NlsActions.ActionText val actionTitle: String,
-  @Nls val linkTitle: String,
+  @param:NlsActions.ActionText val actionTitle: String,
+  @param:Nls val linkTitle: String,
   val icon: Icon? = null,
 ) {
   // -- Companion Object ---------------------------------------------------- //

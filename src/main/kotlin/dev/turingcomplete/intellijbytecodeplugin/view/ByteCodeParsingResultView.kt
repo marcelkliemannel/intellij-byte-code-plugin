@@ -233,7 +233,7 @@ abstract class ByteCodeParsingResultView(
 
         add(OpenInEditorAction())
 
-        additionalToolBarActions()?.let { addAll(it) }
+        additionalToolBarActions()?.let { addAll(it.getChildren(null).toList()) }
       }
 
     return ActionManager.getInstance()
