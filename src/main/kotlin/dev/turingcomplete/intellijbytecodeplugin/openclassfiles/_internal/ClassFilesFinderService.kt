@@ -2,7 +2,7 @@ package dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal
 
 import com.intellij.debugger.engine.JVMNameUtil
 import com.intellij.ide.highlighter.JavaClassFileType
-import com.intellij.openapi.application.runReadAction
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.serviceOrNull
 import com.intellij.openapi.fileTypes.FileTypeRegistry
@@ -23,7 +23,6 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.PsiTypeParameter
 import com.intellij.psi.impl.compiled.ClsClassImpl
 import com.intellij.psi.impl.light.LightMethod
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.ClassUtil
 import dev.turingcomplete.intellijbytecodeplugin.common.ClassFile
 import dev.turingcomplete.intellijbytecodeplugin.common.SourceFile
@@ -47,17 +46,16 @@ import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 
+private inline fun <T> runReadAction(crossinline action: () -> T): T =
+  ReadAction.computeBlocking<T, RuntimeException> { action() }
+
 @Service(Service.Level.PROJECT)
 internal class ClassFilesFinderService(private val project: Project) {
   // -- Properties ---------------------------------------------------------- //
 
   private val projectFileIndex by lazy { ProjectFileIndex.getInstance(project) }
   private val classNameProvider by lazy {
-    ClassNameProvider(
-      project,
-      GlobalSearchScope.allScope(project),
-      ClassNameProviderConfigurations.defaultReturningLambdaParentClass(),
-    )
+    ClassNameProvider(ClassNameProviderConfigurations.defaultReturningLambdaParentClass())
   }
 
   // -- Initialization ------------------------------------------------------ //

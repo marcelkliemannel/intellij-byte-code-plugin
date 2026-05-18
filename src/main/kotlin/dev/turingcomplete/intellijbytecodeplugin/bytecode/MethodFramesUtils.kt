@@ -56,6 +56,7 @@ object MethodFramesUtils {
   // -- Private Methods ----------------------------------------------------- //
   // -- Inner Type ---------------------------------------------------------- //
 
+  @ConsistentCopyVisibility
   data class MethodFrames
   internal constructor(val labelsNames: Map<Label, String>, val methodFrames: List<MethodFrame>)
 

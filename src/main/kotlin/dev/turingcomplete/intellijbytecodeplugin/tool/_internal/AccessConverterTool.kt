@@ -248,7 +248,7 @@ internal class AccessConverterTool :
 
     override fun getColumnClass(columnIndex: Int) =
       when (columnIndex) {
-        0 -> java.lang.Boolean::class.java
+        0 -> Boolean::class.java
         else -> String::class.java
       }
 

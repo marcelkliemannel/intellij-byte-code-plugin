@@ -5,8 +5,8 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT
+import com.intellij.openapi.actionSystem.DataMap
 import com.intellij.openapi.actionSystem.DataKey
-import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -42,8 +42,8 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
     const val PLUGIN_NAME = "Byte Code Analyzer"
     const val TOOLBAR_PLACE_PREFIX = "dev.turingcomplete.intellijbytecodeplugin.toolbar"
 
-    fun <T> getData(dataProvider: DataProvider, dataKey: DataKey<T>): Any? {
-      val project = PROJECT.getData(dataProvider) ?: return null
+    fun <T : Any> getData(dataProvider: DataMap, dataKey: DataKey<T>): T? {
+      val project = dataProvider[PROJECT] ?: return null
       val byteCodeToolWindow =
         ToolWindowManager.getInstance(project).getToolWindow(TOOL_WINDOW_ID) ?: return null
 
@@ -51,11 +51,12 @@ internal class ByteCodeToolWindowFactory : ToolWindowFactory, DumbAware {
         byteCodeToolWindow.contentManager.selectedContent?.getUserData(
           ClassFileTab.CLASS_FILE_TAB_KEY
         )
+      @Suppress("UNCHECKED_CAST")
       return if (dataKey.`is`(ClassFileTab.CLASS_FILE_TAB_KEY.toString())) {
         classFileTab
       } else {
-        return classFileTab?.getData(dataKey.name)
-      }
+        classFileTab?.getData(dataKey.name)
+      } as T?
     }
 
     fun openClassFile(classFile: ClassFile, toolWindow: ToolWindow, project: Project) {

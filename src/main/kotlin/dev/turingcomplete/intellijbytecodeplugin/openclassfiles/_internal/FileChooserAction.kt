@@ -1,7 +1,7 @@
 package dev.turingcomplete.intellijbytecodeplugin.openclassfiles._internal
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.fileChooser.FileTypeDescriptor
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.fileChooser.ex.FileChooserDialogImpl
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
@@ -21,7 +21,10 @@ internal class FileChooserAction :
   // -- Exposed Methods ----------------------------------------------------- //
 
   override fun execute(project: Project) {
-    val descriptor = FileTypeDescriptor("Open Class Files", "class")
+    val descriptor =
+      FileChooserDescriptorFactory.singleFile()
+        .withTitle("Open Class Files")
+        .withExtensionFilter("class")
     val dialog = FileChooserDialogImpl(descriptor, project)
     val startPath = project.guessProjectDir() ?: VfsUtil.getUserHomeDir()
     val classFilesToOpen = dialog.choose(project, startPath).filter { it.isValid }.toList()

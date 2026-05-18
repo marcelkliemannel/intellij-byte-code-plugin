@@ -2,6 +2,7 @@ package dev.turingcomplete.intellijbytecodeplugin.common
 
 import com.intellij.openapi.vfs.VirtualFile
 
+@ConsistentCopyVisibility
 data class ClassFile
 internal constructor(val file: VirtualFile, val sourceFile: SourceFile? = null) {
   // -- Properties ---------------------------------------------------------- //

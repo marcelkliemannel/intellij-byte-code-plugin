@@ -40,9 +40,11 @@ internal class DecompiledView(classFileContext: ClassFileContext) :
     } else {
       var errorMessage =
         "The class file could not be decompiled by any of the available decompilers."
-      val decompilerPlugin =
-        PluginManagerCore.getPlugin(PluginId.getId("org.jetbrains.java.decompiler"))
-      if (decompilerPlugin == null || !decompilerPlugin.isEnabled) {
+      val decompilerPluginId = PluginId.getId("org.jetbrains.java.decompiler")
+      if (
+        PluginManagerCore.getPlugin(decompilerPluginId) == null ||
+          PluginManagerCore.isDisabled(decompilerPluginId)
+      ) {
         errorMessage += " Try to install or enable JetBrain's 'Java Bytecode Decompiler' plugin."
       }
       onError(errorMessage, IllegalArgumentException())
